@@ -1,0 +1,6 @@
+{
+  "name": "Apex Syndicate",
+  "description": "Software built to create, edit and innovate. Commercial software marketplace and official distribution platform for Apex Syndicate products.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

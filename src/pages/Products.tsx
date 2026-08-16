@@ -14,6 +14,7 @@ import {
   Sparkles,
   ExternalLink,
   Globe,
+  Clock,
 } from 'lucide-react';
 
 interface ProductsProps {
@@ -232,12 +233,18 @@ export const Products: React.FC<ProductsProps> = ({
                         <ExternalLink className="w-4 h-4" />
                       </button>
 
-                      <button
-                        onClick={() => openDownloadModal(prod)}
-                        className="px-4 py-2.5 rounded-xl bg-[#FF6321] hover:bg-[#FF8A50] text-black font-extrabold text-xs tracking-wider uppercase shadow-md transition-all flex items-center gap-1.5"
-                      >
-                        <Download className="w-3.5 h-3.5" /> GET
-                      </button>
+                      {prod.isComingSoon || !prod.fileUrl ? (
+                        <span className="px-3.5 py-2 rounded-xl bg-white/[0.04] border border-amber-500/30 text-amber-400 text-xs font-bold tracking-wider uppercase flex items-center gap-1.5 cursor-not-allowed">
+                          <Clock className="w-3.5 h-3.5 text-amber-400 animate-spin" /> COMING SOON
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => openDownloadModal(prod)}
+                          className="px-4 py-2.5 rounded-xl bg-[#FF6321] hover:bg-[#FF8A50] text-black font-extrabold text-xs tracking-wider uppercase shadow-md transition-all flex items-center gap-1.5"
+                        >
+                          <Download className="w-3.5 h-3.5" /> DOWNLOAD
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -360,16 +367,22 @@ export const Products: React.FC<ProductsProps> = ({
                 </div>
               </div>
 
-              <button
-                onClick={() => {
-                  const prod = selectedProductDetails;
-                  setSelectedProductDetails(null);
-                  openDownloadModal(prod);
-                }}
-                className="px-8 py-3.5 rounded-xl bg-[#FF6321] hover:bg-[#FF8A50] text-black font-extrabold text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(255,99,33,0.35)]"
-              >
-                REQUEST DOWNLOAD
-              </button>
+              {selectedProductDetails.isComingSoon || !selectedProductDetails.fileUrl ? (
+                <div className="px-6 py-3.5 rounded-xl bg-white/[0.05] border border-amber-500/30 text-amber-300 font-extrabold text-xs uppercase tracking-wider flex items-center gap-2 cursor-not-allowed">
+                  <Clock className="w-4 h-4 text-amber-400 animate-spin" /> COMING SOON • IN DEVELOPMENT
+                </div>
+              ) : (
+                <button
+                  onClick={() => {
+                    const prod = selectedProductDetails;
+                    setSelectedProductDetails(null);
+                    openDownloadModal(prod);
+                  }}
+                  className="px-8 py-3.5 rounded-xl bg-[#FF6321] hover:bg-[#FF8A50] text-black font-extrabold text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(255,99,33,0.35)]"
+                >
+                  DOWNLOAD NOW
+                </button>
+              )}
             </div>
           </div>
         </div>

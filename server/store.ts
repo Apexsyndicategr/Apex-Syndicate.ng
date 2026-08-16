@@ -35,7 +35,8 @@ function getDefaultData(): StoreData {
         'Transfer the exact amount to OPay (8082961817 - APEX SYNDICATE SOFTWARE LTD). Enter your Payment Reference / Transaction ID below so the owner can verify and approve your download.',
       ownerEmail: 'apexsyndicategr@gmail.com',
       launchDateApexEditor: defaultLaunchDate,
-      timerPaused: false,
+      timerPaused: true,
+      timerPausedSecondsRemaining: 14 * 24 * 60 * 60,
       portfolioVideoMode: 'default',
       portfolioVideoUrl: '',
       autoApproveFree: false,
@@ -254,6 +255,25 @@ class Store {
   }
 
   public saveProduct(product: Product): Product {
+    // If a file is uploaded / attached, automatically mark product as ready (not coming soon)
+    if (product.fileUrl && product.fileUrl.trim().length > 0) {
+      product.isComingSoon = false;
+      if (product.releaseDate === 'Coming Soon' || !product.releaseDate) {
+        product.releaseDate = 'Official Release';
+      }
+      if (product.version && product.version.includes('(Coming Soon)')) {
+        product.version = product.version.replace(/\s*\(Coming Soon\)/i, '').trim();
+      }
+
+      // If this is Apex Editor and timer is paused, automatically unpause it as requested!
+      if (product.id === 'apex-editor' && this.data.settings.timerPaused) {
+        this.data.settings.timerPaused = false;
+        this.data.settings.launchDateApexEditor = new Date().toISOString();
+        this.data.settings.timerPausedSecondsRemaining = undefined;
+        console.log('[APEX SYNDICATE] Apex Editor file uploaded! Launch countdown timer automatically unpaused.');
+      }
+    }
+
     const index = this.data.products.findIndex((p) => p.id === product.id);
     if (index >= 0) {
       this.data.products[index] = product;

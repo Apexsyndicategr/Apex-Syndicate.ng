@@ -23,6 +23,7 @@ import {
   uploadPortfolioVideoApi,
 } from '../lib/api';
 import { exportPortfolioVideo } from '../lib/videoExporter';
+import { AiChatMessageContent } from '../components/AiChatMessageContent';
 import {
   LayoutDashboard,
   Package,
@@ -425,8 +426,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     if (!aiSpeechOutput || !('speechSynthesis' in window)) return;
     try {
       window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 1.0;
+      // Clean markdown, code blocks, and symbols for pleasant, concise voice output
+      const cleanText = text
+        .replace(/```[\s\S]*?```/g, 'Code block generated.')
+        .replace(/`([^`]+)`/g, '$1')
+        .replace(/[*#_~]/g, '')
+        .trim();
+      const speakableSummary = cleanText.split('\n')[0].slice(0, 180);
+      const utterance = new SpeechSynthesisUtterance(speakableSummary || 'Task completed boss!');
+      utterance.rate = 1.05;
       utterance.pitch = 1.0;
       window.speechSynthesis.speak(utterance);
     } catch (e: any) {
@@ -664,7 +672,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       if (res.ok && data.fileUrl) {
         setEditProdFileUrl(data.fileUrl);
         setEditProdFileSize(data.size || '150 MB');
-        showToast(`File attached: ${data.filename} (${data.size})`);
+        setEditProdIsComingSoon(false);
+        showToast(`File attached: ${data.filename} (${data.size}) — Product marked READY for download!`);
       } else {
         throw new Error(data.error || 'Upload failed');
       }
@@ -1439,7 +1448,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             <span>{item.timestamp}</span>
                           </div>
 
-                          <p className="whitespace-pre-wrap">{item.text}</p>
+                          {item.sender === 'user' ? (
+                            <p className="whitespace-pre-wrap">{item.text}</p>
+                          ) : (
+                            <AiChatMessageContent content={item.text} />
+                          )}
 
                           {item.logs && item.logs.length > 0 && (
                             <div className="pt-2 border-t border-white/10 space-y-1">
@@ -1473,6 +1486,30 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         Apex AI Helper processing command and executing website changes...
                       </div>
                     )}
+                  </div>
+
+                  {/* Quick Action Suggestion Pills */}
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    {[
+                      { label: '👋 Yoo howfar', prompt: 'Yoo howfar' },
+                      { label: '⏸️ Pause Timer', prompt: 'Pause the launch timer' },
+                      { label: '▶️ Resume Timer', prompt: 'Resume the launch timer' },
+                      { label: '⚡ Reset to 14 Days', prompt: 'Reset timer back to 14 days free' },
+                      { label: '🎬 Remove Video', prompt: 'Remove the portfolio video and set to coming soon' },
+                      { label: '✨ Reset Video', prompt: 'Reset portfolio video to default kinetic reel' },
+                      { label: '💻 Write React Code', prompt: 'Write a modern React hook and component for audio synthesis' },
+                      { label: '🏦 Update Bank', prompt: 'Update bank details to OPay account 8101234567' },
+                    ].map((pill, pIdx) => (
+                      <button
+                        key={pIdx}
+                        type="button"
+                        onClick={() => handleSendAiPrompt(pill.prompt)}
+                        disabled={aiProcessing}
+                        className="px-2.5 py-1 rounded-lg text-[11px] font-mono bg-white/[0.04] hover:bg-[#FF6321]/20 hover:border-[#FF6321]/40 border border-white/10 text-gray-300 hover:text-white transition-all disabled:opacity-50"
+                      >
+                        {pill.label}
+                      </button>
+                    ))}
                   </div>
 
                   {/* Voice Input & Prompt Form Bar */}
@@ -2263,7 +2300,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       <div className="text-white text-xs">Day #{launchPricing.currentDayNumber} of Launch Sequence</div>
                       <div className="text-emerald-400 font-black text-sm uppercase">{launchPricing.phaseName}</div>
                       <div className="text-gray-400 text-[11px]">
-                        Current Price: {(launchPricing.priceInNgn || 0) === 0 ? 'FREE' : `₦${(launchPricing.priceInNgn || 0).toLocaleString()}`}
+                        Current Price: {(launchPricing.currentPrice || 0) === 0 ? 'FREE' : `₦${(launchPricing.currentPrice || 0).toLocaleString()}`}
                       </div>
                     </div>
                   )}
@@ -2804,7 +2841,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         <div
                           key={n.id}
                           className={`p-5 rounded-2xl border flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all ${
-                            !n.read && !n.isRead
+                            !n.read
                               ? 'bg-[#FF6321]/10 border-[#FF6321]/40 text-white'
                               : 'bg-white/[0.03] border-white/5 text-gray-400'
                           }`}
@@ -2841,7 +2878,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                 REJECT
                               </button>
                             )}
-                            {(!n.read && !n.isRead) && (
+                            {!n.read && (
                               <span className="w-2.5 h-2.5 rounded-full bg-[#FF6321] shrink-0" />
                             )}
                           </div>

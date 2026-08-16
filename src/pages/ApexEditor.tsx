@@ -14,6 +14,7 @@ import {
   Code2,
   Maximize2,
   RotateCw,
+  Clock,
 } from 'lucide-react';
 
 interface ApexEditorProps {
@@ -69,13 +70,23 @@ export const ApexEditor: React.FC<ApexEditorProps> = ({
 
           {/* Quick Action CTA Bar */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4">
-            <button
-              onClick={() => openDownloadModal(product)}
-              className="px-8 py-4 rounded-xl bg-[#FF6321] hover:bg-[#FF8A50] text-black font-extrabold text-xs uppercase tracking-widest shadow-[0_10px_30px_rgba(255,99,33,0.35)] transition-all hover:scale-105 flex items-center justify-center gap-2"
-            >
-              <Download className="w-4 h-4" /> REQUEST ACCESS NOW (
-              {launchPricing ? launchPricing.priceDisplay : 'FREE'})
-            </button>
+            {product.isComingSoon || !product.fileUrl ? (
+              <div className="px-8 py-4 rounded-xl bg-white/[0.05] border border-amber-500/40 backdrop-blur-xl text-amber-300 font-extrabold text-xs uppercase tracking-widest shadow-[0_0_20px_rgba(245,158,11,0.15)] flex items-center justify-center gap-2.5">
+                <Clock className="w-4 h-4 text-amber-400 animate-spin" />
+                <span>COMING SOON • IN DEVELOPMENT</span>
+                <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-mono border border-amber-500/40">
+                  {launchPricing ? launchPricing.priceDisplay : 'FREE LAUNCH'}
+                </span>
+              </div>
+            ) : (
+              <button
+                onClick={() => openDownloadModal(product)}
+                className="px-8 py-4 rounded-xl bg-[#FF6321] hover:bg-[#FF8A50] text-black font-extrabold text-xs uppercase tracking-widest shadow-[0_10px_30px_rgba(255,99,33,0.35)] transition-all hover:scale-105 flex items-center justify-center gap-2"
+              >
+                <Download className="w-4 h-4" /> DOWNLOAD APEX EDITOR (
+                {launchPricing ? launchPricing.priceDisplay : 'FREE'})
+              </button>
+            )}
 
             <button
               onClick={() => {

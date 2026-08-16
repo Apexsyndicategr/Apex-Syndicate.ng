@@ -13,6 +13,7 @@ import {
   Globe,
   Flame,
   CheckCircle2,
+  Clock,
 } from 'lucide-react';
 
 interface HomeProps {
@@ -165,13 +166,23 @@ export const Home: React.FC<HomeProps> = ({
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-center gap-4 pt-4">
-                <button
-                  onClick={() => openDownloadModal(apexEditor)}
-                  className="w-full sm:w-auto px-8 py-4 rounded-xl bg-white text-black hover:bg-[#FF6321] hover:text-white font-black text-xs tracking-widest uppercase transition-all duration-300 shadow-xl flex items-center justify-center gap-2"
-                >
-                  <Download className="w-4 h-4" /> DOWNLOAD APEX EDITOR ({launchPricing ? launchPricing.priceDisplay : 'FREE'})
-                </button>
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4">
+                {apexEditor && (apexEditor.isComingSoon || !apexEditor.fileUrl) ? (
+                  <div className="w-full sm:w-auto px-8 py-4 rounded-xl bg-white/[0.05] border border-amber-500/40 backdrop-blur-xl text-amber-300 font-extrabold text-xs tracking-widest uppercase shadow-[0_0_20px_rgba(245,158,11,0.15)] flex items-center justify-center gap-2.5">
+                    <Clock className="w-4 h-4 text-amber-400 animate-spin" />
+                    <span>COMING SOON</span>
+                    <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-mono border border-amber-500/40">
+                      IN PROGRESS
+                    </span>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => apexEditor && openDownloadModal(apexEditor)}
+                    className="w-full sm:w-auto px-8 py-4 rounded-xl bg-white text-black hover:bg-[#FF6321] hover:text-white font-black text-xs tracking-widest uppercase transition-all duration-300 shadow-xl flex items-center justify-center gap-2"
+                  >
+                    <Download className="w-4 h-4" /> DOWNLOAD APEX EDITOR ({launchPricing ? launchPricing.priceDisplay : 'FREE'})
+                  </button>
+                )}
 
                 <button
                   onClick={() => {
@@ -287,12 +298,18 @@ export const Home: React.FC<HomeProps> = ({
                     </a>
                   )}
 
-                  <button
-                    onClick={() => openDownloadModal(prod)}
-                    className="px-4 py-2.5 rounded-xl bg-[#FF6321]/20 hover:bg-[#FF6321] text-[#FF6321] hover:text-black border border-[#FF6321]/40 text-xs font-bold tracking-wider transition-all duration-300 flex items-center gap-1.5"
-                  >
-                    <Download className="w-3.5 h-3.5" /> REQUEST
-                  </button>
+                  {prod.isComingSoon || !prod.fileUrl ? (
+                    <span className="px-3.5 py-2 rounded-xl bg-white/[0.04] border border-amber-500/30 text-amber-400 text-xs font-bold tracking-wider uppercase flex items-center gap-1.5 cursor-not-allowed">
+                      <Clock className="w-3.5 h-3.5 text-amber-400 animate-spin" /> COMING SOON
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => openDownloadModal(prod)}
+                      className="px-4 py-2.5 rounded-xl bg-[#FF6321]/20 hover:bg-[#FF6321] text-[#FF6321] hover:text-black border border-[#FF6321]/40 text-xs font-bold tracking-wider transition-all duration-300 flex items-center gap-1.5"
+                    >
+                      <Download className="w-3.5 h-3.5" /> DOWNLOAD
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

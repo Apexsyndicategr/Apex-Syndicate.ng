@@ -108,27 +108,30 @@ export const PortfolioVideoShowcase: React.FC = () => {
   // Load video configuration from settings / localStorage (Server authoritative)
   const loadVideoConfig = async () => {
     try {
-      // 1. Fetch public server settings (authoritative for all visitors)
+      // 1. Fetch public server settings (authoritative for all visitors across all devices)
       const settings = await fetchPublicSettings();
       
       if (settings.portfolioVideoMode === 'blank') {
         setVideoMode('blank');
         setCustomVideoUrl(null);
+        localStorage.setItem('apex_portfolio_video_mode', 'blank');
+        localStorage.removeItem('apex_custom_portfolio_video');
         return;
       }
 
       if (settings.portfolioVideoMode === 'custom' && settings.portfolioVideoUrl) {
         setVideoMode('custom');
         setCustomVideoUrl(settings.portfolioVideoUrl);
-        // Cache to local storage
         localStorage.setItem('apex_portfolio_video_mode', 'custom');
         localStorage.setItem('apex_custom_portfolio_video', settings.portfolioVideoUrl);
         return;
       }
 
-      if (settings.portfolioVideoMode === 'default') {
+      if (settings.portfolioVideoMode === 'default' || !settings.portfolioVideoUrl) {
         setVideoMode('default');
         setCustomVideoUrl(null);
+        localStorage.setItem('apex_portfolio_video_mode', 'default');
+        localStorage.removeItem('apex_custom_portfolio_video');
         return;
       }
     } catch (e) {
@@ -145,6 +148,9 @@ export const PortfolioVideoShowcase: React.FC = () => {
     } else if (localMode === 'custom' && localUrl && !localUrl.startsWith('blob:')) {
       setVideoMode('custom');
       setCustomVideoUrl(localUrl);
+    } else if (localMode === 'default' || !localUrl) {
+      setVideoMode('default');
+      setCustomVideoUrl(null);
     } else if (localUrl && !localUrl.startsWith('blob:')) {
       setVideoMode('custom');
       setCustomVideoUrl(localUrl);
@@ -161,8 +167,16 @@ export const PortfolioVideoShowcase: React.FC = () => {
       loadVideoConfig();
     };
 
+    // Real-time synchronization across devices and tabs
+    const interval = setInterval(loadVideoConfig, 4000);
     window.addEventListener('apex_video_updated', handleVideoUpdate);
-    return () => window.removeEventListener('apex_video_updated', handleVideoUpdate);
+    window.addEventListener('storage', handleVideoUpdate);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('apex_video_updated', handleVideoUpdate);
+      window.removeEventListener('storage', handleVideoUpdate);
+    };
   }, []);
 
   // Web Audio Kinetic Beat Synthesizer (Fast electronic beat & chord stabs - No Voiceover)

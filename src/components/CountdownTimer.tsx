@@ -143,8 +143,8 @@ export const CountdownTimer: React.FC<CountdownTimerProps> = ({ pricing, onRefre
       {/* Pricing Progression Timeline */}
       <div className="pt-4 border-t border-white/10">
         <div className="text-xs font-semibold text-gray-400 mb-3 flex items-center justify-between">
-          <span>AUTOMATIC LAUNCH TIMELINE:</span>
-          <span className="text-[#FF6321] font-mono">Launch Date: {new Date(pricing.launchDate).toLocaleDateString()}</span>
+          <span className="text-[#FF6321] tracking-wider uppercase font-mono">AUTOMATIC LAUNCH TIMELINE</span>
+          <span className="text-gray-500 font-mono text-[11px]">14-DAY FREE CYCLE</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">

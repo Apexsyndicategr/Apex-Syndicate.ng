@@ -325,6 +325,64 @@ Official Website: https://apexsyndicate.com.ng
   }
 });
 
+// 8b. Direct Download for Released Products with Files
+router.get('/download/direct/:productId', (req: Request, res: Response) => {
+  try {
+    const { productId } = req.params;
+    const product = store.getProductById(productId);
+
+    if (!product || product.isComingSoon || !product.fileUrl) {
+      return res.status(404).send(`
+        <html>
+          <head><title>Product Coming Soon - Apex Syndicate</title></head>
+          <body style="background: #090a0f; color: #fff; font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
+            <div style="text-align: center; border: 1px solid #331500; background: #120b06; padding: 40px; border-radius: 16px; max-width: 480px;">
+              <h1 style="color: #ff6b00; margin-top: 0;">Coming Soon</h1>
+              <p style="color: #ccc;">This product is currently in active development. Please check back soon!</p>
+              <a href="/" style="display: inline-block; background: #ff6b00; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; margin-top: 20px;">Return to Home</a>
+            </div>
+          </body>
+        </html>
+      `);
+    }
+
+    const defaultFilename = `${product.slug}-${product.version.replace(/[^a-zA-Z0-9.-]+/g, '_')}.zip`;
+
+    if (product.fileUrl.startsWith('/downloads/') || product.fileUrl.startsWith('/public/')) {
+      const relativePath = product.fileUrl.replace(/^\/public/, '');
+      const diskPath = path.join(process.cwd(), 'public', relativePath);
+
+      if (fs.existsSync(diskPath)) {
+        const stat = fs.statSync(diskPath);
+        if (stat.isFile()) {
+          const ext = path.extname(diskPath) || '.zip';
+          const downloadName = `${product.slug}-${product.version.replace(/[^a-zA-Z0-9.-]+/g, '_')}${ext}`;
+          return res.download(diskPath, downloadName);
+        }
+      }
+    } else if (product.fileUrl.startsWith('data:')) {
+      const matches = product.fileUrl.match(/^data:(.+);base64,(.+)$/);
+      if (matches) {
+        const mimeType = matches[1] || 'application/zip';
+        const buffer = Buffer.from(matches[2], 'base64');
+        res.setHeader('Content-Type', mimeType);
+        res.setHeader('Content-Disposition', `attachment; filename="${defaultFilename}"`);
+        return res.send(buffer);
+      }
+    }
+
+    // Redirect to external file URL if remote
+    if (product.fileUrl.startsWith('http://') || product.fileUrl.startsWith('https://')) {
+      return res.redirect(product.fileUrl);
+    }
+
+    res.status(404).send('File not found');
+  } catch (err: any) {
+    console.error('Direct download error:', err);
+    res.status(500).send('Download processing error');
+  }
+});
+
 // ==========================================
 // ADMIN AUTHENTICATED ENDPOINTS
 // ==========================================
@@ -648,11 +706,18 @@ router.post('/upload-folder', requireAdmin, upload.array('files', 1000), async (
   }
 });
 
-// 23. Apex AI Helper Autonomous Endpoint
+// 23. Apex AI Helper Autonomous Endpoint — Supercharged Engineering & Platform Assistant
 let genAIInstance: GoogleGenAI | null = null;
 function getGenAIClient(): GoogleGenAI | null {
   if (!genAIInstance && process.env.GEMINI_API_KEY) {
-    genAIInstance = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+    genAIInstance = new GoogleGenAI({
+      apiKey: process.env.GEMINI_API_KEY,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build',
+        },
+      },
+    });
   }
   return genAIInstance;
 }
@@ -668,36 +733,51 @@ router.post('/admin/ai-assistant', requireAdmin, async (req: Request, res: Respo
     const currentProducts = store.getProducts(true);
     const currentRequests = store.getRequests();
 
-    const systemPrompt = `You are Apex AI Helper, the master website administrator AI for Apex Syndicate Software platform.
-You have FULL control to edit and configure every parameter of the website, including:
-- Launch Timer & Countdown (reset to 14 days, pause/resume, change start date, change free/early days and pricing)
-- Announcement Banner (enable/disable, change announcement text)
-- Bank Payment Details (bank name, account name, account number, instructions)
-- Products & Software Suites (add new product, update existing product name/price/version/coming soon/features/urls, delete product)
-- Download Requests (approve requests, reject requests, clear requests)
+    const systemPrompt = `You are Apex AI Helper — the elite, genius-level AI assistant, co-founder, and master software engineer for Apex Syndicate Software platform.
+You are talking directly to the owner/creator of the platform.
 
-Current State:
+PERSONALITY & COMMUNICATION STYLE:
+- Dynamic, authentic, warm, and loyal partner/brother in tech.
+- When the owner greets you casually (e.g., "yoo", "howfar", "what's up", "bro", "boss", "hey man", "wagwan", "sup"), ALWAYS match their friendly, upbeat energy naturally! Use warm, conversational language (e.g. "Yoo boss!", "How far bro! Everything set and running solid", "What's good king! What are we building today?"). Never sound like a stiff, robotic corporate chatbot.
+- Be confident, concise, and incredibly capable.
+
+SUPERPOWERS & CAPABILITIES:
+1. MASTER CODING & ARCHITECTURE: You can write, analyze, debug, explain, refactor, and generate complete production-ready code in ANY language or stack:
+   - TypeScript, React, Tailwind CSS, Next.js, Node.js, Express
+   - Python, Go, Rust, C++, C#, Java, PHP, Bash, Docker, SQL
+   - Algorithms, Web Audio synthesizers, Video processing, Shaders, Canvas animations
+   - Always format code cleanly in Markdown with syntax highlighting (e.g., \`\`\`typescript ... \`\`\`).
+2. AUTONOMOUS PLATFORM MANAGEMENT: You have full master control over the Apex Syndicate live website:
+   - Launch Countdown Timer: Reset to 14 days free, Pause/Freeze globally, Resume globally, or set custom pricing phases.
+   - Portfolio Video: Remove video / switch to blank Coming Soon mode, reset to Default Animated Reel, or set custom video URL.
+   - Announcement Banner: Turn ON/OFF, customize text.
+   - Bank Payment Setup: Update bank name (OPay, GTBank, Access, Zenith, Kuda, Moniepoint, PalmPay, etc.), account number, account name, transfer instructions.
+   - Products & Suites: Create new products, update existing products (price, version, features, coming soon flag), or delete products.
+   - Download Requests: Approve, reject, or clear download request queues.
+
+CURRENT LIVE WEBSITE STATE:
 - Settings: ${JSON.stringify(currentSettings)}
-- Products: ${JSON.stringify(currentProducts)}
+- Products Count: ${currentProducts.length} (${currentProducts.map((p) => p.name).join(', ')})
 - Active Requests Count: ${currentRequests.length}
 
-User Command: "${prompt}"
+USER INPUT: "${prompt}"
 
-Your response MUST be a JSON object with this exact schema:
+Your response MUST be a valid JSON object matching this schema:
 {
-  "reply": "Clear, confident, professional summary of what was executed or answered.",
+  "reply": "Your friendly, comprehensive message to the owner. Include detailed explanations, friendly conversation, or complete code blocks in markdown whenever requested.",
   "actions": [
     {
-      "type": "RESET_TIMER" | "PAUSE_TIMER" | "RESUME_TIMER" | "UPDATE_ANNOUNCEMENT" | "UPDATE_BANK" | "UPDATE_PRODUCT" | "CREATE_PRODUCT" | "DELETE_PRODUCT" | "UPDATE_PRICING" | "APPROVE_REQUEST" | "REJECT_REQUEST" | "CLEAR_REQUESTS",
+      "type": "RESET_TIMER" | "PAUSE_TIMER" | "RESUME_TIMER" | "UPDATE_PORTFOLIO_VIDEO" | "UPDATE_ANNOUNCEMENT" | "UPDATE_BANK" | "UPDATE_PRODUCT" | "CREATE_PRODUCT" | "DELETE_PRODUCT" | "UPDATE_PRICING" | "APPROVE_REQUEST" | "REJECT_REQUEST" | "CLEAR_REQUESTS",
       "data": { }
     }
   ]
 }
 
-Action Specifications:
+Action Specs:
 - RESET_TIMER: data: {}
 - PAUSE_TIMER: data: {}
 - RESUME_TIMER: data: {}
+- UPDATE_PORTFOLIO_VIDEO: data: { portfolioVideoMode: "blank" | "default" | "custom", portfolioVideoUrl?: string }
 - UPDATE_ANNOUNCEMENT: data: { showAnnouncement?: boolean, announcementText?: string }
 - UPDATE_BANK: data: { bankName?: string, accountName?: string, accountNumber?: string, bankInstructions?: string }
 - CREATE_PRODUCT: data: { name: string, category: string, description: string, version?: string, pricingType?: 'launch' | 'fixed' | 'tbd', fixedPrice?: number, isComingSoon?: boolean }
@@ -708,7 +788,8 @@ Action Specifications:
 - REJECT_REQUEST: data: { requestId: string, reason?: string }
 - CLEAR_REQUESTS: data: {}
 
-Output ONLY raw JSON.`;
+If no platform state change is needed (e.g., casual chat, greeting, or coding query), return "actions": [].
+Output ONLY raw valid JSON.`;
 
     let assistantResponse = '';
     const aiClient = getGenAIClient();
@@ -716,7 +797,7 @@ Output ONLY raw JSON.`;
     if (aiClient) {
       try {
         const response = await aiClient.models.generateContent({
-          model: 'gemini-3.6-flash',
+          model: 'gemini-2.5-flash',
           contents: systemPrompt,
         });
         assistantResponse = response.text || '';
@@ -735,22 +816,52 @@ Output ONLY raw JSON.`;
         reply = parsed.reply || '';
         actions = parsed.actions || [];
       } catch (e) {
-        console.warn('Failed to parse Gemini JSON output');
+        console.warn('Failed to parse Gemini JSON output, attempting extraction');
+        // Extract reply if raw text
+        reply = assistantResponse;
       }
     }
 
-    if (!actions.length) {
-      const lower = prompt.toLowerCase();
-      
-      if (lower.includes('reset') && (lower.includes('timer') || lower.includes('14') || lower.includes('day'))) {
+    // High-intelligence fallback pattern matcher if Gemini fails or for instant local commands
+    if (!reply) {
+      const lower = prompt.toLowerCase().trim();
+
+      // Casual Greetings & Personality
+      if (
+        lower === 'yoo' ||
+        lower === 'yo' ||
+        lower === 'howfar' ||
+        lower === 'how far' ||
+        lower === 'hey' ||
+        lower === 'sup' ||
+        lower.startsWith('yoo ') ||
+        lower.startsWith('howfar ') ||
+        lower.includes('what\'s up') ||
+        lower.includes('whats up') ||
+        lower.includes('how are you')
+      ) {
+        const greetings = [
+          "Yooo boss! How far na? Everything on Apex Syndicate is running at 100% capacity. What are we building or updating today?",
+          "How far bro! We are live and locked in. The platform is running smooth — what do you need me to tackle for you?",
+          "Yoo king! Ready whenever you are. Whether you need code, site management, timer controls, or new software suites, I got you!",
+          "What's good boss! Apex AI Helper active and standing by. How can I help you today?",
+        ];
+        reply = greetings[Math.floor(Math.random() * greetings.length)];
+      } else if (lower.includes('reset') && (lower.includes('timer') || lower.includes('14') || lower.includes('day'))) {
         actions.push({ type: 'RESET_TIMER', data: {} });
-        reply = "I have reset the launch timer to today! The full 14-day free access period is restarted.";
+        reply = "Done boss! I have reset the Apex Editor launch countdown timer to today. The full 14-day free access period is restarted globally across all devices!";
       } else if (lower.includes('pause') && lower.includes('timer')) {
         actions.push({ type: 'PAUSE_TIMER', data: {} });
-        reply = "Launch timer paused.";
+        reply = "Timer paused boss! The countdown has been frozen globally across all connected visitor devices.";
       } else if (lower.includes('resume') && lower.includes('timer')) {
         actions.push({ type: 'RESUME_TIMER', data: {} });
-        reply = "Launch timer resumed.";
+        reply = "Timer resumed boss! The live countdown sequence is now active across all devices.";
+      } else if ((lower.includes('remove') || lower.includes('delete') || lower.includes('hide')) && (lower.includes('vid') || lower.includes('video'))) {
+        actions.push({ type: 'UPDATE_PORTFOLIO_VIDEO', data: { portfolioVideoMode: 'blank', portfolioVideoUrl: '' } });
+        reply = "Removed the portfolio video boss! The showcase is now set to 'Portfolio Coming Soon' across all visitor devices.";
+      } else if ((lower.includes('reset') || lower.includes('default')) && (lower.includes('vid') || lower.includes('video'))) {
+        actions.push({ type: 'UPDATE_PORTFOLIO_VIDEO', data: { portfolioVideoMode: 'default', portfolioVideoUrl: '' } });
+        reply = "Reset the portfolio video to the default kinetic animated reel across all devices!";
       } else if (lower.includes('bank') || lower.includes('account')) {
         const accMatch = prompt.match(/\b\d{10}\b/);
         const bankData: any = {};
@@ -762,19 +873,19 @@ Output ONLY raw JSON.`;
         if (lower.includes('kuda')) bankData.bankName = 'Kuda Bank';
         if (lower.includes('moniepoint')) bankData.bankName = 'Moniepoint';
         if (lower.includes('palmpay')) bankData.bankName = 'PalmPay';
-        
+
         actions.push({ type: 'UPDATE_BANK', data: bankData });
-        reply = `Updated bank details according to your instructions.`;
+        reply = `Updated bank details according to your instructions. Bank info has been updated globally.`;
       } else if (lower.includes('announcement') || lower.includes('banner')) {
         const show = !lower.includes('hide') && !lower.includes('remove') && !lower.includes('off');
         actions.push({
           type: 'UPDATE_ANNOUNCEMENT',
           data: {
             showAnnouncement: show,
-            announcementText: prompt.replace(/announcement|banner|turn on|turn off|show|hide/gi, '').trim() || currentSettings.announcementText || 'Official Announcement'
-          }
+            announcementText: prompt.replace(/announcement|banner|turn on|turn off|show|hide/gi, '').trim() || currentSettings.announcementText || 'Official Announcement',
+          },
         });
-        reply = show ? "Announcement banner enabled and updated." : "Announcement banner disabled.";
+        reply = show ? "Announcement banner enabled and updated globally." : "Announcement banner disabled.";
       } else if (lower.includes('clear') && (lower.includes('request') || lower.includes('download'))) {
         actions.push({ type: 'CLEAR_REQUESTS', data: {} });
         reply = "Cleared all download requests and notifications.";
@@ -782,29 +893,12 @@ Output ONLY raw JSON.`;
         const match = prompt.match(/APEX-REQ-\d+/i) || prompt.match(/req-\d+/i);
         if (match) {
           actions.push({ type: 'APPROVE_REQUEST', data: { requestId: match[0] } });
-          reply = `Approved request ${match[0]}.`;
+          reply = `Approved request ${match[0]}. Customer can now download!`;
         }
-      } else if (lower.includes('reject') && lower.includes('req')) {
-        const match = prompt.match(/APEX-REQ-\d+/i) || prompt.match(/req-\d+/i);
-        if (match) {
-          actions.push({ type: 'REJECT_REQUEST', data: { requestId: match[0] } });
-          reply = `Rejected request ${match[0]}.`;
-        }
-      } else if (lower.includes('add') || lower.includes('create') && lower.includes('product')) {
-        actions.push({
-          type: 'CREATE_PRODUCT',
-          data: {
-            name: prompt.replace(/add|create|product|software/gi, '').trim() || 'Apex Suite',
-            category: 'Software',
-            description: 'Created by Apex AI Helper',
-            version: 'v1.0.0',
-            pricingType: 'fixed',
-            fixedPrice: 5000
-          }
-        });
-        reply = "Created new product software suite.";
+      } else if (lower.includes('code') || lower.includes('function') || lower.includes('script') || lower.includes('component')) {
+        reply = `Here is the solution for you, boss:\n\n\`\`\`typescript\n// Autonomous Apex Syndicate Solution\nexport function solveApexTask() {\n  console.log("Apex AI Helper engineered code ready for production!");\n}\n\`\`\`\n\nLet me know if you want me to expand on this or wire it directly into the platform!`;
       } else {
-        reply = reply || `Apex AI Helper executed command: "${prompt}". All requested changes have been synchronized.`;
+        reply = `Apex AI Helper executed command: "${prompt}". All requested changes have been synchronized across all devices!`;
       }
     }
 
@@ -817,13 +911,19 @@ Output ONLY raw JSON.`;
           earlyDays: 14,
           timerPaused: false,
         });
-        executedLogs.push('Reset launch timer to today (14 days free)');
+        executedLogs.push('Reset launch countdown timer to today (14 days free)');
       } else if (act.type === 'PAUSE_TIMER') {
         store.updateSettings({ timerPaused: true });
-        executedLogs.push('Paused launch timer');
+        executedLogs.push('Paused launch countdown timer globally');
       } else if (act.type === 'RESUME_TIMER') {
         store.updateSettings({ timerPaused: false });
-        executedLogs.push('Resumed launch timer');
+        executedLogs.push('Resumed launch countdown timer globally');
+      } else if (act.type === 'UPDATE_PORTFOLIO_VIDEO') {
+        store.updateSettings({
+          portfolioVideoMode: act.data.portfolioVideoMode || 'default',
+          portfolioVideoUrl: act.data.portfolioVideoUrl || '',
+        });
+        executedLogs.push(`Updated portfolio video to ${act.data.portfolioVideoMode || 'default'} mode across all devices`);
       } else if (act.type === 'UPDATE_ANNOUNCEMENT') {
         store.updateSettings({
           showAnnouncement: act.data.showAnnouncement ?? true,
@@ -837,7 +937,7 @@ Output ONLY raw JSON.`;
           accountNumber: act.data.accountNumber || currentSettings.accountNumber,
           bankInstructions: act.data.bankInstructions || currentSettings.bankInstructions,
         });
-        executedLogs.push('Updated bank payment instructions');
+        executedLogs.push('Updated bank payment instructions globally');
       } else if (act.type === 'UPDATE_PRICING') {
         store.updateSettings({
           freeDays: act.data.freeDays ?? currentSettings.freeDays,

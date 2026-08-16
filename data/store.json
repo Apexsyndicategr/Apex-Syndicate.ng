@@ -5,7 +5,9 @@
     "accountNumber": "8082961817",
     "bankInstructions": "Transfer the exact amount to OPay (8082961817 - APEX SYNDICATE SOFTWARE LTD). Enter your Payment Reference / Transaction ID below so the owner can verify and approve your download.",
     "ownerEmail": "apexsyndicategr@gmail.com",
-    "launchDateApexEditor": "2026-08-07T00:00:00.000Z",
+    "launchDateApexEditor": "2026-08-16T18:00:00.000Z",
+    "timerPaused": true,
+    "timerPausedSecondsRemaining": 1209600,
     "autoApproveFree": false,
     "adminPassword": "xxander4325king"
   },

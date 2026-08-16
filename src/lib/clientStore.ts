@@ -66,7 +66,13 @@ export function calculateLaunchPricing(
   if (currentDayNumber > totalEarlyCutoffDays) phaseEndDay = 3650;
 
   const phaseEndTime = launchTime + phaseEndDay * 24 * 60 * 60 * 1000;
-  const secondsRemaining = Math.max(0, Math.floor((phaseEndTime - now) / 1000));
+  let secondsRemaining = Math.max(0, Math.floor((phaseEndTime - now) / 1000));
+
+  if (isPaused) {
+    if (typeof settings?.timerPausedSecondsRemaining === 'number') {
+      secondsRemaining = settings.timerPausedSecondsRemaining;
+    }
+  }
 
   return {
     launchDate: launchDateIso,
@@ -93,6 +99,8 @@ export function getDefaultData(): StoreData {
         'Transfer the exact amount to OPay (8082961817 - APEX SYNDICATE SOFTWARE LTD). Enter your Payment Reference / Transaction ID below so the owner can verify and approve your download.',
       ownerEmail: 'apexsyndicategr@gmail.com',
       launchDateApexEditor: defaultLaunchDate,
+      timerPaused: true,
+      timerPausedSecondsRemaining: 14 * 24 * 60 * 60,
       autoApproveFree: false,
       adminPassword: 'xxander4325king',
     },

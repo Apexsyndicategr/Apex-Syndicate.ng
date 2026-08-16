@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Product, LaunchPricingInfo, OwnerSettings, CustomTab } from './types';
-import { fetchProducts, fetchLaunchPricing, fetchPaymentSettings } from './lib/api';
+import { fetchProducts, fetchLaunchPricing, fetchPaymentSettings, fetchPublicSettings } from './lib/api';
 import { loadClientData } from './lib/clientStore';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { Home } from './pages/Home';
 import { Products } from './pages/Products';
 import { ApexEditor } from './pages/ApexEditor';
+import { GangsterRevolution } from './pages/GangsterRevolution';
 import { About } from './pages/About';
 import { Contact } from './pages/Contact';
 import { CustomerNotifications } from './components/CustomerNotifications';
@@ -38,18 +39,23 @@ export default function App() {
   const [downloadModalOpen, setDownloadModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  // Fetch Public Data with Resilient Client-Side Fallback
+  // Fetch Public Data with Resilient Real-Time Global Synchronization
   const fetchPublicData = async () => {
     try {
-      const [prods, pricing, pay] = await Promise.all([
+      const [prods, pricing, pay, pubSettings] = await Promise.all([
         fetchProducts(),
         fetchLaunchPricing('apex-editor'),
         fetchPaymentSettings(),
+        fetchPublicSettings(),
       ]);
 
       const clientData = loadClientData();
-      setOwnerSettings(clientData.settings);
+      const mergedSettings: OwnerSettings = {
+        ...clientData.settings,
+        ...pubSettings,
+      };
 
+      setOwnerSettings(mergedSettings);
       setProducts(prods);
       setLaunchPricing(pricing);
       setPaymentSettings(pay);
@@ -60,6 +66,26 @@ export default function App() {
 
   useEffect(() => {
     fetchPublicData();
+
+    // Global real-time sync across all connected visitor devices
+    const interval = setInterval(() => {
+      fetchPublicData();
+    }, 4000);
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchPublicData();
+      }
+    };
+
+    window.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', fetchPublicData);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', fetchPublicData);
+    };
   }, []);
 
   // Secret Hotkey Sequence ('6872' or '5') Handler for Owner Portal Password Login
@@ -136,6 +162,7 @@ export default function App() {
   };
 
   const apexEditorProduct = products.find((p) => p.id === 'apex-editor') || products[0] || null;
+  const gangsterRevolutionProduct = products.find((p) => p.id === 'gangster-revolution') || null;
 
   // Selected Custom Tab Content
   const selectedCustomTabId = activeTab.startsWith('custom-')
@@ -195,6 +222,13 @@ export default function App() {
             launchPricing={launchPricing}
             openDownloadModal={handleOpenDownloadModal}
             onRefreshPricing={fetchPublicData}
+          />
+        )}
+
+        {activeTab === 'gangster-revolution' && (
+          <GangsterRevolution
+            product={gangsterRevolutionProduct}
+            openDownloadModal={handleOpenDownloadModal}
           />
         )}
 

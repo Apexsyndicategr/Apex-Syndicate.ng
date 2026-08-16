@@ -7,6 +7,7 @@ import {
   Terminal,
   Bell,
   Sparkles,
+  Gamepad2,
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -32,6 +33,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     id: string;
     label: string;
     highlight?: boolean;
+    isGame?: boolean;
     isNotif?: boolean;
     isCustom?: boolean;
   }
@@ -40,6 +42,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'home', label: 'HOME' },
     { id: 'products', label: 'PRODUCTS' },
     { id: 'apex-editor', label: 'APEX EDITOR', highlight: true },
+    { id: 'gangster-revolution', label: 'GANGSTER REVOLUTION', isGame: true },
     { id: 'about', label: 'ABOUT' },
     { id: 'contact', label: 'CONTACT' },
     { id: 'notifications', label: 'NOTIFICATIONS', isNotif: true },
@@ -91,6 +94,26 @@ export const Navbar: React.FC<NavbarProps> = ({
                     <span className="relative flex h-2 w-2">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF6321] opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF6321]"></span>
+                    </span>
+                  </button>
+                );
+              }
+
+              if (item.isGame) {
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => handleNavClick(item.id)}
+                    className={`relative px-3.5 py-2.5 rounded-xl text-xs font-bold tracking-wider transition-all duration-300 flex items-center gap-2 ${
+                      isActive
+                        ? 'bg-gradient-to-r from-red-600 to-amber-600 text-white shadow-[0_0_20px_rgba(220,38,38,0.5)] border border-red-500/50'
+                        : 'bg-red-950/20 text-red-400 hover:bg-red-950/40 hover:text-red-300 border border-red-500/20'
+                    }`}
+                  >
+                    <Gamepad2 className="w-3.5 h-3.5 text-red-400" />
+                    {item.label}
+                    <span className="px-1.5 py-0.5 text-[9px] bg-red-500/20 text-red-300 font-extrabold rounded border border-red-500/40">
+                      TBD
                     </span>
                   </button>
                 );

@@ -8,6 +8,7 @@ import {
   Bell,
   Sparkles,
   Gamepad2,
+  Play,
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -33,6 +34,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     id: string;
     label: string;
     highlight?: boolean;
+    isDemo?: boolean;
     isGame?: boolean;
     isNotif?: boolean;
     isCustom?: boolean;
@@ -42,6 +44,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'home', label: 'HOME' },
     { id: 'products', label: 'PRODUCTS' },
     { id: 'apex-editor', label: 'APEX EDITOR', highlight: true },
+    { id: 'apex-editor-demo', label: 'APEX EDITOR DEMO', isDemo: true },
     { id: 'gangster-revolution', label: 'GANGSTER REVOLUTION', isGame: true },
     { id: 'about', label: 'ABOUT' },
     { id: 'contact', label: 'CONTACT' },
@@ -94,6 +97,26 @@ export const Navbar: React.FC<NavbarProps> = ({
                     <span className="relative flex h-2 w-2">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF6321] opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF6321]"></span>
+                    </span>
+                  </button>
+                );
+              }
+
+              if (item.isDemo) {
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => handleNavClick(item.id)}
+                    className={`relative px-3.5 py-2.5 rounded-xl text-xs font-bold tracking-wider transition-all duration-300 flex items-center gap-2 ${
+                      isActive
+                        ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-black shadow-[0_0_20px_rgba(245,158,11,0.5)] font-black'
+                        : 'bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 border border-amber-500/30'
+                    }`}
+                  >
+                    <Play className="w-3.5 h-3.5 fill-current" />
+                    {item.label}
+                    <span className="px-1.5 py-0.5 text-[9px] bg-amber-500/20 text-amber-300 font-extrabold rounded border border-amber-500/40">
+                      LIVE
                     </span>
                   </button>
                 );

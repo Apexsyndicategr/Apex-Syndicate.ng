@@ -77,8 +77,16 @@ export async function fetchPublicSettings(): Promise<Partial<OwnerSettings>> {
     announcementText: data.settings.announcementText,
     showAnnouncement: data.settings.showAnnouncement,
     customTabs: data.settings.customTabs,
-    portfolioVideoMode: data.settings.portfolioVideoMode || 'default',
+    portfolioVideoMode: data.settings.portfolioVideoMode || 'blank',
     portfolioVideoUrl: data.settings.portfolioVideoUrl || '',
+    apexEditorDemoUrl: data.settings.apexEditorDemoUrl || '',
+    gangsterRevolutionLaunchDate: data.settings.gangsterRevolutionLaunchDate || 'TBD',
+    gangsterRevolutionStatus: data.settings.gangsterRevolutionStatus || 'PRE-ALPHA BUILD • IN DEVELOPMENT',
+    gangsterSpecs: data.settings.gangsterSpecs || {
+      minOs: 'TBD', minProcessor: 'TBD', minMemory: 'TBD', minGraphics: 'TBD', minDirectX: 'TBD', minStorage: 'TBD',
+      recOs: 'TBD', recProcessor: 'TBD', recMemory: 'TBD', recGraphics: 'TBD', recDirectX: 'TBD', recStorage: 'TBD',
+    },
+    visitorCount: data.settings.visitorCount || 0,
   };
 }
 
@@ -542,4 +550,38 @@ export async function uploadPortfolioVideoApi(
 
   return await res.json();
 }
+
+export async function trackVisitApi(): Promise<{ success: boolean; count: number }> {
+  try {
+    const res = await fetch('/api/track-visit', { method: 'POST' });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (err) {
+    console.warn('Backend track-visit unreachable, incrementing local visitor count');
+  }
+  const data = loadClientData();
+  data.settings.visitorCount = (data.settings.visitorCount || 0) + 1;
+  saveClientData(data);
+  return { success: true, count: data.settings.visitorCount };
+}
+
+export async function resetVisitorCountApi(token: string): Promise<{ success: boolean; count: number }> {
+  try {
+    const res = await fetch('/api/admin/reset-visitor-count', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (err) {
+    console.warn('Backend reset-visitor-count unreachable, resetting locally');
+  }
+  const data = loadClientData();
+  data.settings.visitorCount = 0;
+  saveClientData(data);
+  return { success: true, count: 0 };
+}
+
 

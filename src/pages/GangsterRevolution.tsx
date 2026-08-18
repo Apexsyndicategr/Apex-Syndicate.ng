@@ -1,5 +1,5 @@
 import React from 'react';
-import { Product } from '../types';
+import { Product, OwnerSettings } from '../types';
 import {
   Gamepad2,
   Download,
@@ -22,13 +22,31 @@ import {
 interface GangsterRevolutionProps {
   product: Product | null;
   openDownloadModal: (product: Product) => void;
+  settings?: OwnerSettings;
 }
 
 export const GangsterRevolution: React.FC<GangsterRevolutionProps> = ({
   product,
   openDownloadModal,
+  settings,
 }) => {
   const isComingSoon = Boolean(product ? product.isComingSoon || !product.fileUrl : true);
+  const launchDate = settings?.gangsterRevolutionLaunchDate || 'TBD';
+  const gameStatus = settings?.gangsterRevolutionStatus || 'PRE-ALPHA BUILD • IN DEVELOPMENT';
+  const specs = settings?.gangsterSpecs || {
+    minOs: 'TBD',
+    minProcessor: 'TBD',
+    minMemory: 'TBD',
+    minGraphics: 'TBD',
+    minDirectX: 'TBD',
+    minStorage: 'TBD',
+    recOs: 'TBD',
+    recProcessor: 'TBD',
+    recMemory: 'TBD',
+    recGraphics: 'TBD',
+    recDirectX: 'TBD',
+    recStorage: 'TBD',
+  };
 
   return (
     <div className="space-y-16 pb-24">
@@ -107,11 +125,11 @@ export const GangsterRevolution: React.FC<GangsterRevolutionProps> = ({
                     GANGSTER REVOLUTION LAUNCH SEQUENCE
                   </span>
                   <span className="px-2 py-0.5 rounded bg-red-500/20 text-red-300 text-[10px] uppercase font-mono font-extrabold border border-red-500/40">
-                    STILL IN THE WORKS
+                    {gameStatus}
                   </span>
                 </div>
                 <h3 className="text-xl md:text-2xl font-black text-white tracking-wide mt-1">
-                  OFFICIAL RELEASE LAUNCH WINDOW: <span className="text-amber-400">TBD</span>
+                  OFFICIAL RELEASE LAUNCH WINDOW: <span className="text-amber-400 font-mono">{launchDate}</span>
                 </h3>
               </div>
             </div>
@@ -329,27 +347,27 @@ export const GangsterRevolution: React.FC<GangsterRevolutionProps> = ({
               <div className="space-y-3 text-xs text-gray-300 font-mono">
                 <div className="flex justify-between border-b border-white/5 pb-2">
                   <span className="text-gray-500">OS:</span>
-                  <span className="text-white">Windows 10 64-bit (v21H2+)</span>
+                  <span className="text-white font-bold">{specs.minOs || 'TBD'}</span>
                 </div>
                 <div className="flex justify-between border-b border-white/5 pb-2">
                   <span className="text-gray-500">Processor:</span>
-                  <span className="text-white">Intel Core i5-8400 / AMD Ryzen 5 2600</span>
+                  <span className="text-white font-bold">{specs.minProcessor || 'TBD'}</span>
                 </div>
                 <div className="flex justify-between border-b border-white/5 pb-2">
                   <span className="text-gray-500">Memory:</span>
-                  <span className="text-white">12 GB RAM</span>
+                  <span className="text-white font-bold">{specs.minMemory || 'TBD'}</span>
                 </div>
                 <div className="flex justify-between border-b border-white/5 pb-2">
                   <span className="text-gray-500">Graphics:</span>
-                  <span className="text-white">NVIDIA GTX 1060 6GB / AMD RX 580 8GB</span>
+                  <span className="text-white font-bold">{specs.minGraphics || 'TBD'}</span>
                 </div>
                 <div className="flex justify-between border-b border-white/5 pb-2">
                   <span className="text-gray-500">DirectX:</span>
-                  <span className="text-white">Version 12</span>
+                  <span className="text-white font-bold">{specs.minDirectX || 'TBD'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Storage:</span>
-                  <span className="text-white">25 GB available SSD space</span>
+                  <span className="text-white font-bold">{specs.minStorage || 'TBD'}</span>
                 </div>
               </div>
             </div>
@@ -363,27 +381,27 @@ export const GangsterRevolution: React.FC<GangsterRevolutionProps> = ({
               <div className="space-y-3 text-xs text-gray-300 font-mono">
                 <div className="flex justify-between border-b border-white/5 pb-2">
                   <span className="text-gray-500">OS:</span>
-                  <span className="text-white">Windows 11 64-bit</span>
+                  <span className="text-white font-bold">{specs.recOs || 'TBD'}</span>
                 </div>
                 <div className="flex justify-between border-b border-white/5 pb-2">
                   <span className="text-gray-500">Processor:</span>
-                  <span className="text-white">Intel Core i7-12700K / AMD Ryzen 7 7800X3D</span>
+                  <span className="text-white font-bold">{specs.recProcessor || 'TBD'}</span>
                 </div>
                 <div className="flex justify-between border-b border-white/5 pb-2">
                   <span className="text-gray-500">Memory:</span>
-                  <span className="text-white">16 GB / 32 GB High-Speed DDR5</span>
+                  <span className="text-white font-bold">{specs.recMemory || 'TBD'}</span>
                 </div>
                 <div className="flex justify-between border-b border-white/5 pb-2">
                   <span className="text-gray-500">Graphics:</span>
-                  <span className="text-white">NVIDIA RTX 3070 / RTX 4070 / RX 6800XT</span>
+                  <span className="text-white font-bold">{specs.recGraphics || 'TBD'}</span>
                 </div>
                 <div className="flex justify-between border-b border-white/5 pb-2">
                   <span className="text-gray-500">DirectX:</span>
-                  <span className="text-white">Version 12 Ultimate</span>
+                  <span className="text-white font-bold">{specs.recDirectX || 'TBD'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Storage:</span>
-                  <span className="text-white">25 GB NVMe PCIe Gen4 SSD</span>
+                  <span className="text-white font-bold">{specs.recStorage || 'TBD'}</span>
                 </div>
               </div>
             </div>

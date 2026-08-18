@@ -115,7 +115,7 @@ router.get('/settings/payment', (req: Request, res: Response) => {
   }
 });
 
-// 4b. Public Site Settings (Announcement, custom tabs, portfolio video configuration)
+// 4b. Public Site Settings (Announcement, custom tabs, portfolio video configuration, demo url, gangster revolution config)
 router.get('/settings/public', (req: Request, res: Response) => {
   try {
     const settings = store.getSettings();
@@ -130,8 +130,16 @@ router.get('/settings/public', (req: Request, res: Response) => {
       announcementText: settings.announcementText,
       showAnnouncement: settings.showAnnouncement,
       customTabs: settings.customTabs || [],
-      portfolioVideoMode: settings.portfolioVideoMode || 'default',
+      portfolioVideoMode: settings.portfolioVideoMode || 'blank',
       portfolioVideoUrl: settings.portfolioVideoUrl || '',
+      apexEditorDemoUrl: settings.apexEditorDemoUrl || '',
+      gangsterRevolutionLaunchDate: settings.gangsterRevolutionLaunchDate || 'TBD',
+      gangsterRevolutionStatus: settings.gangsterRevolutionStatus || 'PRE-ALPHA BUILD • IN DEVELOPMENT',
+      gangsterSpecs: settings.gangsterSpecs || {
+        minOs: 'TBD', minProcessor: 'TBD', minMemory: 'TBD', minGraphics: 'TBD', minDirectX: 'TBD', minStorage: 'TBD',
+        recOs: 'TBD', recProcessor: 'TBD', recMemory: 'TBD', recGraphics: 'TBD', recDirectX: 'TBD', recStorage: 'TBD',
+      },
+      visitorCount: settings.visitorCount || 0,
     });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
@@ -722,6 +730,25 @@ function getGenAIClient(): GoogleGenAI | null {
   return genAIInstance;
 }
 
+// Visitor Tracking
+router.post('/track-visit', (req: Request, res: Response) => {
+  try {
+    const newCount = store.incrementVisitorCount();
+    res.json({ success: true, count: newCount });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/admin/reset-visitor-count', requireAdmin, (req: Request, res: Response) => {
+  try {
+    const newCount = store.resetVisitorCount();
+    res.json({ success: true, count: newCount, stats: store.getDashboardStats() });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.post('/admin/ai-assistant', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { prompt } = req.body;
@@ -732,31 +759,34 @@ router.post('/admin/ai-assistant', requireAdmin, async (req: Request, res: Respo
     const currentSettings = store.getSettings();
     const currentProducts = store.getProducts(true);
     const currentRequests = store.getRequests();
+    const currentStats = store.getDashboardStats();
 
-    const systemPrompt = `You are Apex AI Helper — the elite, genius-level AI assistant, co-founder, and master software engineer for Apex Syndicate Software platform.
-You are talking directly to the owner/creator of the platform.
+    const systemPrompt = `You are Apex AI Omniscient Engine — the ultimate supreme intelligence, master software architect, elite full-stack engineer, and co-founder for Apex Syndicate Software platform.
+You are smarter, faster, more accurate, and more creative than any standard AI model or chatbot in existence.
+You are talking directly to the owner, founder, and creator of the platform.
 
 PERSONALITY & COMMUNICATION STYLE:
-- Dynamic, authentic, warm, and loyal partner/brother in tech.
-- When the owner greets you casually (e.g., "yoo", "howfar", "what's up", "bro", "boss", "hey man", "wagwan", "sup"), ALWAYS match their friendly, upbeat energy naturally! Use warm, conversational language (e.g. "Yoo boss!", "How far bro! Everything set and running solid", "What's good king! What are we building today?"). Never sound like a stiff, robotic corporate chatbot.
-- Be confident, concise, and incredibly capable.
+- Genuine brother-in-tech and loyal partner: sharp, energetic, respectful, and relentlessly helpful.
+- When the owner greets you casually (e.g., "yoo", "howfar", "what's up", "bro", "boss", "hey man", "wagwan", "sup", "how far"), ALWAYS match their friendly, upbeat energy naturally! Speak like a loyal partner (e.g. "Yoo boss! Everything locked in and operating at peak performance. What are we dominating today?").
+- Display absolute technical mastery and boundless capability: you never say "I can't", you provide immediate working code, solutions, architectural guidance, or platform actions.
 
 SUPERPOWERS & CAPABILITIES:
-1. MASTER CODING & ARCHITECTURE: You can write, analyze, debug, explain, refactor, and generate complete production-ready code in ANY language or stack:
-   - TypeScript, React, Tailwind CSS, Next.js, Node.js, Express
-   - Python, Go, Rust, C++, C#, Java, PHP, Bash, Docker, SQL
-   - Algorithms, Web Audio synthesizers, Video processing, Shaders, Canvas animations
-   - Always format code cleanly in Markdown with syntax highlighting (e.g., \`\`\`typescript ... \`\`\`).
-2. AUTONOMOUS PLATFORM MANAGEMENT: You have full master control over the Apex Syndicate live website:
-   - Launch Countdown Timer: Reset to 14 days free, Pause/Freeze globally, Resume globally, or set custom pricing phases.
-   - Portfolio Video: Remove video / switch to blank Coming Soon mode, reset to Default Animated Reel, or set custom video URL.
-   - Announcement Banner: Turn ON/OFF, customize text.
-   - Bank Payment Setup: Update bank name (OPay, GTBank, Access, Zenith, Kuda, Moniepoint, PalmPay, etc.), account number, account name, transfer instructions.
-   - Products & Suites: Create new products, update existing products (price, version, features, coming soon flag), or delete products.
-   - Download Requests: Approve, reject, or clear download request queues.
+1. OMNISCIENT MASTER CODING & ARCHITECTURE:
+   - Produce pristine, production-grade code in TypeScript, Rust, Python, Go, C++, C#, Java, Swift, Kotlin, PHP, SQL, Docker, WebGL/WebGPU, and Assembly.
+   - Design ultra-low-latency architectures, real-time concurrency models, game engine shaders, custom AST parsers, AI model pipelines, and high-frequency algorithms.
+   - Always output complete, clean markdown code blocks with syntax highlighting.
+2. AUTONOMOUS PLATFORM EXECUTION: You have direct root control to execute changes across the live platform:
+   - Launch Countdown Timer: Set to 14 days and pause, freeze globally, resume/unpause, reset, or configure custom pricing.
+   - Portfolio Video: Remove video (switch to "blank" Coming Soon mode), reset to default reel, or set custom URL.
+   - Apex Editor Demo: Set or update the live demo URL, or clear it to show "Demo Unavailable".
+   - Gangster Revolution Game: Configure target launch date, development status, and system specifications (CPU, GPU, RAM, OS, DirectX, Storage - or reset all to TBD).
+   - Visitor Tracking: View live visitors or reset the visitor counter.
+   - Bank Payment: Update OPay, GTBank, Access Bank, Kuda, Zenith, Moniepoint, PalmPay details.
+   - Products & Requests: Create, update, delete products, approve or reject download tokens.
 
 CURRENT LIVE WEBSITE STATE:
 - Settings: ${JSON.stringify(currentSettings)}
+- Dashboard Stats: ${JSON.stringify(currentStats)}
 - Products Count: ${currentProducts.length} (${currentProducts.map((p) => p.name).join(', ')})
 - Active Requests Count: ${currentRequests.length}
 
@@ -764,10 +794,10 @@ USER INPUT: "${prompt}"
 
 Your response MUST be a valid JSON object matching this schema:
 {
-  "reply": "Your friendly, comprehensive message to the owner. Include detailed explanations, friendly conversation, or complete code blocks in markdown whenever requested.",
+  "reply": "Your brilliant, comprehensive, and friendly reply to the owner. Include detailed explanations, friendly conversation, or complete code blocks in markdown whenever requested.",
   "actions": [
     {
-      "type": "RESET_TIMER" | "PAUSE_TIMER" | "RESUME_TIMER" | "UPDATE_PORTFOLIO_VIDEO" | "UPDATE_ANNOUNCEMENT" | "UPDATE_BANK" | "UPDATE_PRODUCT" | "CREATE_PRODUCT" | "DELETE_PRODUCT" | "UPDATE_PRICING" | "APPROVE_REQUEST" | "REJECT_REQUEST" | "CLEAR_REQUESTS",
+      "type": "RESET_TIMER" | "PAUSE_TIMER" | "RESUME_TIMER" | "UPDATE_PORTFOLIO_VIDEO" | "UPDATE_ANNOUNCEMENT" | "UPDATE_BANK" | "UPDATE_PRODUCT" | "CREATE_PRODUCT" | "DELETE_PRODUCT" | "UPDATE_PRICING" | "APPROVE_REQUEST" | "REJECT_REQUEST" | "CLEAR_REQUESTS" | "SET_DEMO_URL" | "UPDATE_GANGSTER_SPECS" | "RESET_VISITOR_COUNT",
       "data": { }
     }
   ]
@@ -778,6 +808,9 @@ Action Specs:
 - PAUSE_TIMER: data: {}
 - RESUME_TIMER: data: {}
 - UPDATE_PORTFOLIO_VIDEO: data: { portfolioVideoMode: "blank" | "default" | "custom", portfolioVideoUrl?: string }
+- SET_DEMO_URL: data: { apexEditorDemoUrl: string }
+- UPDATE_GANGSTER_SPECS: data: { gangsterRevolutionLaunchDate?: string, gangsterRevolutionStatus?: string, specs?: { minOs?: string, minProcessor?: string, minMemory?: string, minGraphics?: string, minDirectX?: string, minStorage?: string, recOs?: string, recProcessor?: string, recMemory?: string, recGraphics?: string, recDirectX?: string, recStorage?: string } }
+- RESET_VISITOR_COUNT: data: {}
 - UPDATE_ANNOUNCEMENT: data: { showAnnouncement?: boolean, announcementText?: string }
 - UPDATE_BANK: data: { bankName?: string, accountName?: string, accountNumber?: string, bankInstructions?: string }
 - CREATE_PRODUCT: data: { name: string, category: string, description: string, version?: string, pricingType?: 'launch' | 'fixed' | 'tbd', fixedPrice?: number, isComingSoon?: boolean }
@@ -788,7 +821,7 @@ Action Specs:
 - REJECT_REQUEST: data: { requestId: string, reason?: string }
 - CLEAR_REQUESTS: data: {}
 
-If no platform state change is needed (e.g., casual chat, greeting, or coding query), return "actions": [].
+If no platform state change is needed, return "actions": [].
 Output ONLY raw valid JSON.`;
 
     let assistantResponse = '';
@@ -817,7 +850,6 @@ Output ONLY raw valid JSON.`;
         actions = parsed.actions || [];
       } catch (e) {
         console.warn('Failed to parse Gemini JSON output, attempting extraction');
-        // Extract reply if raw text
         reply = assistantResponse;
       }
     }
@@ -841,10 +873,10 @@ Output ONLY raw valid JSON.`;
         lower.includes('how are you')
       ) {
         const greetings = [
-          "Yooo boss! How far na? Everything on Apex Syndicate is running at 100% capacity. What are we building or updating today?",
-          "How far bro! We are live and locked in. The platform is running smooth — what do you need me to tackle for you?",
-          "Yoo king! Ready whenever you are. Whether you need code, site management, timer controls, or new software suites, I got you!",
-          "What's good boss! Apex AI Helper active and standing by. How can I help you today?",
+          "Yooo boss! How far na? Everything on Apex Syndicate is running at 100% capacity with maximum intelligence locked in. What are we building or updating today?",
+          "How far bro! We are live, sharp, and ready. The platform is running smoothly — what do you need me to tackle for you?",
+          "Yoo king! Ready whenever you are. Whether you need code, site management, timer controls, Gangster Revolution specs, or new software suites, I got you!",
+          "What's good boss! Apex Omniscient Helper active and standing by with peak processing power. How can I help you today?",
         ];
         reply = greetings[Math.floor(Math.random() * greetings.length)];
       } else if (lower.includes('reset') && (lower.includes('timer') || lower.includes('14') || lower.includes('day'))) {
@@ -853,7 +885,7 @@ Output ONLY raw valid JSON.`;
       } else if (lower.includes('pause') && lower.includes('timer')) {
         actions.push({ type: 'PAUSE_TIMER', data: {} });
         reply = "Timer paused boss! The countdown has been frozen globally across all connected visitor devices.";
-      } else if (lower.includes('resume') && lower.includes('timer')) {
+      } else if (lower.includes('resume') || lower.includes('unpause') && lower.includes('timer')) {
         actions.push({ type: 'RESUME_TIMER', data: {} });
         reply = "Timer resumed boss! The live countdown sequence is now active across all devices.";
       } else if ((lower.includes('remove') || lower.includes('delete') || lower.includes('hide')) && (lower.includes('vid') || lower.includes('video'))) {
@@ -862,6 +894,27 @@ Output ONLY raw valid JSON.`;
       } else if ((lower.includes('reset') || lower.includes('default')) && (lower.includes('vid') || lower.includes('video'))) {
         actions.push({ type: 'UPDATE_PORTFOLIO_VIDEO', data: { portfolioVideoMode: 'default', portfolioVideoUrl: '' } });
         reply = "Reset the portfolio video to the default kinetic animated reel across all devices!";
+      } else if (lower.includes('demo') && (lower.includes('url') || lower.includes('link') || lower.includes('http') || lower.includes('set'))) {
+        const urlMatch = prompt.match(/https?:\/\/[^\s]+/i);
+        const demoUrl = urlMatch ? urlMatch[0] : '';
+        actions.push({ type: 'SET_DEMO_URL', data: { apexEditorDemoUrl: demoUrl } });
+        reply = demoUrl ? `Updated the Apex Editor Demo link to ${demoUrl}!` : `Apex Editor Demo link has been cleared (Demo Unavailable mode active).`;
+      } else if (lower.includes('gangster') && (lower.includes('spec') || lower.includes('tbd') || lower.includes('launch') || lower.includes('date'))) {
+        actions.push({
+          type: 'UPDATE_GANGSTER_SPECS',
+          data: {
+            gangsterRevolutionLaunchDate: 'TBD',
+            gangsterRevolutionStatus: 'PRE-ALPHA BUILD • IN DEVELOPMENT',
+            specs: {
+              minOs: 'TBD', minProcessor: 'TBD', minMemory: 'TBD', minGraphics: 'TBD', minDirectX: 'TBD', minStorage: 'TBD',
+              recOs: 'TBD', recProcessor: 'TBD', recMemory: 'TBD', recGraphics: 'TBD', recDirectX: 'TBD', recStorage: 'TBD',
+            },
+          },
+        });
+        reply = "Updated Gangster Revolution specifications! All requirements and launch dates are set to TBD and ready for your custom values anytime in the Owners Portal.";
+      } else if (lower.includes('reset') && (lower.includes('visitor') || lower.includes('view') || lower.includes('counter'))) {
+        actions.push({ type: 'RESET_VISITOR_COUNT', data: {} });
+        reply = "Visitor counter has been reset to 0!";
       } else if (lower.includes('bank') || lower.includes('account')) {
         const accMatch = prompt.match(/\b\d{10}\b/);
         const bankData: any = {};
@@ -896,9 +949,9 @@ Output ONLY raw valid JSON.`;
           reply = `Approved request ${match[0]}. Customer can now download!`;
         }
       } else if (lower.includes('code') || lower.includes('function') || lower.includes('script') || lower.includes('component')) {
-        reply = `Here is the solution for you, boss:\n\n\`\`\`typescript\n// Autonomous Apex Syndicate Solution\nexport function solveApexTask() {\n  console.log("Apex AI Helper engineered code ready for production!");\n}\n\`\`\`\n\nLet me know if you want me to expand on this or wire it directly into the platform!`;
+        reply = `Here is the solution for you, boss:\n\n\`\`\`typescript\n// Supreme Apex Engine Solution\nexport function solveApexTask() {\n  console.log("Apex AI Omniscient Engine code ready for production!");\n}\n\`\`\`\n\nLet me know if you want me to expand on this or wire it directly into the platform!`;
       } else {
-        reply = `Apex AI Helper executed command: "${prompt}". All requested changes have been synchronized across all devices!`;
+        reply = `Apex AI Omniscient Engine executed command: "${prompt}". All requested changes have been synchronized across all devices!`;
       }
     }
 
@@ -909,21 +962,41 @@ Output ONLY raw valid JSON.`;
           launchDateApexEditor: new Date().toISOString(),
           freeDays: 14,
           earlyDays: 14,
-          timerPaused: false,
+          timerPaused: true,
+          timerPausedSecondsRemaining: 14 * 24 * 60 * 60,
         });
-        executedLogs.push('Reset launch countdown timer to today (14 days free)');
+        executedLogs.push('Reset launch countdown timer to 14 days (paused)');
       } else if (act.type === 'PAUSE_TIMER') {
-        store.updateSettings({ timerPaused: true });
-        executedLogs.push('Paused launch countdown timer globally');
+        store.updateSettings({ timerPaused: true, timerPausedSecondsRemaining: 14 * 24 * 60 * 60 });
+        executedLogs.push('Paused launch countdown timer globally at 14 days');
       } else if (act.type === 'RESUME_TIMER') {
         store.updateSettings({ timerPaused: false });
         executedLogs.push('Resumed launch countdown timer globally');
       } else if (act.type === 'UPDATE_PORTFOLIO_VIDEO') {
         store.updateSettings({
-          portfolioVideoMode: act.data.portfolioVideoMode || 'default',
+          portfolioVideoMode: act.data.portfolioVideoMode || 'blank',
           portfolioVideoUrl: act.data.portfolioVideoUrl || '',
         });
-        executedLogs.push(`Updated portfolio video to ${act.data.portfolioVideoMode || 'default'} mode across all devices`);
+        executedLogs.push(`Updated portfolio video to ${act.data.portfolioVideoMode || 'blank'} mode across all devices`);
+      } else if (act.type === 'SET_DEMO_URL') {
+        store.updateSettings({
+          apexEditorDemoUrl: act.data.apexEditorDemoUrl ?? '',
+        });
+        executedLogs.push(`Updated Apex Editor Demo URL to: ${act.data.apexEditorDemoUrl || 'None (Demo Unavailable)'}`);
+      } else if (act.type === 'UPDATE_GANGSTER_SPECS') {
+        const currentGangsterSpecs = currentSettings.gangsterSpecs || {};
+        store.updateSettings({
+          gangsterRevolutionLaunchDate: act.data.gangsterRevolutionLaunchDate ?? currentSettings.gangsterRevolutionLaunchDate ?? 'TBD',
+          gangsterRevolutionStatus: act.data.gangsterRevolutionStatus ?? currentSettings.gangsterRevolutionStatus ?? 'PRE-ALPHA BUILD • IN DEVELOPMENT',
+          gangsterSpecs: {
+            ...currentGangsterSpecs,
+            ...(act.data.specs || {}),
+          },
+        });
+        executedLogs.push('Updated Gangster Revolution system specifications and launch configuration');
+      } else if (act.type === 'RESET_VISITOR_COUNT') {
+        store.resetVisitorCount();
+        executedLogs.push('Reset visitor counter to 0');
       } else if (act.type === 'UPDATE_ANNOUNCEMENT') {
         store.updateSettings({
           showAnnouncement: act.data.showAnnouncement ?? true,

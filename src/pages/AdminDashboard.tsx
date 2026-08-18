@@ -9,6 +9,7 @@ import {
   LaunchPricingInfo,
   ProductCategory,
   CustomTab,
+  GangsterSpecs,
 } from '../types';
 import {
   fetchAdminDashboard,
@@ -21,6 +22,7 @@ import {
   fetchLaunchPricing,
   sendAiAssistantPrompt,
   uploadPortfolioVideoApi,
+  resetVisitorCountApi,
 } from '../lib/api';
 import { exportPortfolioVideo } from '../lib/videoExporter';
 import { AiChatMessageContent } from '../components/AiChatMessageContent';
@@ -64,6 +66,7 @@ import {
   Wand2,
   Lock,
   Key,
+  Gamepad2,
 } from 'lucide-react';
 
 interface AdminDashboardProps {
@@ -158,6 +161,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [customTabsList, setCustomTabsList] = useState<CustomTab[]>([]);
   const [newTabLabel, setNewTabLabel] = useState('');
   const [newTabContent, setNewTabContent] = useState('');
+
+  // Live Visitor Counter & Apex Demo & Gangster Revolution Settings
+  const [visitorCount, setVisitorCount] = useState<number>(0);
+  const [apexEditorDemoUrl, setApexEditorDemoUrl] = useState<string>('');
+  const [gangsterRevolutionLaunchDate, setGangsterRevolutionLaunchDate] = useState<string>('TBD');
+  const [gangsterRevolutionStatus, setGangsterRevolutionStatus] = useState<string>('PRE-ALPHA BUILD • IN DEVELOPMENT');
+  const [gangsterSpecs, setGangsterSpecs] = useState<GangsterSpecs>({
+    minOs: 'TBD',
+    minProcessor: 'TBD',
+    minMemory: 'TBD',
+    minGraphics: 'TBD',
+    minDirectX: 'TBD',
+    minStorage: 'TBD',
+    recOs: 'TBD',
+    recProcessor: 'TBD',
+    recMemory: 'TBD',
+    recGraphics: 'TBD',
+    recDirectX: 'TBD',
+    recStorage: 'TBD',
+  });
 
   // Owner Portfolio Showcase Video Controls State & Handlers
   const [portfolioVideoMode, setPortfolioVideoMode] = useState<'default' | 'custom' | 'blank'>('default');
@@ -527,6 +550,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
       if (data.settings) {
         setSettings(data.settings);
+        setVisitorCount(data.stats?.totalVisitors ?? data.settings?.visitorCount ?? 0);
+        setApexEditorDemoUrl(data.settings.apexEditorDemoUrl || '');
+        setGangsterRevolutionLaunchDate(data.settings.gangsterRevolutionLaunchDate || 'TBD');
+        setGangsterRevolutionStatus(data.settings.gangsterRevolutionStatus || 'PRE-ALPHA BUILD • IN DEVELOPMENT');
+        if (data.settings.gangsterSpecs) {
+          setGangsterSpecs({
+            minOs: data.settings.gangsterSpecs.minOs || 'TBD',
+            minProcessor: data.settings.gangsterSpecs.minProcessor || 'TBD',
+            minMemory: data.settings.gangsterSpecs.minMemory || 'TBD',
+            minGraphics: data.settings.gangsterSpecs.minGraphics || 'TBD',
+            minDirectX: data.settings.gangsterSpecs.minDirectX || 'TBD',
+            minStorage: data.settings.gangsterSpecs.minStorage || 'TBD',
+            recOs: data.settings.gangsterSpecs.recOs || 'TBD',
+            recProcessor: data.settings.gangsterSpecs.recProcessor || 'TBD',
+            recMemory: data.settings.gangsterSpecs.recMemory || 'TBD',
+            recGraphics: data.settings.gangsterSpecs.recGraphics || 'TBD',
+            recDirectX: data.settings.gangsterSpecs.recDirectX || 'TBD',
+            recStorage: data.settings.gangsterSpecs.recStorage || 'TBD',
+          });
+        }
         setBankName(data.settings.bankName);
         setAccountName(data.settings.accountName);
         setAccountNumber(data.settings.accountNumber);
@@ -907,6 +950,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       announcementText,
       showAnnouncement,
       customTabs: customTabsList,
+      apexEditorDemoUrl,
+      gangsterRevolutionLaunchDate,
+      gangsterRevolutionStatus,
+      gangsterSpecs,
     };
 
     if (launchDateStr) {
@@ -915,12 +962,48 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
     try {
       await updateSettingsApi(payload, token);
-      showToast('Owner settings & launch timer updated successfully!');
+      showToast('Owner settings, demo URL & specs updated successfully across all devices!');
       fetchDashboardData();
       if (onDataChanged) onDataChanged();
     } catch (err) {
       showToast('Error saving settings.');
     }
+  };
+
+  // Handle Reset Visitor Counter
+  const handleResetVisitorCount = async () => {
+    try {
+      const res = await resetVisitorCountApi(token);
+      setVisitorCount(0);
+      if (stats) setStats({ ...stats, totalVisitors: 0 });
+      showToast('Visitor traffic counter reset to 0!');
+      fetchDashboardData();
+      if (onDataChanged) onDataChanged();
+    } catch (err) {
+      showToast('Error resetting visitor count.');
+    }
+  };
+
+  // Handle Reset Gangster Specs to TBD
+  const handleResetGangsterSpecsToTbd = () => {
+    const tbdSpecs: GangsterSpecs = {
+      minOs: 'TBD',
+      minProcessor: 'TBD',
+      minMemory: 'TBD',
+      minGraphics: 'TBD',
+      minDirectX: 'TBD',
+      minStorage: 'TBD',
+      recOs: 'TBD',
+      recProcessor: 'TBD',
+      recMemory: 'TBD',
+      recGraphics: 'TBD',
+      recDirectX: 'TBD',
+      recStorage: 'TBD',
+    };
+    setGangsterSpecs(tbdSpecs);
+    setGangsterRevolutionLaunchDate('TBD');
+    setGangsterRevolutionStatus('PRE-ALPHA BUILD • IN DEVELOPMENT');
+    showToast('Gangster Revolution specifications & launch date set to TBD (click Save Settings to publish).');
   };
 
   // Handle Reset Timer to Today (Restart 14-Day Free Period)
@@ -930,7 +1013,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     setLaunchDateStr(todayStr);
     setFreeDays(14);
     setEarlyDays(14);
-    setTimerPaused(false);
+    setTimerPaused(true);
 
     try {
       await updateSettingsApi(
@@ -938,11 +1021,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           launchDateApexEditor: todayIso,
           freeDays: 14,
           earlyDays: 14,
-          timerPaused: false,
+          timerPaused: true,
+          timerPausedSecondsRemaining: 14 * 24 * 60 * 60,
         },
         token
       );
-      showToast('🚀 Launch timer reset to today! Restarted full 14-day free period.');
+      showToast('🚀 Launch timer set to 14 days and paused! Unpause whenever you are ready.');
       fetchDashboardData();
       if (onDataChanged) onDataChanged();
     } catch (err) {
@@ -1149,7 +1233,30 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             {/* TAB 1: OVERVIEW */}
             {activeTab === 'overview' && (
               <div className="space-y-8 animate-fadeIn">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+                  {/* Visitor Analytics Card */}
+                  <div className="p-6 rounded-[28px] bg-white/[0.03] backdrop-blur-xl border border-amber-500/40 space-y-2 shadow-[0_0_25px_rgba(245,158,11,0.15)] flex flex-col justify-between">
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-amber-400 uppercase font-mono font-bold flex items-center gap-1.5">
+                          <Globe className="w-3.5 h-3.5 text-amber-400" /> LIVE VISITORS
+                        </span>
+                        <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+                      </div>
+                      <div className="text-3xl font-black text-white font-mono">
+                        {(stats?.totalVisitors ?? visitorCount ?? 0).toLocaleString()}
+                      </div>
+                      <div className="text-[10px] text-gray-400 font-mono">Total tracked site visits</div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleResetVisitorCount}
+                      className="mt-2 w-full py-1.5 px-2.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-mono font-bold uppercase flex items-center justify-center gap-1.5 transition-all"
+                    >
+                      <RotateCcw className="w-3 h-3" /> RESET TO 0
+                    </button>
+                  </div>
+
                   <div className="p-6 rounded-[28px] bg-white/[0.03] backdrop-blur-xl border border-white/10 space-y-2">
                     <div className="text-xs text-gray-500 uppercase font-mono font-bold">TOTAL REQUESTS</div>
                     <div className="text-3xl font-black text-white">{stats?.totalRequests || 0}</div>
@@ -2312,6 +2419,238 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     SAVE LAUNCH & PRICING CONFIGURATION
                   </button>
                 </form>
+
+                {/* APEX EDITOR DEMO CONFIGURATION */}
+                <div className="pt-6 border-t border-white/10 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-black text-white uppercase tracking-wider flex items-center gap-2">
+                        <Play className="w-4 h-4 text-amber-400 fill-current" /> APEX EDITOR DEMO LINK CONFIGURATION
+                      </h3>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        Set the destination URL for the "APEX EDITOR DEMO" tab. When left empty, visitors see "DEMO UNAVAILABLE".
+                      </p>
+                    </div>
+                    {apexEditorDemoUrl ? (
+                      <span className="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 font-mono text-[10px] uppercase font-bold border border-emerald-500/40">
+                        LINK ACTIVE
+                      </span>
+                    ) : (
+                      <span className="px-2.5 py-1 rounded-lg bg-rose-500/20 text-rose-300 font-mono text-[10px] uppercase font-bold border border-rose-500/40">
+                        DEMO UNAVAILABLE
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="block text-gray-300 font-bold uppercase text-xs">
+                      Live Demo Web URL / Domain
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={apexEditorDemoUrl}
+                        onChange={(e) => setApexEditorDemoUrl(e.target.value)}
+                        placeholder="e.g. https://demo.apexsyndicate.com.ng or https://editor.apex.io"
+                        className="flex-1 px-4 py-3 rounded-xl bg-black/60 border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-amber-400"
+                      />
+                      {apexEditorDemoUrl && (
+                        <a
+                          href={apexEditorDemoUrl.startsWith('http') ? apexEditorDemoUrl : `https://${apexEditorDemoUrl}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-4 py-3 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold uppercase flex items-center gap-1.5"
+                        >
+                          TEST
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* GANGSTER REVOLUTION GAME LAUNCH & SPECS CONFIGURATION */}
+                <div className="pt-6 border-t border-white/10 space-y-6">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                      <h3 className="text-lg font-black text-white uppercase tracking-wider flex items-center gap-2">
+                        <Gamepad2 className="w-5 h-5 text-red-500" /> GANGSTER REVOLUTION LAUNCH & SPECIFICATIONS
+                      </h3>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        Configure target release window, build status, and PC system hardware requirements.
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleResetGangsterSpecsToTbd}
+                      className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-mono text-[11px] font-bold uppercase flex items-center gap-1.5 border border-white/10 shrink-0"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" /> RESET ALL SPECS TO TBD
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-gray-300 font-bold uppercase text-xs mb-1">
+                        Game Launch Window / Date
+                      </label>
+                      <input
+                        type="text"
+                        value={gangsterRevolutionLaunchDate}
+                        onChange={(e) => setGangsterRevolutionLaunchDate(e.target.value)}
+                        placeholder="e.g. TBD, Q4 2026, or Coming Soon"
+                        className="w-full px-4 py-3 rounded-xl bg-black/60 border border-white/10 text-white text-xs font-mono focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-gray-300 font-bold uppercase text-xs mb-1">
+                        Development Status Label
+                      </label>
+                      <input
+                        type="text"
+                        value={gangsterRevolutionStatus}
+                        onChange={(e) => setGangsterRevolutionStatus(e.target.value)}
+                        placeholder="e.g. PRE-ALPHA BUILD • IN DEVELOPMENT"
+                        className="w-full px-4 py-3 rounded-xl bg-black/60 border border-white/10 text-white text-xs font-mono focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Minimum System Requirements */}
+                  <div className="p-5 rounded-2xl bg-black/50 border border-white/10 space-y-4">
+                    <h4 className="text-xs font-extrabold text-[#FF6321] uppercase tracking-wider font-mono">
+                      MINIMUM SYSTEM REQUIREMENTS (OR TBD)
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs">
+                      <div>
+                        <label className="block text-gray-400 text-[10px] uppercase font-mono mb-1">OS</label>
+                        <input
+                          type="text"
+                          value={gangsterSpecs.minOs}
+                          onChange={(e) => setGangsterSpecs({ ...gangsterSpecs, minOs: e.target.value })}
+                          className="w-full px-3 py-2 rounded-lg bg-black/80 border border-white/10 text-white text-xs font-mono focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-gray-400 text-[10px] uppercase font-mono mb-1">Processor</label>
+                        <input
+                          type="text"
+                          value={gangsterSpecs.minProcessor}
+                          onChange={(e) => setGangsterSpecs({ ...gangsterSpecs, minProcessor: e.target.value })}
+                          className="w-full px-3 py-2 rounded-lg bg-black/80 border border-white/10 text-white text-xs font-mono focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-gray-400 text-[10px] uppercase font-mono mb-1">Memory</label>
+                        <input
+                          type="text"
+                          value={gangsterSpecs.minMemory}
+                          onChange={(e) => setGangsterSpecs({ ...gangsterSpecs, minMemory: e.target.value })}
+                          className="w-full px-3 py-2 rounded-lg bg-black/80 border border-white/10 text-white text-xs font-mono focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-gray-400 text-[10px] uppercase font-mono mb-1">Graphics</label>
+                        <input
+                          type="text"
+                          value={gangsterSpecs.minGraphics}
+                          onChange={(e) => setGangsterSpecs({ ...gangsterSpecs, minGraphics: e.target.value })}
+                          className="w-full px-3 py-2 rounded-lg bg-black/80 border border-white/10 text-white text-xs font-mono focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-gray-400 text-[10px] uppercase font-mono mb-1">DirectX</label>
+                        <input
+                          type="text"
+                          value={gangsterSpecs.minDirectX}
+                          onChange={(e) => setGangsterSpecs({ ...gangsterSpecs, minDirectX: e.target.value })}
+                          className="w-full px-3 py-2 rounded-lg bg-black/80 border border-white/10 text-white text-xs font-mono focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-gray-400 text-[10px] uppercase font-mono mb-1">Storage</label>
+                        <input
+                          type="text"
+                          value={gangsterSpecs.minStorage}
+                          onChange={(e) => setGangsterSpecs({ ...gangsterSpecs, minStorage: e.target.value })}
+                          className="w-full px-3 py-2 rounded-lg bg-black/80 border border-white/10 text-white text-xs font-mono focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Recommended System Requirements */}
+                  <div className="p-5 rounded-2xl bg-black/50 border border-white/10 space-y-4">
+                    <h4 className="text-xs font-extrabold text-emerald-400 uppercase tracking-wider font-mono">
+                      RECOMMENDED SYSTEM REQUIREMENTS (OR TBD)
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs">
+                      <div>
+                        <label className="block text-gray-400 text-[10px] uppercase font-mono mb-1">OS</label>
+                        <input
+                          type="text"
+                          value={gangsterSpecs.recOs}
+                          onChange={(e) => setGangsterSpecs({ ...gangsterSpecs, recOs: e.target.value })}
+                          className="w-full px-3 py-2 rounded-lg bg-black/80 border border-white/10 text-white text-xs font-mono focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-gray-400 text-[10px] uppercase font-mono mb-1">Processor</label>
+                        <input
+                          type="text"
+                          value={gangsterSpecs.recProcessor}
+                          onChange={(e) => setGangsterSpecs({ ...gangsterSpecs, recProcessor: e.target.value })}
+                          className="w-full px-3 py-2 rounded-lg bg-black/80 border border-white/10 text-white text-xs font-mono focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-gray-400 text-[10px] uppercase font-mono mb-1">Memory</label>
+                        <input
+                          type="text"
+                          value={gangsterSpecs.recMemory}
+                          onChange={(e) => setGangsterSpecs({ ...gangsterSpecs, recMemory: e.target.value })}
+                          className="w-full px-3 py-2 rounded-lg bg-black/80 border border-white/10 text-white text-xs font-mono focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-gray-400 text-[10px] uppercase font-mono mb-1">Graphics</label>
+                        <input
+                          type="text"
+                          value={gangsterSpecs.recGraphics}
+                          onChange={(e) => setGangsterSpecs({ ...gangsterSpecs, recGraphics: e.target.value })}
+                          className="w-full px-3 py-2 rounded-lg bg-black/80 border border-white/10 text-white text-xs font-mono focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-gray-400 text-[10px] uppercase font-mono mb-1">DirectX</label>
+                        <input
+                          type="text"
+                          value={gangsterSpecs.recDirectX}
+                          onChange={(e) => setGangsterSpecs({ ...gangsterSpecs, recDirectX: e.target.value })}
+                          className="w-full px-3 py-2 rounded-lg bg-black/80 border border-white/10 text-white text-xs font-mono focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-gray-400 text-[10px] uppercase font-mono mb-1">Storage</label>
+                        <input
+                          type="text"
+                          value={gangsterSpecs.recStorage}
+                          onChange={(e) => setGangsterSpecs({ ...gangsterSpecs, recStorage: e.target.value })}
+                          className="w-full px-3 py-2 rounded-lg bg-black/80 border border-white/10 text-white text-xs font-mono focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleSaveSettingsSubmit}
+                    className="w-full py-4 rounded-xl bg-gradient-to-r from-red-600 via-[#FF6321] to-amber-500 hover:opacity-90 text-black font-extrabold text-xs uppercase tracking-widest shadow-[0_0_25px_rgba(255,99,33,0.35)]"
+                  >
+                    PUBLISH GANGSTER REVOLUTION & DEMO CONFIGURATION LIVE
+                  </button>
+                </div>
               </div>
             )}
 

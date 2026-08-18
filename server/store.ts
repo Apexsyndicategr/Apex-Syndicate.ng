@@ -37,10 +37,28 @@ function getDefaultData(): StoreData {
       launchDateApexEditor: defaultLaunchDate,
       timerPaused: true,
       timerPausedSecondsRemaining: 14 * 24 * 60 * 60,
-      portfolioVideoMode: 'default',
+      portfolioVideoMode: 'blank',
       portfolioVideoUrl: '',
       autoApproveFree: false,
       adminPassword: 'xxander4325king',
+      visitorCount: 0,
+      apexEditorDemoUrl: '',
+      gangsterRevolutionLaunchDate: 'TBD',
+      gangsterRevolutionStatus: 'PRE-ALPHA BUILD • IN DEVELOPMENT',
+      gangsterSpecs: {
+        minOs: 'TBD',
+        minProcessor: 'TBD',
+        minMemory: 'TBD',
+        minGraphics: 'TBD',
+        minDirectX: 'TBD',
+        minStorage: 'TBD',
+        recOs: 'TBD',
+        recProcessor: 'TBD',
+        recMemory: 'TBD',
+        recGraphics: 'TBD',
+        recDirectX: 'TBD',
+        recStorage: 'TBD',
+      },
     },
     products: [
       {
@@ -104,10 +122,10 @@ function getDefaultData(): StoreData {
         fileUrl: '',
         fileSize: 'Pending Build',
         systemRequirements: {
-          os: 'Windows 10/11 64-bit',
-          processor: 'Intel Core i7-10700K / AMD Ryzen 7 5800X',
-          memory: '16 GB RAM',
-          storage: '25 GB SSD Space',
+          os: 'TBD',
+          processor: 'TBD',
+          memory: 'TBD',
+          storage: 'TBD',
         },
         features: [
           'Expansive Open-World Metropolis',
@@ -479,6 +497,24 @@ class Store {
     return this.data.contacts;
   }
 
+  // --- VISITOR ANALYTICS ---
+  public getVisitorCount(): number {
+    return this.data.settings.visitorCount || 0;
+  }
+
+  public incrementVisitorCount(): number {
+    const current = this.data.settings.visitorCount || 0;
+    this.data.settings.visitorCount = current + 1;
+    this.saveData();
+    return this.data.settings.visitorCount;
+  }
+
+  public resetVisitorCount(): number {
+    this.data.settings.visitorCount = 0;
+    this.saveData();
+    return 0;
+  }
+
   public getDashboardStats(): DashboardStats {
     const totalRequests = this.data.requests.length;
     const pendingApprovals = this.data.requests.filter(
@@ -490,6 +526,7 @@ class Store {
       .reduce((sum, r) => sum + (r.amount || 0), 0);
     const totalProducts = this.data.products.length;
     const unreadNotifications = this.data.notifications.filter((n) => !n.read).length;
+    const totalVisitors = this.getVisitorCount();
 
     return {
       totalRequests,
@@ -498,6 +535,7 @@ class Store {
       totalRevenueNgn,
       totalProducts,
       unreadNotifications,
+      totalVisitors,
     };
   }
 

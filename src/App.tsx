@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Product, LaunchPricingInfo, OwnerSettings, CustomTab } from './types';
-import { fetchProducts, fetchLaunchPricing, fetchPaymentSettings, fetchPublicSettings } from './lib/api';
+import { fetchProducts, fetchLaunchPricing, fetchPaymentSettings, fetchPublicSettings, trackVisitApi } from './lib/api';
 import { loadClientData } from './lib/clientStore';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { Home } from './pages/Home';
 import { Products } from './pages/Products';
 import { ApexEditor } from './pages/ApexEditor';
+import { ApexEditorDemo } from './pages/ApexEditorDemo';
 import { GangsterRevolution } from './pages/GangsterRevolution';
 import { About } from './pages/About';
 import { Contact } from './pages/Contact';
@@ -65,6 +66,12 @@ export default function App() {
   };
 
   useEffect(() => {
+    // Increment visitor counter on new visit session
+    if (!sessionStorage.getItem('apex_visited_session')) {
+      sessionStorage.setItem('apex_visited_session', 'true');
+      trackVisitApi().catch((e) => console.warn('Could not track visit:', e));
+    }
+
     fetchPublicData();
 
     // Global real-time sync across all connected visitor devices
@@ -225,9 +232,18 @@ export default function App() {
           />
         )}
 
+        {activeTab === 'apex-editor-demo' && (
+          <ApexEditorDemo
+            product={apexEditorProduct}
+            settings={ownerSettings || undefined}
+            openDownloadModal={handleOpenDownloadModal}
+          />
+        )}
+
         {activeTab === 'gangster-revolution' && (
           <GangsterRevolution
             product={gangsterRevolutionProduct}
+            settings={ownerSettings || undefined}
             openDownloadModal={handleOpenDownloadModal}
           />
         )}

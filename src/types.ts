@@ -87,6 +87,21 @@ export interface CustomTab {
   isActive: boolean;
 }
 
+export interface GangsterSpecs {
+  minOs: string;
+  minProcessor: string;
+  minMemory: string;
+  minGraphics: string;
+  minDirectX: string;
+  minStorage: string;
+  recOs: string;
+  recProcessor: string;
+  recMemory: string;
+  recGraphics: string;
+  recDirectX: string;
+  recStorage: string;
+}
+
 export interface OwnerSettings {
   bankName: string;
   accountName: string;
@@ -110,6 +125,14 @@ export interface OwnerSettings {
   customTabs?: CustomTab[];
   portfolioVideoMode?: 'default' | 'custom' | 'blank';
   portfolioVideoUrl?: string;
+  // Gangster Revolution Configuration
+  gangsterRevolutionLaunchDate?: string;
+  gangsterRevolutionStatus?: string;
+  gangsterSpecs?: Partial<GangsterSpecs>;
+  // Apex Editor Demo Configuration
+  apexEditorDemoUrl?: string;
+  // Visitor Analytics
+  visitorCount?: number;
 }
 
 export interface ContactMessage {
@@ -129,4 +152,5 @@ export interface DashboardStats {
   totalRevenueNgn: number;
   totalProducts: number;
   unreadNotifications: number;
+  totalVisitors?: number;
 }

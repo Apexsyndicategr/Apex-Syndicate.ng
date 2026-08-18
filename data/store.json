@@ -5,11 +5,31 @@
     "accountNumber": "8082961817",
     "bankInstructions": "Transfer the exact amount to OPay (8082961817 - APEX SYNDICATE SOFTWARE LTD). Enter your Payment Reference / Transaction ID below so the owner can verify and approve your download.",
     "ownerEmail": "apexsyndicategr@gmail.com",
-    "launchDateApexEditor": "2026-08-16T18:00:00.000Z",
+    "launchDateApexEditor": "2026-08-18T04:00:00.000Z",
     "timerPaused": true,
     "timerPausedSecondsRemaining": 1209600,
+    "portfolioVideoMode": "blank",
+    "portfolioVideoUrl": "",
     "autoApproveFree": false,
-    "adminPassword": "xxander4325king"
+    "adminPassword": "xxander4325king",
+    "visitorCount": 0,
+    "apexEditorDemoUrl": "",
+    "gangsterRevolutionLaunchDate": "TBD",
+    "gangsterRevolutionStatus": "PRE-ALPHA BUILD • IN DEVELOPMENT",
+    "gangsterSpecs": {
+      "minOs": "TBD",
+      "minProcessor": "TBD",
+      "minMemory": "TBD",
+      "minGraphics": "TBD",
+      "minDirectX": "TBD",
+      "minStorage": "TBD",
+      "recOs": "TBD",
+      "recProcessor": "TBD",
+      "recMemory": "TBD",
+      "recGraphics": "TBD",
+      "recDirectX": "TBD",
+      "recStorage": "TBD"
+    }
   },
   "products": [
     {
@@ -69,10 +89,10 @@
       "fileUrl": "",
       "fileSize": "Pending Build",
       "systemRequirements": {
-        "os": "Windows 10/11 64-bit",
-        "processor": "Intel Core i7-10700K / AMD Ryzen 7 5800X",
-        "memory": "16 GB RAM",
-        "storage": "25 GB SSD Space"
+        "os": "TBD",
+        "processor": "TBD",
+        "memory": "TBD",
+        "storage": "TBD"
       },
       "features": [
         "Expansive Open-World Metropolis",

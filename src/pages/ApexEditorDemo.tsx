@@ -33,8 +33,9 @@ export const ApexEditorDemo: React.FC<ApexEditorDemoProps> = ({
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showUnavailableModal, setShowUnavailableModal] = useState(false);
 
-  const demoUrl = (settings?.apexEditorDemoUrl || 'https://apex-editor-demo.vercel.app/').trim();
-  const isDemoAvailable = Boolean(demoUrl);
+  const demoUrl = (settings?.apexEditorDemoUrl || 'https://apex-editor-demo.vercel.app/').trim() || 'https://apex-editor-demo.vercel.app/';
+  const formattedUrl = demoUrl.startsWith('http://') || demoUrl.startsWith('https://') ? demoUrl : `https://${demoUrl}`;
+  const isDemoAvailable = Boolean(formattedUrl);
 
   // Prevent background body scrolling when modal is active & support ESC to dismiss
   useEffect(() => {
@@ -61,13 +62,16 @@ export const ApexEditorDemo: React.FC<ApexEditorDemoProps> = ({
   };
 
   const handleConfirmLaunchDemo = () => {
-    setShowConfirmModal(false);
-    const targetUrl = demoUrl || 'https://apex-editor-demo.vercel.app/';
-    if (targetUrl.startsWith('http://') || targetUrl.startsWith('https://')) {
-      window.open(targetUrl, '_blank', 'noopener,noreferrer');
-    } else {
-      window.open(`https://${targetUrl}`, '_blank', 'noopener,noreferrer');
+    try {
+      const newTab = window.open(formattedUrl, '_blank', 'noopener,noreferrer');
+      if (!newTab || newTab.closed || typeof newTab.closed === 'undefined') {
+        // In case popup was blocked by browser
+        window.location.href = formattedUrl;
+      }
+    } catch (err) {
+      window.location.href = formattedUrl;
     }
+    setShowConfirmModal(false);
   };
 
   return (
@@ -328,14 +332,38 @@ export const ApexEditorDemo: React.FC<ApexEditorDemoProps> = ({
                   <span>NO, CANCEL</span>
                 </button>
 
-                <button
-                  type="button"
-                  onClick={handleConfirmLaunchDemo}
-                  className="w-full py-4 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-[#FF6321] to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-black text-xs uppercase tracking-wider shadow-[0_0_25px_rgba(255,99,33,0.4)] transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
+                <a
+                  href={formattedUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => {
+                    setTimeout(() => {
+                      setShowConfirmModal(false);
+                    }, 200);
+                  }}
+                  className="w-full py-4 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-[#FF6321] to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-black text-xs uppercase tracking-wider shadow-[0_0_25px_rgba(255,99,33,0.4)] transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer no-underline text-center select-none"
                 >
                   <CheckCircle2 className="w-4 h-4 text-black" />
                   <span>YES, PROCEED</span>
-                </button>
+                  <ExternalLink className="w-3.5 h-3.5 text-black" />
+                </a>
+              </div>
+
+              {/* DIRECT FALLBACK LINK */}
+              <div className="pt-2 text-center border-t border-white/5">
+                <p className="text-[11px] text-gray-400">
+                  Target Destination:{' '}
+                  <a
+                    href={formattedUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setShowConfirmModal(false)}
+                    className="text-amber-400 hover:text-amber-300 hover:underline font-mono font-bold inline-flex items-center gap-1"
+                  >
+                    <span>https://apex-editor-demo.vercel.app/</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </p>
               </div>
             </div>
           </div>,

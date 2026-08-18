@@ -1167,7 +1167,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             },
             { id: 'customers', label: 'CUSTOMERS', icon: Users },
             { id: 'pricing', label: 'PRICING & LAUNCH', icon: Flame },
-            { id: 'portfolio', label: 'PORTFOLIO VIDEO', icon: Film },
+            { id: 'portfolio', label: 'DEV UPDATES VIDEO', icon: Film },
             { id: 'site-customization', label: 'SITE TABS & BANNER', icon: Globe },
             { id: 'settings', label: 'PAYMENT SETTINGS', icon: Settings },
             {
@@ -2634,13 +2634,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <div className="border-b border-white/10 pb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div>
                       <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FF6321]/10 border border-[#FF6321]/30 text-[#FF6321] text-[11px] font-mono font-bold uppercase tracking-widest">
-                        <Film className="w-3.5 h-3.5" /> OWNER MEDIA CONTROLS
+                        <Film className="w-3.5 h-3.5" /> OWNER DEVLOG CONTROLS
                       </div>
                       <h2 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-wider mt-2 flex items-center gap-2">
-                        PORTFOLIO SHOWCASE VIDEO
+                        DEV UPDATES & CREATION VIDEO
                       </h2>
                       <p className="text-xs text-gray-400 mt-1">
-                        Download the current portfolio video, upload a replacement video file, or remove it so the site displays "Portfolio Coming Soon".
+                        Download the current dev updates video, upload a replacement video file, or remove it so the site displays "Dev Updates Coming Soon".
                       </p>
                     </div>
 
@@ -2650,7 +2650,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       className="px-6 py-3.5 rounded-2xl bg-[#FF6321] hover:bg-[#FF8A50] text-black font-black text-xs uppercase tracking-wider flex items-center gap-2.5 shadow-[0_0_25px_rgba(255,99,33,0.4)] transition-all shrink-0 hover:scale-105"
                     >
                       <Download className="w-4 h-4" />
-                      <span>DOWNLOAD PORTFOLIO VIDEO (.MP4)</span>
+                      <span>DOWNLOAD DEV UPDATES VIDEO (.MP4)</span>
                     </button>
                   </div>
 
@@ -2674,10 +2674,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             : 'text-emerald-400'
                         }`}>
                           {portfolioVideoMode === 'blank'
-                            ? 'BLANK — DISPLAYING "PORTFOLIO COMING SOON"'
+                            ? 'BLANK — DISPLAYING "DEV UPDATES COMING SOON"'
                             : portfolioVideoMode === 'custom'
-                            ? 'CUSTOM OWNER VIDEO ACTIVE'
-                            : 'DEFAULT 18S KINETIC SHOWCASE REEL'}
+                            ? 'CUSTOM OWNER DEVLOG VIDEO ACTIVE'
+                            : 'DEFAULT PROJECT SHOWCASE REEL'}
                         </span>
                       </div>
                     </div>
@@ -2694,10 +2694,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <div className="p-6 rounded-2xl bg-black/60 border border-white/10 space-y-4 flex flex-col justify-between">
                       <div className="space-y-2">
                         <h3 className="text-sm font-extrabold text-[#FF6321] uppercase flex items-center gap-2">
-                          <UploadCloud className="w-4 h-4" /> 1. UPLOAD NEW VIDEO
+                          <UploadCloud className="w-4 h-4" /> 1. UPLOAD DEV VIDEO
                         </h3>
                         <p className="text-[11px] text-gray-400 leading-relaxed font-sans">
-                          Upload an MP4 or WebM video file from your device. It is saved directly to the server so all visitors see it permanently.
+                          Upload an MP4 or WebM video file from your device. It is saved directly to the server so all visitors see your creation updates.
                         </p>
                       </div>
 
@@ -2761,7 +2761,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           <Clock className="w-4 h-4" /> 2. REMOVE / SET BLANK
                         </h3>
                         <p className="text-[11px] text-gray-400 leading-relaxed font-sans">
-                          Remove the active video and leave it blank. The website will immediately show the <strong>"Portfolio Coming Soon"</strong> card.
+                          Remove the active video and leave it blank. The website will immediately show the <strong>"Dev Updates Coming Soon"</strong> card.
                         </p>
                       </div>
 

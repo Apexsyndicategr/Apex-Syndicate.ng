@@ -64,7 +64,7 @@ export const PortfolioVideoShowcase: React.FC = () => {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'Apex_Syndicate_Portfolio_Showcase.mp4';
+        a.download = 'Apex_Syndicate_Dev_Updates_Video.mp4';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -72,7 +72,7 @@ export const PortfolioVideoShowcase: React.FC = () => {
       } catch (err) {
         const a = document.createElement('a');
         a.href = customVid;
-        a.download = 'Apex_Syndicate_Portfolio_Showcase.mp4';
+        a.download = 'Apex_Syndicate_Dev_Updates_Video.mp4';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -93,7 +93,7 @@ export const PortfolioVideoShowcase: React.FC = () => {
       const url = URL.createObjectURL(mp4Blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'Apex_Syndicate_18s_Kinetic_Reel.mp4';
+      a.download = 'Apex_Syndicate_Dev_Updates_Reel.mp4';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -362,7 +362,7 @@ export const PortfolioVideoShowcase: React.FC = () => {
   const isDarkMode = stage === 3; // Dark mode switch in scene 3
 
   // =========================================================================
-  // IF VIDEO IS REMOVED / SET TO BLANK: DISPLAY "PORTFOLIO COMING SOON"
+  // IF VIDEO IS REMOVED / SET TO BLANK: DISPLAY "DEV UPDATES COMING SOON"
   // =========================================================================
   if (videoMode === 'blank') {
     return (
@@ -371,10 +371,10 @@ export const PortfolioVideoShowcase: React.FC = () => {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div>
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#FF6321]/10 border border-[#FF6321]/30 text-[#FF6321] text-xs font-mono font-bold uppercase tracking-widest">
-              <Clock className="w-3.5 h-3.5 animate-pulse" /> PRODUCTION PIPELINE
+              <Clock className="w-3.5 h-3.5 animate-pulse" /> CREATOR DEVLOG & UPDATES
             </div>
             <h2 className="text-xl sm:text-3xl font-black text-white uppercase tracking-wider mt-1.5">
-              PORTFOLIO // <span className="text-[#FF6321]">COMING SOON</span>
+              DEV UPDATES // <span className="text-[#FF6321]">COMING SOON</span>
             </h2>
           </div>
 
@@ -398,12 +398,12 @@ export const PortfolioVideoShowcase: React.FC = () => {
             <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-300">
               <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
               <span className="font-bold text-[11px] uppercase tracking-wider text-amber-400">
-                POST-PRODUCTION RENDERING
+                IN PRODUCTION • DEVLOG RENDERING
               </span>
             </div>
 
             <div className="text-[11px] text-gray-400 font-mono hidden sm:block">
-              Apex Syndicate Media Studio
+              Apex Syndicate Creation Logs
             </div>
           </div>
 
@@ -423,11 +423,11 @@ export const PortfolioVideoShowcase: React.FC = () => {
               animate={{ y: 0, opacity: 1 }}
               className="text-3xl sm:text-5xl lg:text-6xl font-black text-white uppercase tracking-tight font-sans drop-shadow-lg"
             >
-              PORTFOLIO <span className="text-[#FF6321]">COMING SOON</span>
+              DEV UPDATES <span className="text-[#FF6321]">COMING SOON</span>
             </motion.h3>
 
             <p className="text-sm sm:text-base text-gray-300 font-light max-w-xl mx-auto leading-relaxed">
-              Official cinematic portfolio trailers, gameplay footage for <strong className="text-white font-bold">Gangster Revolution</strong>, and media demos for <strong className="text-white font-bold">Apex Editor</strong> are in final render.
+              Video updates showing in-progress development, sneak peeks, and behind-the-scenes progress on everything being created at Apex Syndicate are coming soon!
             </p>
 
             {/* Project Feature Highlights */}
@@ -436,21 +436,21 @@ export const PortfolioVideoShowcase: React.FC = () => {
                 <div className="flex items-center gap-1.5 text-cyan-400 font-bold">
                   <Cpu className="w-3.5 h-3.5" /> Apex Editor
                 </div>
-                <div className="text-[10px] text-gray-400">Flagship software creator</div>
+                <div className="text-[10px] text-gray-400">Flagship code creator devlogs</div>
               </div>
 
               <div className="p-3 rounded-2xl bg-black/60 border border-white/10 space-y-1">
                 <div className="flex items-center gap-1.5 text-[#FF6321] font-bold">
                   <Gamepad2 className="w-3.5 h-3.5" /> Gangster Rev.
                 </div>
-                <div className="text-[10px] text-gray-400">Open-world action game</div>
+                <div className="text-[10px] text-gray-400">Open-world action gameplay logs</div>
               </div>
 
               <div className="p-3 rounded-2xl bg-black/60 border border-white/10 space-y-1 col-span-2 sm:col-span-1">
                 <div className="flex items-center gap-1.5 text-emerald-400 font-bold">
-                  <Globe className="w-3.5 h-3.5" /> Media Links
+                  <Globe className="w-3.5 h-3.5" /> Project Logs
                 </div>
-                <div className="text-[10px] text-gray-400">Bio links updated on IG</div>
+                <div className="text-[10px] text-gray-400">Updates & bio links on IG</div>
               </div>
             </div>
           </div>
@@ -481,10 +481,10 @@ export const PortfolioVideoShowcase: React.FC = () => {
         <div>
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#FF6321]/10 border border-[#FF6321]/30 text-[#FF6321] text-xs font-mono font-bold uppercase tracking-widest">
             <Film className="w-3.5 h-3.5 animate-pulse" />
-            {videoMode === 'custom' ? 'CUSTOM OWNER SHOWCASE' : 'HYPER-KINETIC EDIT (18S ULTRA-FAST)'}
+            {videoMode === 'custom' ? 'CUSTOM CREATOR DEVLOG' : 'PROJECT UPDATES & DEVLOG REEL'}
           </div>
           <h2 className="text-xl sm:text-3xl font-black text-white uppercase tracking-wider mt-1.5">
-            APEX SYNDICATE // <span className="text-[#FF6321]">CINEMATIC REEL</span>
+            APEX SYNDICATE // <span className="text-[#FF6321]">DEV UPDATES & CREATION LOGS</span>
           </h2>
         </div>
 
@@ -600,7 +600,7 @@ export const PortfolioVideoShowcase: React.FC = () => {
 
                 <div className="text-center space-y-1">
                   <div className="text-lg sm:text-2xl font-black font-sans uppercase tracking-wider text-white">
-                    {currentTime > 0 ? 'REEL PAUSED • CLICK TO RESUME' : 'CLICK TO PLAY PORTFOLIO CINEMATIC REEL'}
+                    {currentTime > 0 ? 'REEL PAUSED • CLICK TO RESUME' : 'CLICK TO PLAY DEV UPDATES & CREATION REEL'}
                   </div>
                   <p className="text-xs font-mono text-[#FF6321] font-bold">
                     {currentTime > 0 ? `PAUSED AT ${currentTime.toFixed(1)}s / ${TOTAL_DURATION}.0s` : 'SOUND UNMUTED • 18-SECOND ULTRA-FAST KINETIC AD'}

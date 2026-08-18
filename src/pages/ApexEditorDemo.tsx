@@ -16,6 +16,10 @@ import {
   ArrowRight,
   Monitor,
   Laptop,
+  Smartphone,
+  Tablet,
+  Copy,
+  Check,
   X,
 } from 'lucide-react';
 
@@ -25,6 +29,38 @@ interface ApexEditorDemoProps {
   openDownloadModal?: (product: Product) => void;
 }
 
+// Mobile and Tablet device detector
+function checkIsMobileOrTablet(): boolean {
+  if (typeof window === 'undefined' || typeof navigator === 'undefined') return false;
+
+  const ua = (navigator.userAgent || navigator.vendor || (window as any).opera || '').toLowerCase();
+
+  const mobileKeywords = [
+    'android',
+    'webos',
+    'iphone',
+    'ipad',
+    'ipod',
+    'blackberry',
+    'iemobile',
+    'opera mini',
+    'mobile',
+    'tablet',
+    'silk',
+    'kindle',
+    'fennec',
+    'windows phone',
+    'samsungbrowser',
+  ];
+
+  const hasMobileUA = mobileKeywords.some((keyword) => ua.includes(keyword));
+  const isIpadOS = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+  const isTouchDevice = navigator.maxTouchPoints > 0 || 'ontouchstart' in window;
+  const isSmallScreen = window.innerWidth < 1024;
+
+  return hasMobileUA || isIpadOS || (isTouchDevice && isSmallScreen);
+}
+
 export const ApexEditorDemo: React.FC<ApexEditorDemoProps> = ({
   product,
   settings,
@@ -32,6 +68,8 @@ export const ApexEditorDemo: React.FC<ApexEditorDemoProps> = ({
 }) => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showUnavailableModal, setShowUnavailableModal] = useState(false);
+  const [showDeviceUnsupportedModal, setShowDeviceUnsupportedModal] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
 
   const demoUrl = (settings?.apexEditorDemoUrl || 'https://apex-editor-demo.vercel.app/').trim() || 'https://apex-editor-demo.vercel.app/';
   const formattedUrl = demoUrl.startsWith('http://') || demoUrl.startsWith('https://') ? demoUrl : `https://${demoUrl}`;
@@ -39,12 +77,13 @@ export const ApexEditorDemo: React.FC<ApexEditorDemoProps> = ({
 
   // Prevent background body scrolling when modal is active & support ESC to dismiss
   useEffect(() => {
-    if (showConfirmModal || showUnavailableModal) {
+    if (showConfirmModal || showUnavailableModal || showDeviceUnsupportedModal) {
       document.body.style.overflow = 'hidden';
       const handleKeyDown = (e: KeyboardEvent) => {
         if (e.key === 'Escape' || e.code === 'Escape' || e.keyCode === 27) {
           setShowConfirmModal(false);
           setShowUnavailableModal(false);
+          setShowDeviceUnsupportedModal(false);
         }
       };
       window.addEventListener('keydown', handleKeyDown);
@@ -55,23 +94,40 @@ export const ApexEditorDemo: React.FC<ApexEditorDemoProps> = ({
     } else {
       document.body.style.overflow = '';
     }
-  }, [showConfirmModal, showUnavailableModal]);
+  }, [showConfirmModal, showUnavailableModal, showDeviceUnsupportedModal]);
 
   const handleOpenDemoPrompt = () => {
     setShowConfirmModal(true);
   };
 
-  const handleConfirmLaunchDemo = () => {
+  const handleProceedClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+
+    // Check if user is on mobile or tablet
+    if (checkIsMobileOrTablet()) {
+      setShowConfirmModal(false);
+      setShowDeviceUnsupportedModal(true);
+      return;
+    }
+
+    // On PC/Laptop: Proceed with opening demo
+    setShowConfirmModal(false);
     try {
       const newTab = window.open(formattedUrl, '_blank', 'noopener,noreferrer');
       if (!newTab || newTab.closed || typeof newTab.closed === 'undefined') {
-        // In case popup was blocked by browser
         window.location.href = formattedUrl;
       }
     } catch (err) {
       window.location.href = formattedUrl;
     }
-    setShowConfirmModal(false);
+  };
+
+  const handleCopyDemoLink = () => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(formattedUrl);
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2500);
+    }
   };
 
   return (
@@ -332,21 +388,15 @@ export const ApexEditorDemo: React.FC<ApexEditorDemoProps> = ({
                   <span>NO, CANCEL</span>
                 </button>
 
-                <a
-                  href={formattedUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => {
-                    setTimeout(() => {
-                      setShowConfirmModal(false);
-                    }, 200);
-                  }}
-                  className="w-full py-4 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-[#FF6321] to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-black text-xs uppercase tracking-wider shadow-[0_0_25px_rgba(255,99,33,0.4)] transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer no-underline text-center select-none"
+                <button
+                  type="button"
+                  onClick={handleProceedClick}
+                  className="w-full py-4 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-[#FF6321] to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-black text-xs uppercase tracking-wider shadow-[0_0_25px_rgba(255,99,33,0.4)] transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer text-center select-none"
                 >
                   <CheckCircle2 className="w-4 h-4 text-black" />
                   <span>YES, PROCEED</span>
                   <ExternalLink className="w-3.5 h-3.5 text-black" />
-                </a>
+                </button>
               </div>
 
               {/* DIRECT FALLBACK LINK */}
@@ -357,13 +407,128 @@ export const ApexEditorDemo: React.FC<ApexEditorDemoProps> = ({
                     href={formattedUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={() => setShowConfirmModal(false)}
+                    onClick={(e) => {
+                      if (checkIsMobileOrTablet()) {
+                        e.preventDefault();
+                        setShowConfirmModal(false);
+                        setShowDeviceUnsupportedModal(true);
+                      } else {
+                        setShowConfirmModal(false);
+                      }
+                    }}
                     className="text-amber-400 hover:text-amber-300 hover:underline font-mono font-bold inline-flex items-center gap-1"
                   >
                     <span>https://apex-editor-demo.vercel.app/</span>
                     <ExternalLink className="w-3 h-3" />
                   </a>
                 </p>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+
+      {/* ==========================================
+          DEVICE UNSUPPORTED MODAL (FOR MOBILE / TABLET)
+         ========================================== */}
+      {showDeviceUnsupportedModal &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[9999999] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fadeIn"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setShowDeviceUnsupportedModal(false);
+            }}
+          >
+            <div className="relative w-full max-w-lg p-6 sm:p-8 rounded-3xl bg-[#0e0e12] border border-rose-500/50 shadow-[0_0_60px_rgba(244,63,94,0.3)] space-y-6 max-h-[90vh] overflow-y-auto">
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={() => setShowDeviceUnsupportedModal(false)}
+                className="absolute top-5 right-5 p-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors cursor-pointer"
+                title="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="flex items-center gap-3.5 pr-8">
+                <div className="p-3.5 rounded-2xl bg-rose-500/20 text-rose-400 border border-rose-500/40 shadow-[0_0_25px_rgba(244,63,94,0.35)] shrink-0">
+                  <Smartphone className="w-7 h-7" />
+                </div>
+                <div>
+                  <h3 className="text-xl sm:text-2xl font-black text-white uppercase tracking-wide">
+                    DEVICE NOT SUPPORTED
+                  </h3>
+                  <span className="text-xs font-mono text-rose-400 font-bold uppercase tracking-wider">
+                    PC / DESKTOP REQUIRED
+                  </span>
+                </div>
+              </div>
+
+              {/* CORE MESSAGE BANNER */}
+              <div className="p-5 rounded-2xl bg-gradient-to-r from-rose-950/60 via-orange-950/40 to-black border border-rose-500/50 space-y-3 shadow-inner">
+                <div className="flex items-center gap-2 text-rose-300 text-xs font-mono font-bold uppercase tracking-wider">
+                  <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                  <span>COMPATIBILITY NOTICE</span>
+                </div>
+                <p className="text-base sm:text-lg font-black text-white leading-relaxed">
+                  It is not available on your device. Please try using a laptop or desktop.
+                </p>
+                <p className="text-xs text-gray-300 leading-relaxed font-sans">
+                  Apex Editor is engineered with multi-split code workspaces, GPU canvas acceleration, and native developer keyboard bindings designed specifically for desktop workstations and laptops.
+                </p>
+              </div>
+
+              {/* DEVICE BREAKDOWN MATRIX */}
+              <div className="grid grid-cols-2 gap-3 font-mono text-xs">
+                <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-200 space-y-1">
+                  <div className="flex items-center gap-2 font-bold text-rose-400">
+                    <Smartphone className="w-4 h-4" />
+                    <span>MOBILE & TABLET</span>
+                  </div>
+                  <p className="text-[11px] text-gray-300">
+                    ❌ Not Available on touch devices
+                  </p>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-200 space-y-1">
+                  <div className="flex items-center gap-2 font-bold text-emerald-400">
+                    <Laptop className="w-4 h-4" />
+                    <span>LAPTOP & PC</span>
+                  </div>
+                  <p className="text-[11px] text-gray-300">
+                    ✅ Full Cloud Demo Supported
+                  </p>
+                </div>
+              </div>
+
+              {/* COPY LINK OR CLOSE ACTION BUTTONS */}
+              <div className="space-y-3 pt-2">
+                <button
+                  type="button"
+                  onClick={handleCopyDemoLink}
+                  className="w-full py-3.5 px-4 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-wider border border-white/10 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  {copiedLink ? (
+                    <>
+                      <Check className="w-4 h-4 text-emerald-400" />
+                      <span className="text-emerald-300">DEMO LINK COPIED TO CLIPBOARD!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4 text-gray-300" />
+                      <span>COPY DEMO LINK TO OPEN ON LAPTOP</span>
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowDeviceUnsupportedModal(false)}
+                  className="w-full py-4 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-[#FF6321] to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-black text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(255,99,33,0.3)] transition-all cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <span>UNDERSTOOD / CLOSE</span>
+                </button>
               </div>
             </div>
           </div>,

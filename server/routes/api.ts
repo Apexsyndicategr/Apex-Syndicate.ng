@@ -133,6 +133,13 @@ router.get('/settings/public', (req: Request, res: Response) => {
       portfolioVideoMode: settings.portfolioVideoMode || 'blank',
       portfolioVideoUrl: settings.portfolioVideoUrl || '',
       apexEditorDemoUrl: settings.apexEditorDemoUrl || '',
+      launchDateApexEditor: settings.launchDateApexEditor,
+      timerPaused: settings.timerPaused !== false,
+      timerPausedSecondsRemaining: settings.timerPausedSecondsRemaining ?? 14 * 24 * 60 * 60,
+      freeDays: settings.freeDays ?? 14,
+      earlyDays: settings.earlyDays ?? 14,
+      earlyPrice: settings.earlyPrice ?? 5000,
+      fullPrice: settings.fullPrice ?? 17000,
       gangsterRevolutionLaunchDate: settings.gangsterRevolutionLaunchDate || 'TBD',
       gangsterRevolutionStatus: settings.gangsterRevolutionStatus || 'PRE-ALPHA BUILD • IN DEVELOPMENT',
       gangsterSpecs: settings.gangsterSpecs || {

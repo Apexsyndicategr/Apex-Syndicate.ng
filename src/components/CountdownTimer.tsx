@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { LaunchPricingInfo } from '../types';
-import { Flame, Zap } from 'lucide-react';
+import { motion } from 'motion/react';
+import { Flame, Zap, Shield, Sparkles } from 'lucide-react';
 
 interface CountdownTimerProps {
   pricing: LaunchPricingInfo | null;
@@ -51,15 +52,18 @@ export const CountdownTimer: React.FC<CountdownTimerProps> = ({ pricing, onRefre
   const isEarly = pricing.activePhase === 'early';
 
   return (
-    <div className="relative overflow-hidden rounded-[28px] md:rounded-[32px] bg-white/[0.03] backdrop-blur-2xl border border-white/10 p-6 md:p-8 shadow-2xl">
+    <div className="relative overflow-hidden rounded-[28px] md:rounded-[32px] bg-white/[0.03] backdrop-blur-2xl border border-white/10 p-6 md:p-8 shadow-2xl animate-border-glow">
+      {/* Top laser scanline sweep */}
+      <div className="absolute top-0 left-0 w-32 h-[2px] bg-[#FF6321] shadow-[0_0_12px_#FF6321] animate-laser pointer-events-none" />
+
       {/* Background glowing ambient light */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF6321]/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 right-0 w-72 h-72 bg-[#FF6321]/15 rounded-full blur-[90px] pointer-events-none animate-pulse-glow" />
 
       {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-6 border-b border-white/10">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-6 border-b border-white/10 relative z-10">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-[#FF6321]/10 border border-[#FF6321]/30 text-[#FF6321]">
-            <Flame className="w-6 h-6 animate-pulse" />
+          <div className="p-2.5 rounded-xl bg-[#FF6321]/10 border border-[#FF6321]/30 text-[#FF6321] shadow-[0_0_15px_rgba(255,99,33,0.3)]">
+            <Flame className="w-6 h-6 animate-bounce" style={{ animationDuration: '2s' }} />
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -67,12 +71,12 @@ export const CountdownTimer: React.FC<CountdownTimerProps> = ({ pricing, onRefre
                 APEX EDITOR LAUNCH PHASE • DAY {pricing.currentDayNumber}
               </span>
               {pricing.isPaused && (
-                <span className="px-2 py-0.5 rounded bg-amber-500 text-black text-[10px] uppercase font-extrabold animate-pulse">
+                <span className="px-2.5 py-0.5 rounded-full bg-amber-500 text-black text-[10px] uppercase font-black tracking-wider animate-pulse shadow-[0_0_15px_rgba(245,158,11,0.5)]">
                   TIMER PAUSED
                 </span>
               )}
             </div>
-            <h3 className="text-xl md:text-2xl font-black text-white tracking-wide">
+            <h3 className="text-xl md:text-2xl font-black text-white tracking-wide mt-0.5">
               {pricing.isPaused
                 ? 'LAUNCH TIMER PAUSED BY OWNER'
                 : isFree
@@ -85,51 +89,66 @@ export const CountdownTimer: React.FC<CountdownTimerProps> = ({ pricing, onRefre
         </div>
 
         {/* Current Active Price Badge */}
-        <div className="px-5 py-2.5 rounded-2xl bg-[#FF6321] text-black font-black text-xl tracking-wider shadow-[0_0_20px_rgba(255,99,33,0.4)] flex items-center gap-2">
-          <Zap className="w-5 h-5 fill-black" />
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-[#FF6321] to-amber-500 text-black font-black text-xl tracking-wider shadow-[0_0_25px_rgba(255,99,33,0.5)] flex items-center gap-2 btn-shimmer-sweep"
+        >
+          <Zap className="w-5 h-5 fill-black animate-pulse" />
           <span>{pricing.priceDisplay}</span>
-        </div>
+        </motion.div>
       </div>
 
       {/* Countdown Digits Grid */}
       {pricing.activePhase !== 'full' ? (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 my-6">
-          <div className="flex flex-col items-center justify-center p-4 rounded-2xl bg-black/40 border border-white/5 backdrop-blur-md shadow-inner">
-            <span className="text-3xl md:text-5xl font-black font-mono text-white tracking-wider">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 my-6 relative z-10">
+          <motion.div
+            whileHover={{ y: -3, scale: 1.02 }}
+            className="flex flex-col items-center justify-center p-4 rounded-2xl bg-black/50 border border-white/10 backdrop-blur-md shadow-inner group hover:border-[#FF6321]/40 transition-colors"
+          >
+            <span className="text-3xl md:text-5xl font-black font-mono text-white tracking-wider group-hover:text-[#FF6321] transition-colors">
               {String(days).padStart(2, '0')}
             </span>
             <span className="text-[10px] font-bold tracking-widest text-[#FF6321] uppercase mt-1">
               DAYS
             </span>
-          </div>
+          </motion.div>
 
-          <div className="flex flex-col items-center justify-center p-4 rounded-2xl bg-black/40 border border-white/5 backdrop-blur-md shadow-inner">
-            <span className="text-3xl md:text-5xl font-black font-mono text-white tracking-wider">
+          <motion.div
+            whileHover={{ y: -3, scale: 1.02 }}
+            className="flex flex-col items-center justify-center p-4 rounded-2xl bg-black/50 border border-white/10 backdrop-blur-md shadow-inner group hover:border-[#FF6321]/40 transition-colors"
+          >
+            <span className="text-3xl md:text-5xl font-black font-mono text-white tracking-wider group-hover:text-[#FF6321] transition-colors">
               {String(hours).padStart(2, '0')}
             </span>
             <span className="text-[10px] font-bold tracking-widest text-[#FF6321] uppercase mt-1">
               HOURS
             </span>
-          </div>
+          </motion.div>
 
-          <div className="flex flex-col items-center justify-center p-4 rounded-2xl bg-black/40 border border-white/5 backdrop-blur-md shadow-inner">
-            <span className="text-3xl md:text-5xl font-black font-mono text-white tracking-wider">
+          <motion.div
+            whileHover={{ y: -3, scale: 1.02 }}
+            className="flex flex-col items-center justify-center p-4 rounded-2xl bg-black/50 border border-white/10 backdrop-blur-md shadow-inner group hover:border-[#FF6321]/40 transition-colors"
+          >
+            <span className="text-3xl md:text-5xl font-black font-mono text-white tracking-wider group-hover:text-[#FF6321] transition-colors">
               {String(minutes).padStart(2, '0')}
             </span>
             <span className="text-[10px] font-bold tracking-widest text-[#FF6321] uppercase mt-1">
               MINUTES
             </span>
-          </div>
+          </motion.div>
 
-          <div className="flex flex-col items-center justify-center p-4 rounded-2xl bg-black/40 border border-white/5 backdrop-blur-md shadow-inner relative overflow-hidden">
-            <div className="absolute inset-0 bg-[#FF6321]/10 animate-pulse pointer-events-none" />
-            <span className="text-3xl md:text-5xl font-black font-mono text-[#FF6321] tracking-wider">
+          <motion.div
+            whileHover={{ y: -3, scale: 1.02 }}
+            className="flex flex-col items-center justify-center p-4 rounded-2xl bg-black/50 border border-[#FF6321]/30 backdrop-blur-md shadow-[0_0_20px_rgba(255,99,33,0.15)] relative overflow-hidden group"
+          >
+            <div className="absolute inset-0 bg-gradient-to-t from-[#FF6321]/15 to-transparent animate-pulse pointer-events-none" />
+            <span className="text-3xl md:text-5xl font-black font-mono text-[#FF6321] tracking-wider relative z-10">
               {String(seconds).padStart(2, '0')}
             </span>
-            <span className="text-[10px] font-bold tracking-widest text-amber-300 uppercase mt-1">
+            <span className="text-[10px] font-bold tracking-widest text-amber-300 uppercase mt-1 relative z-10">
               SECONDS
             </span>
-          </div>
+          </motion.div>
         </div>
       ) : (
         <div className="my-6 p-6 rounded-2xl bg-black/40 border border-white/5 text-center">

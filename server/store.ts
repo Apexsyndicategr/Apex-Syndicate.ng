@@ -207,14 +207,10 @@ class Store {
     const earlyDays = settings.earlyDays ?? 14;
     const earlyPrice = settings.earlyPrice ?? 5000;
     const fullPrice = settings.fullPrice ?? 17000;
-    const isPaused = Boolean(settings.timerPaused);
+    const isPaused = settings.timerPaused !== false; // default to true (paused) if undefined
 
-    const launchDate = new Date(settings.launchDateApexEditor);
-    const now = new Date();
-
-    const diffMs = now.getTime() - launchDate.getTime();
-    const currentDayNumber = Math.max(1, Math.floor(diffMs / (1000 * 60 * 60 * 24)) + 1);
-
+    let currentDayNumber = 0;
+    let secondsRemaining = freeDays * 24 * 60 * 60;
     let activePhase: 'free' | 'early' | 'full' = 'free';
     let currentPrice = 0;
     let phaseName = 'FREE LAUNCH ACCESS';
@@ -223,32 +219,70 @@ class Store {
 
     const totalEarlyCutoffDays = freeDays + earlyDays;
 
-    if (currentDayNumber <= freeDays) {
-      activePhase = 'free';
-      currentPrice = 0;
-      phaseName = 'FREE LAUNCH ACCESS';
-      priceDisplay = 'FREE';
-      phaseEndsAt = new Date(launchDate.getTime() + freeDays * 24 * 60 * 60 * 1000);
-    } else if (currentDayNumber <= totalEarlyCutoffDays) {
-      activePhase = 'early';
-      currentPrice = earlyPrice ?? 5000;
-      phaseName = `EARLY ACCESS — ₦${(earlyPrice ?? 5000).toLocaleString()}`;
-      priceDisplay = `₦${(earlyPrice ?? 5000).toLocaleString()}`;
-      phaseEndsAt = new Date(launchDate.getTime() + totalEarlyCutoffDays * 24 * 60 * 60 * 1000);
-    } else {
-      activePhase = 'full';
-      currentPrice = fullPrice ?? 17000;
-      phaseName = `FULL PRICE — ₦${(fullPrice ?? 17000).toLocaleString()}`;
-      priceDisplay = `₦${(fullPrice ?? 17000).toLocaleString()}`;
-      phaseEndsAt = new Date(launchDate.getTime() + 365 * 24 * 60 * 60 * 1000);
-    }
-
-    let secondsRemaining = Math.max(0, Math.floor((phaseEndsAt.getTime() - now.getTime()) / 1000));
-
     if (isPaused) {
       if (typeof settings.timerPausedSecondsRemaining === 'number') {
-        secondsRemaining = settings.timerPausedSecondsRemaining;
+        secondsRemaining = Math.max(0, settings.timerPausedSecondsRemaining);
+      } else {
+        secondsRemaining = freeDays * 24 * 60 * 60;
       }
+
+      // If paused at the full 14 days (or initial state), day is DAY 0
+      if (secondsRemaining >= freeDays * 24 * 60 * 60) {
+        currentDayNumber = 0;
+        activePhase = 'free';
+        currentPrice = 0;
+        phaseName = 'FREE LAUNCH ACCESS';
+        priceDisplay = 'FREE';
+      } else {
+        const elapsedSecs = (freeDays * 24 * 60 * 60) - secondsRemaining;
+        currentDayNumber = Math.max(1, Math.floor(elapsedSecs / (24 * 60 * 60)) + 1);
+        if (currentDayNumber <= freeDays) {
+          activePhase = 'free';
+          currentPrice = 0;
+          phaseName = 'FREE LAUNCH ACCESS';
+          priceDisplay = 'FREE';
+        } else if (currentDayNumber <= totalEarlyCutoffDays) {
+          activePhase = 'early';
+          currentPrice = earlyPrice ?? 5000;
+          phaseName = `EARLY ACCESS — ₦${(earlyPrice ?? 5000).toLocaleString()}`;
+          priceDisplay = `₦${(earlyPrice ?? 5000).toLocaleString()}`;
+        } else {
+          activePhase = 'full';
+          currentPrice = fullPrice ?? 17000;
+          phaseName = `FULL PRICE — ₦${(fullPrice ?? 17000).toLocaleString()}`;
+          priceDisplay = `₦${(fullPrice ?? 17000).toLocaleString()}`;
+        }
+      }
+
+      phaseEndsAt = new Date(Date.now() + secondsRemaining * 1000);
+    } else {
+      const launchDate = new Date(settings.launchDateApexEditor || Date.now());
+      const now = new Date();
+
+      const diffMs = Math.max(0, now.getTime() - launchDate.getTime());
+      currentDayNumber = Math.max(1, Math.floor(diffMs / (1000 * 60 * 60 * 24)) + 1);
+
+      if (currentDayNumber <= freeDays) {
+        activePhase = 'free';
+        currentPrice = 0;
+        phaseName = 'FREE LAUNCH ACCESS';
+        priceDisplay = 'FREE';
+        phaseEndsAt = new Date(launchDate.getTime() + freeDays * 24 * 60 * 60 * 1000);
+      } else if (currentDayNumber <= totalEarlyCutoffDays) {
+        activePhase = 'early';
+        currentPrice = earlyPrice ?? 5000;
+        phaseName = `EARLY ACCESS — ₦${(earlyPrice ?? 5000).toLocaleString()}`;
+        priceDisplay = `₦${(earlyPrice ?? 5000).toLocaleString()}`;
+        phaseEndsAt = new Date(launchDate.getTime() + totalEarlyCutoffDays * 24 * 60 * 60 * 1000);
+      } else {
+        activePhase = 'full';
+        currentPrice = fullPrice ?? 17000;
+        phaseName = `FULL PRICE — ₦${(fullPrice ?? 17000).toLocaleString()}`;
+        priceDisplay = `₦${(fullPrice ?? 17000).toLocaleString()}`;
+        phaseEndsAt = new Date(launchDate.getTime() + 365 * 24 * 60 * 60 * 1000);
+      }
+
+      secondsRemaining = Math.max(0, Math.floor((phaseEndsAt.getTime() - now.getTime()) / 1000));
     }
 
     return {
@@ -430,14 +464,19 @@ class Store {
       const livePricing = this.getApexEditorLaunchPricing();
       updates.timerPausedSecondsRemaining = livePricing.secondsRemaining;
     } else if (updates.timerPaused === false && currentSettings.timerPaused) {
-      if (typeof currentSettings.timerPausedSecondsRemaining === 'number') {
-        const freeDays = updates.freeDays ?? currentSettings.freeDays ?? 14;
-        const remainingSecs = currentSettings.timerPausedSecondsRemaining;
-        const newEndsAtMs = Date.now() + remainingSecs * 1000;
-        const newLaunchDateMs = newEndsAtMs - freeDays * 24 * 60 * 60 * 1000;
+      const freeDays = updates.freeDays ?? currentSettings.freeDays ?? 14;
+      const remainingSecs = typeof currentSettings.timerPausedSecondsRemaining === 'number'
+        ? currentSettings.timerPausedSecondsRemaining
+        : freeDays * 24 * 60 * 60;
+      
+      if (remainingSecs >= freeDays * 24 * 60 * 60) {
+        updates.launchDateApexEditor = new Date().toISOString();
+      } else {
+        const elapsedSecs = (freeDays * 24 * 60 * 60) - remainingSecs;
+        const newLaunchDateMs = Date.now() - elapsedSecs * 1000;
         updates.launchDateApexEditor = new Date(newLaunchDateMs).toISOString();
-        updates.timerPausedSecondsRemaining = undefined;
       }
+      updates.timerPausedSecondsRemaining = undefined;
     }
 
     this.data.settings = {

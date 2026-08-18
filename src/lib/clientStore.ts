@@ -27,51 +27,81 @@ export function calculateLaunchPricing(
   const earlyDays = settings?.earlyDays ?? 14;
   const earlyPrice = settings?.earlyPrice ?? 5000;
   const fullPrice = settings?.fullPrice ?? 17000;
-  const isPaused = Boolean(settings?.timerPaused);
+  const isPaused = settings?.timerPaused !== false; // default true if unset
 
-  const launchTime = new Date(launchDateIso).getTime();
-  const now = Date.now();
-  const elapsedMs = Math.max(0, now - launchTime);
-  const elapsedDays = elapsedMs / (24 * 60 * 60 * 1000);
-  const currentDayNumber = Math.floor(elapsedDays) + 1;
-
+  let currentDayNumber = 0;
+  let secondsRemaining = freeDays * 24 * 60 * 60;
   let activePhase: LaunchPhase = 'free';
   let currentPrice = 0;
   let phaseName = 'FREE LAUNCH ACCESS';
   let priceDisplay = 'FREE';
+  let phaseEndsAt = new Date();
 
   const totalEarlyCutoffDays = freeDays + earlyDays;
 
-  if (currentDayNumber <= freeDays) {
-    activePhase = 'free';
-    currentPrice = 0;
-    phaseName = 'FREE LAUNCH ACCESS';
-    priceDisplay = 'FREE';
-  } else if (currentDayNumber <= totalEarlyCutoffDays) {
-    activePhase = 'early';
-    currentPrice = earlyPrice ?? 5000;
-    phaseName = `EARLY ACCESS — ₦${(earlyPrice ?? 5000).toLocaleString()}`;
-    priceDisplay = `₦${(earlyPrice ?? 5000).toLocaleString()}`;
-  } else {
-    activePhase = 'full';
-    currentPrice = fullPrice ?? 17000;
-    phaseName = `FULL PRICE — ₦${(fullPrice ?? 17000).toLocaleString()}`;
-    priceDisplay = `₦${(fullPrice ?? 17000).toLocaleString()}`;
-  }
-
-  let phaseEndDay = freeDays;
-  if (currentDayNumber > freeDays && currentDayNumber <= totalEarlyCutoffDays) {
-    phaseEndDay = totalEarlyCutoffDays;
-  }
-  if (currentDayNumber > totalEarlyCutoffDays) phaseEndDay = 3650;
-
-  const phaseEndTime = launchTime + phaseEndDay * 24 * 60 * 60 * 1000;
-  let secondsRemaining = Math.max(0, Math.floor((phaseEndTime - now) / 1000));
-
   if (isPaused) {
     if (typeof settings?.timerPausedSecondsRemaining === 'number') {
-      secondsRemaining = settings.timerPausedSecondsRemaining;
+      secondsRemaining = Math.max(0, settings.timerPausedSecondsRemaining);
+    } else {
+      secondsRemaining = freeDays * 24 * 60 * 60;
     }
+
+    if (secondsRemaining >= freeDays * 24 * 60 * 60) {
+      currentDayNumber = 0;
+      activePhase = 'free';
+      currentPrice = 0;
+      phaseName = 'FREE LAUNCH ACCESS';
+      priceDisplay = 'FREE';
+    } else {
+      const elapsedSecs = (freeDays * 24 * 60 * 60) - secondsRemaining;
+      currentDayNumber = Math.max(1, Math.floor(elapsedSecs / (24 * 60 * 60)) + 1);
+      if (currentDayNumber <= freeDays) {
+        activePhase = 'free';
+        currentPrice = 0;
+        phaseName = 'FREE LAUNCH ACCESS';
+        priceDisplay = 'FREE';
+      } else if (currentDayNumber <= totalEarlyCutoffDays) {
+        activePhase = 'early';
+        currentPrice = earlyPrice ?? 5000;
+        phaseName = `EARLY ACCESS — ₦${(earlyPrice ?? 5000).toLocaleString()}`;
+        priceDisplay = `₦${(earlyPrice ?? 5000).toLocaleString()}`;
+      } else {
+        activePhase = 'full';
+        currentPrice = fullPrice ?? 17000;
+        phaseName = `FULL PRICE — ₦${(fullPrice ?? 17000).toLocaleString()}`;
+        priceDisplay = `₦${(fullPrice ?? 17000).toLocaleString()}`;
+      }
+    }
+
+    phaseEndsAt = new Date(Date.now() + secondsRemaining * 1000);
+  } else {
+    const launchTime = new Date(launchDateIso || Date.now()).getTime();
+    const now = Date.now();
+    const elapsedMs = Math.max(0, now - launchTime);
+    const elapsedDays = elapsedMs / (24 * 60 * 60 * 1000);
+    currentDayNumber = Math.max(1, Math.floor(elapsedDays) + 1);
+
+    if (currentDayNumber <= freeDays) {
+      activePhase = 'free';
+      currentPrice = 0;
+      phaseName = 'FREE LAUNCH ACCESS';
+      priceDisplay = 'FREE';
+      phaseEndsAt = new Date(launchTime + freeDays * 24 * 60 * 60 * 1000);
+    } else if (currentDayNumber <= totalEarlyCutoffDays) {
+      activePhase = 'early';
+      currentPrice = earlyPrice ?? 5000;
+      phaseName = `EARLY ACCESS — ₦${(earlyPrice ?? 5000).toLocaleString()}`;
+      priceDisplay = `₦${(earlyPrice ?? 5000).toLocaleString()}`;
+      phaseEndsAt = new Date(launchTime + totalEarlyCutoffDays * 24 * 60 * 60 * 1000);
+    } else {
+      activePhase = 'full';
+      currentPrice = fullPrice ?? 17000;
+      phaseName = `FULL PRICE — ₦${(fullPrice ?? 17000).toLocaleString()}`;
+      priceDisplay = `₦${(fullPrice ?? 17000).toLocaleString()}`;
+      phaseEndsAt = new Date(launchTime + 365 * 24 * 60 * 60 * 1000);
+    }
+
+    secondsRemaining = Math.max(0, Math.floor((phaseEndsAt.getTime() - now) / 1000));
   }
 
   return {
@@ -81,7 +111,7 @@ export function calculateLaunchPricing(
     currentPrice,
     phaseName,
     priceDisplay,
-    phaseEndsAt: new Date(phaseEndTime).toISOString(),
+    phaseEndsAt: phaseEndsAt.toISOString(),
     secondsRemaining,
     isPaused,
   };

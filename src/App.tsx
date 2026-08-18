@@ -16,6 +16,8 @@ import { AdminDashboard } from './pages/AdminDashboard';
 import { AdminLoginModal } from './pages/AdminLoginModal';
 import { DownloadModal } from './components/DownloadModal';
 import { IntroCinematic } from './components/IntroCinematic';
+import { AnimatedBackground } from './components/AnimatedBackground';
+import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles, FileText } from 'lucide-react';
 
 export default function App() {
@@ -181,15 +183,14 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#050505] text-white flex flex-col font-sans selection:bg-[#FF6321] selection:text-black relative overflow-x-hidden">
-      {/* Frosted Glass Ambient Glowing Background Orbs */}
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[#FF6321] opacity-[0.08] blur-[120px] rounded-full pointer-events-none z-0" />
-      <div className="fixed bottom-0 right-0 w-[500px] h-[500px] bg-[#FF6321] opacity-[0.05] blur-[100px] rounded-full pointer-events-none z-0" />
+      {/* High-Performance Dynamic Animated Background Mesh, Floating Particles & Cyber Grid */}
+      <AnimatedBackground />
 
       {/* Owner Custom Announcement Banner */}
       {ownerSettings?.showAnnouncement && ownerSettings.announcementText && activeTab !== 'admin' && (
-        <div className="bg-[#FF6321] text-black font-extrabold text-xs py-2 px-4 text-center tracking-wider uppercase flex items-center justify-center gap-2 relative z-50">
-          <Sparkles className="w-4 h-4 fill-black" />
-          <span>{ownerSettings.announcementText}</span>
+        <div className="bg-gradient-to-r from-[#FF6321] via-amber-400 to-[#FF6321] text-black font-extrabold text-xs py-2 px-4 text-center tracking-wider uppercase flex items-center justify-center gap-2 relative z-50 animate-shimmer-text shadow-[0_4px_20px_rgba(255,99,33,0.4)]">
+          <Sparkles className="w-4 h-4 fill-black animate-spin" style={{ animationDuration: '4s' }} />
+          <span className="font-mono tracking-widest">{ownerSettings.announcementText}</span>
         </div>
       )}
 
@@ -204,82 +205,92 @@ export default function App() {
         />
       )}
 
-      {/* Main Page Content Body */}
+      {/* Main Page Content Body with Smooth Page Transitions */}
       <main className="flex-1 relative z-10">
-        {activeTab === 'home' && (
-          <Home
-            setActiveTab={setActiveTab}
-            openDownloadModal={handleOpenDownloadModal}
-            launchPricing={launchPricing}
-            products={products}
-          />
-        )}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 14, filter: 'blur(6px)' }}
+            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            exit={{ opacity: 0, y: -14, filter: 'blur(6px)' }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {activeTab === 'home' && (
+              <Home
+                setActiveTab={setActiveTab}
+                openDownloadModal={handleOpenDownloadModal}
+                launchPricing={launchPricing}
+                products={products}
+              />
+            )}
 
-        {activeTab === 'products' && (
-          <Products
-            products={products}
-            openDownloadModal={handleOpenDownloadModal}
-            launchPricing={launchPricing}
-          />
-        )}
+            {activeTab === 'products' && (
+              <Products
+                products={products}
+                openDownloadModal={handleOpenDownloadModal}
+                launchPricing={launchPricing}
+              />
+            )}
 
-        {activeTab === 'apex-editor' && (
-          <ApexEditor
-            product={apexEditorProduct}
-            launchPricing={launchPricing}
-            openDownloadModal={handleOpenDownloadModal}
-            onRefreshPricing={fetchPublicData}
-          />
-        )}
+            {activeTab === 'apex-editor' && (
+              <ApexEditor
+                product={apexEditorProduct}
+                launchPricing={launchPricing}
+                openDownloadModal={handleOpenDownloadModal}
+                onRefreshPricing={fetchPublicData}
+              />
+            )}
 
-        {activeTab === 'apex-editor-demo' && (
-          <ApexEditorDemo
-            product={apexEditorProduct}
-            settings={ownerSettings || undefined}
-            openDownloadModal={handleOpenDownloadModal}
-          />
-        )}
+            {activeTab === 'apex-editor-demo' && (
+              <ApexEditorDemo
+                product={apexEditorProduct}
+                settings={ownerSettings || undefined}
+                openDownloadModal={handleOpenDownloadModal}
+              />
+            )}
 
-        {activeTab === 'gangster-revolution' && (
-          <GangsterRevolution
-            product={gangsterRevolutionProduct}
-            settings={ownerSettings || undefined}
-            openDownloadModal={handleOpenDownloadModal}
-          />
-        )}
+            {activeTab === 'gangster-revolution' && (
+              <GangsterRevolution
+                product={gangsterRevolutionProduct}
+                settings={ownerSettings || undefined}
+                openDownloadModal={handleOpenDownloadModal}
+              />
+            )}
 
-        {activeTab === 'about' && <About />}
+            {activeTab === 'about' && <About />}
 
-        {activeTab === 'contact' && <Contact />}
+            {activeTab === 'contact' && <Contact />}
 
-        {activeTab === 'notifications' && <CustomerNotifications />}
+            {activeTab === 'notifications' && <CustomerNotifications />}
 
-        {/* Dynamic Custom Tab View */}
-        {currentCustomTab && (
-          <div className="max-w-5xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
-            <div className="p-8 md:p-12 rounded-3xl bg-white/[0.03] border border-white/10 backdrop-blur-xl shadow-2xl">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-3 rounded-2xl bg-[#FF6321]/10 border border-[#FF6321]/30 text-[#FF6321]">
-                  <FileText className="w-6 h-6" />
+            {/* Dynamic Custom Tab View */}
+            {currentCustomTab && (
+              <div className="max-w-5xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
+                <div className="p-8 md:p-12 rounded-3xl bg-white/[0.03] border border-white/10 backdrop-blur-xl shadow-2xl">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="p-3 rounded-2xl bg-[#FF6321]/10 border border-[#FF6321]/30 text-[#FF6321]">
+                      <FileText className="w-6 h-6" />
+                    </div>
+                    <h1 className="text-3xl md:text-4xl font-black text-white tracking-wide uppercase">
+                      {currentCustomTab.label}
+                    </h1>
+                  </div>
+                  <div className="prose prose-invert max-w-none text-gray-300 whitespace-pre-line leading-relaxed text-base">
+                    {currentCustomTab.content}
+                  </div>
                 </div>
-                <h1 className="text-3xl md:text-4xl font-black text-white tracking-wide uppercase">
-                  {currentCustomTab.label}
-                </h1>
               </div>
-              <div className="prose prose-invert max-w-none text-gray-300 whitespace-pre-line leading-relaxed text-base">
-                {currentCustomTab.content}
-              </div>
-            </div>
-          </div>
-        )}
+            )}
 
-        {activeTab === 'admin' && adminToken && (
-          <AdminDashboard
-            token={adminToken}
-            onLogout={handleAdminLogout}
-            onDataChanged={fetchPublicData}
-          />
-        )}
+            {activeTab === 'admin' && adminToken && (
+              <AdminDashboard
+                token={adminToken}
+                onLogout={handleAdminLogout}
+                onDataChanged={fetchPublicData}
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
       </main>
 
       {/* Footer */}

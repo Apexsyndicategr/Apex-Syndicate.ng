@@ -394,13 +394,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [aiPrompt, setAiPrompt] = useState('');
   const [aiProcessing, setAiProcessing] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [aiSpeechOutput, setAiSpeechOutput] = useState(true);
+  const [aiSpeechOutput, setAiSpeechOutput] = useState(false);
   const [aiHistory, setAiHistory] = useState<
     Array<{ sender: 'user' | 'ai'; text: string; logs?: string[]; timestamp: string }>
   >([
     {
       sender: 'ai',
-      text: 'Hello, Owner! I am Apex AI Helper. I have autonomous control over this website. You can ask me to change bank details, reset the 14-day launch timer, toggle announcements, edit pricing, manage products, or clear requests—by typing or using Voice Mode!',
+      text: 'Yooo boss! I am Apex AI Omniscient Intelligence — your supreme coding partner, software architect, and platform autonomous controller (powered by Gemini & ChatGPT combined intellect).\n\nYou can chat with me naturally, ask me for full-stack code or debugging, or command me to control any website setting (timer, demo link, bank info, products, announcements, requests). I will type everything directly back to you with no unwanted voice chatter!',
       timestamp: new Date().toLocaleTimeString(),
     },
   ]);
@@ -445,26 +445,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     }
   };
 
-  const speakAiMessage = (text: string) => {
-    if (!aiSpeechOutput || !('speechSynthesis' in window)) return;
-    try {
-      window.speechSynthesis.cancel();
-      // Clean markdown, code blocks, and symbols for pleasant, concise voice output
-      const cleanText = text
-        .replace(/```[\s\S]*?```/g, 'Code block generated.')
-        .replace(/`([^`]+)`/g, '$1')
-        .replace(/[*#_~]/g, '')
-        .trim();
-      const speakableSummary = cleanText.split('\n')[0].slice(0, 180);
-      const utterance = new SpeechSynthesisUtterance(speakableSummary || 'Task completed boss!');
-      utterance.rate = 1.05;
-      utterance.pitch = 1.0;
-      window.speechSynthesis.speak(utterance);
-    } catch (e: any) {
-      console.warn('Speech synthesis error:', e?.message || 'Speech synthesis unavailable');
-    }
-  };
-
   const handleSendAiPrompt = async (customPrompt?: string) => {
     const promptToSubmit = customPrompt || aiPrompt;
     if (!promptToSubmit.trim() || aiProcessing) return;
@@ -491,7 +471,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         },
       ]);
 
-      speakAiMessage(result.reply);
+      // Response is text-only (typed back directly with no voice audio synthesis)
 
       if (result.updatedData) {
         setStats(result.updatedData.stats);
@@ -521,7 +501,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         ...prev,
         {
           sender: 'ai',
-          text: 'Sorry, I encountered an issue processing that command. Please try again.',
+          text: 'Sorry boss, I encountered an issue processing that command. Please try again.',
           timestamp: new Date().toLocaleTimeString(),
         },
       ]);
@@ -1451,26 +1431,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       </span>
                     </div>
                     <h2 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-wider">
-                      APEX AI HELPER
+                      APEX AI OMNISCIENT INTELLIGENCE
                     </h2>
                     <p className="text-xs text-gray-300 max-w-2xl leading-relaxed">
-                      Give natural language commands by <strong>typing</strong> or using <strong>Voice Mode</strong>. Apex AI Helper will immediately execute changes across the entire website — including launch countdown timers, bank payment info, announcements, products, pricing tiers, and request approvals!
+                      Powered by the combined intelligence of <strong>Gemini & ChatGPT</strong>. Converse casually, ask for <strong>production code</strong> across any language, or command <strong>autonomous live site actions</strong> (timer, demo link, banking, specs, products, visitor counters). Responds via fast typed text directly in chat.
                     </p>
                   </div>
 
                   <div className="flex items-center gap-3 shrink-0">
-                    <button
-                      onClick={() => setAiSpeechOutput(!aiSpeechOutput)}
-                      className={`px-4 py-2.5 rounded-xl border text-xs font-bold uppercase transition-all flex items-center gap-2 ${
-                        aiSpeechOutput
-                          ? 'bg-purple-900/50 border-purple-500/50 text-purple-200 shadow-[0_0_15px_rgba(168,85,247,0.3)]'
-                          : 'bg-white/5 border-white/10 text-gray-400'
-                      }`}
-                      title="Toggle Text-to-Speech Voice Output"
-                    >
-                      {aiSpeechOutput ? <Volume2 className="w-4 h-4 text-purple-400" /> : <VolumeX className="w-4 h-4" />}
-                      <span>VOICE OUTPUT: {aiSpeechOutput ? 'ON' : 'MUTED'}</span>
-                    </button>
+                    <div className="px-4 py-2.5 rounded-xl border border-white/10 bg-white/5 text-gray-300 text-xs font-bold uppercase flex items-center gap-2">
+                      <VolumeX className="w-4 h-4 text-emerald-400" />
+                      <span>TEXT RESPONSE MODE</span>
+                    </div>
 
                     <button
                       onClick={() => {
@@ -2451,7 +2423,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         type="text"
                         value={apexEditorDemoUrl}
                         onChange={(e) => setApexEditorDemoUrl(e.target.value)}
-                        placeholder="e.g. https://demo.apexsyndicate.com.ng or https://editor.apex.io"
+                        placeholder="e.g. https://apex-editor-demo.vercel.app/"
                         className="flex-1 px-4 py-3 rounded-xl bg-black/60 border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-amber-400"
                       />
                       {apexEditorDemoUrl && (

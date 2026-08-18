@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Product, OwnerSettings } from '../types';
 import {
   Terminal,
@@ -15,6 +16,7 @@ import {
   ArrowRight,
   Monitor,
   Laptop,
+  X,
 } from 'lucide-react';
 
 interface ApexEditorDemoProps {
@@ -28,20 +30,43 @@ export const ApexEditorDemo: React.FC<ApexEditorDemoProps> = ({
   settings,
   openDownloadModal,
 }) => {
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showUnavailableModal, setShowUnavailableModal] = useState(false);
 
-  const demoUrl = (settings?.apexEditorDemoUrl || '').trim();
+  const demoUrl = (settings?.apexEditorDemoUrl || 'https://apex-editor-demo.vercel.app/').trim();
   const isDemoAvailable = Boolean(demoUrl);
 
-  const handleUseDemo = () => {
-    if (isDemoAvailable) {
-      if (demoUrl.startsWith('http://') || demoUrl.startsWith('https://')) {
-        window.open(demoUrl, '_blank', 'noopener,noreferrer');
-      } else {
-        window.open(`https://${demoUrl}`, '_blank', 'noopener,noreferrer');
-      }
+  // Prevent background body scrolling when modal is active & support ESC to dismiss
+  useEffect(() => {
+    if (showConfirmModal || showUnavailableModal) {
+      document.body.style.overflow = 'hidden';
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape' || e.code === 'Escape' || e.keyCode === 27) {
+          setShowConfirmModal(false);
+          setShowUnavailableModal(false);
+        }
+      };
+      window.addEventListener('keydown', handleKeyDown);
+      return () => {
+        document.body.style.overflow = '';
+        window.removeEventListener('keydown', handleKeyDown);
+      };
     } else {
-      setShowUnavailableModal(true);
+      document.body.style.overflow = '';
+    }
+  }, [showConfirmModal, showUnavailableModal]);
+
+  const handleOpenDemoPrompt = () => {
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmLaunchDemo = () => {
+    setShowConfirmModal(false);
+    const targetUrl = demoUrl || 'https://apex-editor-demo.vercel.app/';
+    if (targetUrl.startsWith('http://') || targetUrl.startsWith('https://')) {
+      window.open(targetUrl, '_blank', 'noopener,noreferrer');
+    } else {
+      window.open(`https://${targetUrl}`, '_blank', 'noopener,noreferrer');
     }
   };
 
@@ -74,7 +99,7 @@ export const ApexEditorDemo: React.FC<ApexEditorDemoProps> = ({
           {/* Action Button Bar */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4">
             <button
-              onClick={handleUseDemo}
+              onClick={handleOpenDemoPrompt}
               className="relative group px-10 py-5 rounded-2xl bg-gradient-to-r from-amber-500 via-[#FF6321] to-orange-600 hover:from-amber-400 hover:to-orange-500 text-black font-black text-sm uppercase tracking-widest shadow-[0_10px_35px_rgba(255,99,33,0.4)] transition-all transform hover:scale-[1.03] active:scale-[0.98] flex items-center justify-center gap-3 cursor-pointer"
             >
               <Play className="w-5 h-5 fill-current" />
@@ -117,7 +142,7 @@ export const ApexEditorDemo: React.FC<ApexEditorDemoProps> = ({
             </div>
 
             <button
-              onClick={handleUseDemo}
+              onClick={handleOpenDemoPrompt}
               className="px-6 py-3 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2"
             >
               <Play className="w-4 h-4 fill-current" />
@@ -183,7 +208,7 @@ export const ApexEditorDemo: React.FC<ApexEditorDemoProps> = ({
               </div>
               <div className="flex items-center gap-2">
                 <button
-                  onClick={handleUseDemo}
+                  onClick={handleOpenDemoPrompt}
                   className="px-3 py-1 rounded bg-[#FF6321] text-black font-bold text-[10px] uppercase hover:bg-orange-400 transition-colors"
                 >
                   USE DEMO LINK
@@ -232,43 +257,138 @@ export const ApexEditorDemo: React.FC<ApexEditorDemoProps> = ({
       </section>
 
       {/* ==========================================
-          DEMO UNAVAILABLE MODAL
+          DEMO CONFIRMATION & WARNING MODAL (RENDERED VIA PORTAL AT TOP LEVEL)
          ========================================== */}
-      {showUnavailableModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-          <div className="relative w-full max-w-lg p-8 rounded-3xl bg-[#0e0e10] border border-amber-500/40 shadow-[0_0_50px_rgba(255,99,33,0.3)] space-y-6">
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-2xl bg-rose-500/20 text-rose-400 border border-rose-500/40">
-                <AlertCircle className="w-7 h-7" />
-              </div>
-              <div>
-                <h3 className="text-2xl font-black text-white uppercase tracking-wide">
-                  DEMO UNAVAILABLE
-                </h3>
-                <span className="text-xs font-mono text-gray-400">APEX EDITOR SANDBOX NOTICE</span>
-              </div>
-            </div>
-
-            <div className="p-5 rounded-2xl bg-white/[0.03] border border-white/10 text-sm text-gray-300 space-y-3 leading-relaxed">
-              <p>
-                The live interactive demo link is currently not configured or is undergoing maintenance.
-              </p>
-              <p className="text-xs font-mono text-amber-400">
-                The platform owner can set and update the live demo URL anytime in the <span className="font-bold underline">Owners Portal</span>.
-              </p>
-            </div>
-
-            <div className="flex items-center justify-end gap-3 pt-2">
+      {showConfirmModal &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[9999999] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setShowConfirmModal(false);
+            }}
+          >
+            <div className="relative w-full max-w-lg p-6 sm:p-8 rounded-3xl bg-[#0e0e12] border border-amber-500/50 shadow-[0_0_60px_rgba(245,158,11,0.3)] space-y-6 max-h-[90vh] overflow-y-auto">
+              {/* Close Button */}
               <button
-                onClick={() => setShowUnavailableModal(false)}
-                className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-wider transition-colors"
+                type="button"
+                onClick={() => setShowConfirmModal(false)}
+                className="absolute top-5 right-5 p-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors cursor-pointer"
+                title="Close"
               >
-                CLOSE
+                <X className="w-5 h-5" />
               </button>
+
+              <div className="flex items-center gap-3.5 pr-8">
+                <div className="p-3 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/40 shadow-[0_0_20px_rgba(245,158,11,0.3)]">
+                  <Play className="w-7 h-7 fill-current" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-black text-white uppercase tracking-wide">
+                    LAUNCH DEMO?
+                  </h3>
+                  <span className="text-xs font-mono text-amber-400 font-bold uppercase tracking-wider">
+                    APEX EDITOR PREVIEW ENVIRONMENT
+                  </span>
+                </div>
+              </div>
+
+              {/* MANDATORY WARNING NOTICE */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-950/60 via-orange-950/50 to-black border border-amber-500/60 space-y-2.5 shadow-inner">
+                <div className="flex items-center gap-2 text-amber-300 text-xs font-mono font-bold uppercase tracking-wider">
+                  <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+                  <span>IMPORTANT NOTICE</span>
+                </div>
+                <p className="text-sm sm:text-base font-extrabold text-white leading-relaxed">
+                  ⚠️ This is just a demo, expect bugs and some errors.
+                </p>
+                <p className="text-xs text-gray-300 leading-relaxed">
+                  This preview environment is in active pre-release sandbox mode. Features and capabilities may vary from the final production build.
+                </p>
+              </div>
+
+              {/* CONFIRMATION QUESTION */}
+              <div className="text-center py-1">
+                <p className="text-base sm:text-lg font-black text-white uppercase tracking-wide">
+                  Are you sure you want to proceed?
+                </p>
+                <p className="text-xs text-gray-400 mt-1 font-mono">
+                  Select YES to launch demo or NO to cancel.
+                </p>
+              </div>
+
+              {/* YES / NO ACTION BUTTONS */}
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmModal(false)}
+                  className="w-full py-4 px-4 rounded-xl bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white font-black text-xs uppercase tracking-wider border border-white/10 transition-all cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <X className="w-4 h-4" />
+                  <span>NO, CANCEL</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleConfirmLaunchDemo}
+                  className="w-full py-4 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-[#FF6321] to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-black text-xs uppercase tracking-wider shadow-[0_0_25px_rgba(255,99,33,0.4)] transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <CheckCircle2 className="w-4 h-4 text-black" />
+                  <span>YES, PROCEED</span>
+                </button>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
+
+      {/* ==========================================
+          DEMO UNAVAILABLE MODAL (RENDERED VIA PORTAL)
+         ========================================== */}
+      {showUnavailableModal &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[9999999] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setShowUnavailableModal(false);
+            }}
+          >
+            <div className="relative w-full max-w-lg p-8 rounded-3xl bg-[#0e0e10] border border-amber-500/40 shadow-[0_0_50px_rgba(255,99,33,0.3)] space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="p-3 rounded-2xl bg-rose-500/20 text-rose-400 border border-rose-500/40">
+                  <AlertCircle className="w-7 h-7" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-black text-white uppercase tracking-wide">
+                    DEMO UNAVAILABLE
+                  </h3>
+                  <span className="text-xs font-mono text-gray-400">APEX EDITOR SANDBOX NOTICE</span>
+                </div>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-white/[0.03] border border-white/10 text-sm text-gray-300 space-y-3 leading-relaxed">
+                <p>
+                  The live interactive demo link is currently not configured or is undergoing maintenance.
+                </p>
+                <p className="text-xs font-mono text-amber-400">
+                  The platform owner can set and update the live demo URL anytime in the <span className="font-bold underline">Owners Portal</span>.
+                </p>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowUnavailableModal(false)}
+                  className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer"
+                >
+                  CLOSE
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   );
 };

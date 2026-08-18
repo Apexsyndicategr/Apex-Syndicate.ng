@@ -42,7 +42,7 @@ function getDefaultData(): StoreData {
       autoApproveFree: false,
       adminPassword: 'xxander4325king',
       visitorCount: 0,
-      apexEditorDemoUrl: '',
+      apexEditorDemoUrl: 'https://apex-editor-demo.vercel.app/',
       gangsterRevolutionLaunchDate: 'TBD',
       gangsterRevolutionStatus: 'PRE-ALPHA BUILD • IN DEVELOPMENT',
       gangsterSpecs: {
@@ -170,11 +170,15 @@ class Store {
         const parsed = JSON.parse(fileContent);
         // Ensure missing properties from future schema updates exist
         const defaultState = getDefaultData();
+        const loadedSettings = { ...defaultState.settings, ...(parsed.settings || {}) };
+        if (!loadedSettings.apexEditorDemoUrl || loadedSettings.apexEditorDemoUrl.trim() === '') {
+          loadedSettings.apexEditorDemoUrl = 'https://apex-editor-demo.vercel.app/';
+        }
         return {
           products: parsed.products || defaultState.products,
           requests: parsed.requests || defaultState.requests,
           notifications: parsed.notifications || defaultState.notifications,
-          settings: { ...defaultState.settings, ...(parsed.settings || {}) },
+          settings: loadedSettings,
           contacts: parsed.contacts || defaultState.contacts,
         };
       }

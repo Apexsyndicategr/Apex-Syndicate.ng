@@ -1,36 +1,4 @@
 {
-  "settings": {
-    "bankName": "OPay",
-    "accountName": "APEX SYNDICATE SOFTWARE LTD",
-    "accountNumber": "8082961817",
-    "bankInstructions": "Transfer the exact amount to OPay (8082961817 - APEX SYNDICATE SOFTWARE LTD). Enter your Payment Reference / Transaction ID below so the owner can verify and approve your download.",
-    "ownerEmail": "apexsyndicategr@gmail.com",
-    "launchDateApexEditor": "2026-08-18T04:00:00.000Z",
-    "timerPaused": true,
-    "timerPausedSecondsRemaining": 1209600,
-    "portfolioVideoMode": "blank",
-    "portfolioVideoUrl": "",
-    "autoApproveFree": false,
-    "adminPassword": "xxander4325king",
-    "visitorCount": 0,
-    "apexEditorDemoUrl": "",
-    "gangsterRevolutionLaunchDate": "TBD",
-    "gangsterRevolutionStatus": "PRE-ALPHA BUILD • IN DEVELOPMENT",
-    "gangsterSpecs": {
-      "minOs": "TBD",
-      "minProcessor": "TBD",
-      "minMemory": "TBD",
-      "minGraphics": "TBD",
-      "minDirectX": "TBD",
-      "minStorage": "TBD",
-      "recOs": "TBD",
-      "recProcessor": "TBD",
-      "recMemory": "TBD",
-      "recGraphics": "TBD",
-      "recDirectX": "TBD",
-      "recStorage": "TBD"
-    }
-  },
   "products": [
     {
       "id": "apex-editor",
@@ -112,5 +80,37 @@
   ],
   "requests": [],
   "notifications": [],
+  "settings": {
+    "bankName": "OPay",
+    "accountName": "APEX SYNDICATE SOFTWARE LTD",
+    "accountNumber": "8082961817",
+    "bankInstructions": "Transfer the exact amount to OPay (8082961817 - APEX SYNDICATE SOFTWARE LTD). Enter your Payment Reference / Transaction ID below so the owner can verify and approve your download.",
+    "ownerEmail": "apexsyndicategr@gmail.com",
+    "launchDateApexEditor": "2026-08-18T04:00:00.000Z",
+    "timerPaused": true,
+    "timerPausedSecondsRemaining": 1209600,
+    "portfolioVideoMode": "blank",
+    "portfolioVideoUrl": "",
+    "autoApproveFree": false,
+    "adminPassword": "xxander4325king",
+    "visitorCount": 1,
+    "apexEditorDemoUrl": "https://apex-editor-demo.vercel.app/",
+    "gangsterRevolutionLaunchDate": "TBD",
+    "gangsterRevolutionStatus": "PRE-ALPHA BUILD • IN DEVELOPMENT",
+    "gangsterSpecs": {
+      "minOs": "TBD",
+      "minProcessor": "TBD",
+      "minMemory": "TBD",
+      "minGraphics": "TBD",
+      "minDirectX": "TBD",
+      "minStorage": "TBD",
+      "recOs": "TBD",
+      "recProcessor": "TBD",
+      "recMemory": "TBD",
+      "recGraphics": "TBD",
+      "recDirectX": "TBD",
+      "recStorage": "TBD"
+    }
+  },
   "contacts": []
 }

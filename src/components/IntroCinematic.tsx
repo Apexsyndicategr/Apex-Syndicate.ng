@@ -12,6 +12,23 @@ export const IntroCinematic: React.FC = () => {
     setIsPlaying(false);
   };
 
+  // Listen for ESC key press to immediately skip intro
+  useEffect(() => {
+    if (!isPlaying) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' || e.code === 'Escape' || e.keyCode === 27) {
+        e.preventDefault();
+        handleFinish();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown, { capture: true });
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown, { capture: true });
+    };
+  }, [isPlaying]);
+
   useEffect(() => {
     if (!isPlaying) return;
 

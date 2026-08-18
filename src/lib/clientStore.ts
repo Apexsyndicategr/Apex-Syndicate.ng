@@ -106,7 +106,7 @@ export function getDefaultData(): StoreData {
       autoApproveFree: false,
       adminPassword: 'xxander4325king',
       visitorCount: 0,
-      apexEditorDemoUrl: '',
+      apexEditorDemoUrl: 'https://apex-editor-demo.vercel.app/',
       gangsterRevolutionLaunchDate: 'TBD',
       gangsterRevolutionStatus: 'PRE-ALPHA BUILD • IN DEVELOPMENT',
       gangsterSpecs: {
@@ -222,6 +222,9 @@ export function loadClientData(): StoreData {
       const def = getDefaultData();
       localStorage.setItem(STORE_KEY, JSON.stringify(def));
       return def;
+    }
+    if (!parsed.settings.apexEditorDemoUrl || parsed.settings.apexEditorDemoUrl.trim() === '') {
+      parsed.settings.apexEditorDemoUrl = 'https://apex-editor-demo.vercel.app/';
     }
     return parsed;
   } catch (e) {

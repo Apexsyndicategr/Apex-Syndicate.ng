@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'motion/react';
 
 interface ApexLogoProps {
   className?: string;
@@ -28,11 +29,16 @@ export const ApexLogo: React.FC<ApexLogoProps> = ({
   return (
     <div className={`inline-flex items-center gap-3 select-none ${className}`}>
       {/* Official Apex Syndicate Vibrant Orange Shield Icon */}
-      <div className={`relative flex items-center justify-center shrink-0 ${iconSizes[size]}`}>
+      <motion.div
+        whileHover={{ rotate: [0, -6, 6, 0], scale: 1.08 }}
+        transition={{ duration: 0.5 }}
+        className={`relative flex items-center justify-center shrink-0 ${iconSizes[size]}`}
+      >
         {/* Soft Ambient Glow Ring */}
-        <div className="absolute inset-0 bg-[#FF6321] rounded-2xl blur-lg opacity-40 animate-pulse" />
-        
-        <div className="relative w-full h-full bg-gradient-to-br from-[#FF6321] to-[#D14D00] rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(255,99,33,0.35)] border border-white/20">
+        <div className="absolute inset-0 bg-[#FF6321] rounded-2xl blur-lg opacity-60 animate-pulse" />
+        <div className="absolute -inset-1 bg-gradient-to-r from-[#FF6321] via-amber-400 to-[#FF4500] rounded-2xl opacity-40 blur-sm animate-pulse-glow" />
+
+        <div className="relative w-full h-full bg-gradient-to-br from-[#FF6321] to-[#D14D00] rounded-2xl flex items-center justify-center shadow-[0_0_25px_rgba(255,99,33,0.5)] border border-white/30">
           <svg
             viewBox="0 0 100 100"
             className="w-3/5 h-3/5 drop-shadow-md"
@@ -60,14 +66,15 @@ export const ApexLogo: React.FC<ApexLogoProps> = ({
             />
           </svg>
         </div>
-      </div>
+      </motion.div>
 
       {showText && (
         <div className="flex flex-col leading-none">
           <div className={`font-black tracking-tight uppercase font-sans text-white ${textSizes[size]}`}>
-            APEX <span className="text-[#FF6321]">SYNDICATE</span>
+            APEX <span className="bg-gradient-to-r from-[#FF6321] via-amber-400 to-[#FF4500] bg-clip-text text-transparent animate-shimmer-text">SYNDICATE</span>
           </div>
-          <span className="text-[9px] tracking-[0.25em] text-[#FF6321]/80 uppercase font-bold mt-1 font-mono">
+          <span className="text-[9px] tracking-[0.25em] text-[#FF6321] uppercase font-bold mt-1 font-mono flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#FF6321] animate-ping inline-block" />
             apexsyndicate.com.ng
           </span>
         </div>

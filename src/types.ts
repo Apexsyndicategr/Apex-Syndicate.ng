@@ -102,6 +102,27 @@ export interface GangsterSpecs {
   recStorage: string;
 }
 
+export interface DevUpdatePicture {
+  id: string;
+  url: string;
+  title: string;
+  caption?: string;
+  category?: 'Apex Editor' | 'Gangster Revolution' | 'Syndicate Studio' | 'General';
+  createdAt?: string;
+}
+
+export interface DevUpdateItem {
+  id: string;
+  title: string;
+  category: 'Apex Editor' | 'Gangster Revolution' | 'Syndicate Studio' | 'General';
+  date: string;
+  description: string;
+  images?: string[];
+  pictures?: string[];
+  videoUrl?: string;
+  statusTag?: string;
+}
+
 export interface OwnerSettings {
   bankName: string;
   accountName: string;
@@ -125,6 +146,8 @@ export interface OwnerSettings {
   customTabs?: CustomTab[];
   portfolioVideoMode?: 'default' | 'custom' | 'blank';
   portfolioVideoUrl?: string;
+  devUpdates?: DevUpdateItem[];
+  devUpdatePictures?: DevUpdatePicture[];
   // Gangster Revolution Configuration
   gangsterRevolutionLaunchDate?: string;
   gangsterRevolutionStatus?: string;

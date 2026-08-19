@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Lock, X, Key, ArrowRight } from 'lucide-react';
 import { loginAdmin } from '../lib/api';
 
@@ -16,8 +16,33 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  // Always clear password state and focus input when modal is opened or closed
+  useEffect(() => {
+    if (isOpen) {
+      setPassword('');
+      setErrorMsg('');
+      const timer = setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.value = '';
+          inputRef.current.focus();
+        }
+      }, 50);
+      return () => clearTimeout(timer);
+    } else {
+      setPassword('');
+      setErrorMsg('');
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
+
+  const handleClose = () => {
+    setPassword('');
+    setErrorMsg('');
+    onClose();
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,10 +53,10 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
 
     try {
       const data = await loginAdmin(password);
-
       sessionStorage.setItem('apex_admin_token', data.token);
+      setPassword(''); // Clear password from memory immediately
       onLoginSuccess(data.token);
-      onClose();
+      handleClose();
     } catch (err: any) {
       setErrorMsg(err.message || 'Authentication failed.');
     } finally {
@@ -43,8 +68,9 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
       <div className="relative w-full max-w-md bg-[#08080a] border border-white/10 rounded-[32px] p-8 shadow-[0_0_60px_rgba(255,99,33,0.3)] space-y-6">
         <button
-          onClick={onClose}
-          className="absolute top-6 right-6 p-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+          type="button"
+          onClick={handleClose}
+          className="absolute top-6 right-6 p-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors cursor-pointer"
         >
           <X className="w-5 h-5" />
         </button>
@@ -61,7 +87,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} autoComplete="off" className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-gray-300 uppercase mb-1">
               Admin Password
@@ -69,8 +95,13 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
             <div className="relative">
               <Key className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
               <input
+                ref={inputRef}
                 type="password"
                 required
+                autoComplete="new-password"
+                autoCorrect="off"
+                autoCapitalize="off"
+                spellCheck="false"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter owner password..."
@@ -87,8 +118,8 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
 
           <button
             type="submit"
-            disabled={isSubmitting}
-            className="w-full py-3.5 rounded-xl bg-[#FF6321] hover:bg-[#FF8A50] text-black font-extrabold text-xs uppercase tracking-widest shadow-[0_0_20px_rgba(255,99,33,0.35)] transition-all flex items-center justify-center gap-2"
+            disabled={isSubmitting || !password.trim()}
+            className="w-full py-3.5 rounded-xl bg-[#FF6321] hover:bg-[#FF8A50] text-black font-extrabold text-xs uppercase tracking-widest shadow-[0_0_20px_rgba(255,99,33,0.35)] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
           >
             {isSubmitting ? (
               'Authenticating...'

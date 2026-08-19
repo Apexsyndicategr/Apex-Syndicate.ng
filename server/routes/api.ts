@@ -132,6 +132,8 @@ router.get('/settings/public', (req: Request, res: Response) => {
       customTabs: settings.customTabs || [],
       portfolioVideoMode: settings.portfolioVideoMode || 'blank',
       portfolioVideoUrl: settings.portfolioVideoUrl || '',
+      devUpdatePictures: settings.devUpdatePictures || [],
+      devUpdates: settings.devUpdates || [],
       apexEditorDemoUrl: settings.apexEditorDemoUrl || '',
       launchDateApexEditor: settings.launchDateApexEditor,
       timerPaused: settings.timerPaused !== false,
@@ -659,6 +661,23 @@ router.post('/upload/portfolio-video', requireAdmin, upload.single('video'), (re
       success: true,
       videoUrl: publicUrl,
       settings: updatedSettings,
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 22c. Dev Update Picture Upload (Admin - saves image file and returns public URL)
+router.post('/upload/dev-update-picture', requireAdmin, upload.single('image'), (req: Request, res: Response) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No image file provided.' });
+    }
+    const publicUrl = `/downloads/files/${req.file.filename}`;
+    res.json({
+      success: true,
+      imageUrl: publicUrl,
+      filename: req.file.originalname,
     });
   } catch (err: any) {
     res.status(500).json({ error: err.message });

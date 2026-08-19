@@ -39,6 +39,8 @@ function getDefaultData(): StoreData {
       timerPausedSecondsRemaining: 14 * 24 * 60 * 60,
       portfolioVideoMode: 'blank',
       portfolioVideoUrl: '',
+      devUpdates: [],
+      devUpdatePictures: [],
       autoApproveFree: false,
       adminPassword: 'xxander4325king',
       visitorCount: 0,

@@ -79,6 +79,8 @@ export async function fetchPublicSettings(): Promise<Partial<OwnerSettings>> {
     customTabs: data.settings.customTabs,
     portfolioVideoMode: data.settings.portfolioVideoMode || 'blank',
     portfolioVideoUrl: data.settings.portfolioVideoUrl || '',
+    devUpdatePictures: data.settings.devUpdatePictures || [],
+    devUpdates: data.settings.devUpdates || [],
     apexEditorDemoUrl: data.settings.apexEditorDemoUrl || '',
     gangsterRevolutionLaunchDate: data.settings.gangsterRevolutionLaunchDate || 'TBD',
     gangsterRevolutionStatus: data.settings.gangsterRevolutionStatus || 'PRE-ALPHA BUILD • IN DEVELOPMENT',
@@ -526,6 +528,29 @@ export async function sendAiAssistantPrompt(
       requests: data.requests,
     }
   };
+}
+
+export async function uploadDevUpdatePictureApi(
+  file: File,
+  token: string
+): Promise<{ success: boolean; imageUrl: string; filename: string }> {
+  const formData = new FormData();
+  formData.append('image', file);
+
+  const res = await fetch('/api/upload/dev-update-picture', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData.error || 'Failed to upload picture');
+  }
+
+  return await res.json();
 }
 
 export async function uploadPortfolioVideoApi(

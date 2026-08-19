@@ -167,7 +167,9 @@ export default function App() {
     sessionStorage.removeItem('apex_admin_token');
     localStorage.removeItem('apex_admin_token');
     setAdminToken(null);
+    setIsAdminModalOpen(false);
     setActiveTab('home');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const apexEditorProduct = products.find((p) => p.id === 'apex-editor') || products[0] || null;

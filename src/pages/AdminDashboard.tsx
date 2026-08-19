@@ -10,6 +10,8 @@ import {
   ProductCategory,
   CustomTab,
   GangsterSpecs,
+  DevUpdatePicture,
+  DevUpdateItem,
 } from '../types';
 import {
   fetchAdminDashboard,
@@ -22,6 +24,7 @@ import {
   fetchLaunchPricing,
   sendAiAssistantPrompt,
   uploadPortfolioVideoApi,
+  uploadDevUpdatePictureApi,
   resetVisitorCountApi,
 } from '../lib/api';
 import { exportPortfolioVideo } from '../lib/videoExporter';
@@ -67,6 +70,7 @@ import {
   Lock,
   Key,
   Gamepad2,
+  Image as ImageIcon,
 } from 'lucide-react';
 
 interface AdminDashboardProps {
@@ -290,6 +294,147 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       showToast('Reset to Default Animated Reel Successfully for all visitors!');
     } catch (err) {
       showToast('Reset to Default Animated Reel Successfully!');
+    }
+    fetchDashboardData();
+    if (onDataChanged) onDataChanged();
+  };
+
+  // Dev Updates Pictures & Posts State & Handlers
+  const [devUpdatePicturesList, setDevUpdatePicturesList] = useState<DevUpdatePicture[]>([]);
+  const [devUpdatesList, setDevUpdatesList] = useState<DevUpdateItem[]>([]);
+  
+  // New Picture Form State
+  const [newPicTitle, setNewPicTitle] = useState('');
+  const [newPicCaption, setNewPicCaption] = useState('');
+  const [newPicCategory, setNewPicCategory] = useState<'Apex Editor' | 'Gangster Revolution' | 'Syndicate Studio' | 'General'>('Apex Editor');
+  const [newPicUrl, setNewPicUrl] = useState('');
+  const [isUploadingPic, setIsUploadingPic] = useState(false);
+
+  // New Dev Update Post Form State
+  const [newUpdateTitle, setNewUpdateTitle] = useState('');
+  const [newUpdateCategory, setNewUpdateCategory] = useState<'Apex Editor' | 'Gangster Revolution' | 'Syndicate Studio' | 'General'>('Apex Editor');
+  const [newUpdateStatusTag, setNewUpdateStatusTag] = useState('ENGINE FEATURE ACTIVE');
+  const [newUpdateDesc, setNewUpdateDesc] = useState('');
+  const [newUpdateAttachedPics, setNewUpdateAttachedPics] = useState<string[]>([]);
+  const [isAddingUpdate, setIsAddingUpdate] = useState(false);
+
+  const handleUploadDevPicture = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsUploadingPic(true);
+      showToast('Uploading dev picture to server...');
+      const res = await uploadDevUpdatePictureApi(file, token);
+      setNewPicUrl(res.imageUrl);
+      showToast('Picture uploaded successfully! Enter title/caption and click Add.');
+    } catch (err: any) {
+      console.error('Picture upload error:', err);
+      // Base64 local fallback
+      const reader = new FileReader();
+      reader.onload = () => {
+        setNewPicUrl(reader.result as string);
+        showToast('Picture cached locally. Click Add Picture to save.');
+      };
+      reader.readAsDataURL(file);
+    } finally {
+      setIsUploadingPic(false);
+    }
+  };
+
+  const handleAddDevPicture = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPicUrl.trim()) {
+      showToast('Please upload a picture file or enter an image URL first.');
+      return;
+    }
+
+    const newPic: DevUpdatePicture = {
+      id: 'pic-' + Date.now(),
+      url: newPicUrl.trim(),
+      title: newPicTitle.trim() || 'Dev Update Snapshot',
+      caption: newPicCaption.trim(),
+      category: newPicCategory,
+      createdAt: new Date().toISOString().split('T')[0],
+    };
+
+    const updatedList = [newPic, ...devUpdatePicturesList];
+    setDevUpdatePicturesList(updatedList);
+    localStorage.setItem('apex_dev_update_pictures', JSON.stringify(updatedList));
+
+    try {
+      await updateSettingsApi({ devUpdatePictures: updatedList }, token);
+      showToast('Dev update picture added and published live to all visitors!');
+    } catch (err) {
+      showToast('Picture saved locally.');
+    }
+
+    setNewPicUrl('');
+    setNewPicTitle('');
+    setNewPicCaption('');
+    fetchDashboardData();
+    if (onDataChanged) onDataChanged();
+  };
+
+  const handleDeleteDevPicture = async (id: string) => {
+    const updatedList = devUpdatePicturesList.filter((p) => p.id !== id);
+    setDevUpdatePicturesList(updatedList);
+    localStorage.setItem('apex_dev_update_pictures', JSON.stringify(updatedList));
+
+    try {
+      await updateSettingsApi({ devUpdatePictures: updatedList }, token);
+      showToast('Dev update picture removed from site.');
+    } catch (err) {
+      showToast('Picture removed locally.');
+    }
+    fetchDashboardData();
+    if (onDataChanged) onDataChanged();
+  };
+
+  const handleAddDevUpdatePost = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newUpdateTitle.trim() || !newUpdateDesc.trim()) {
+      showToast('Please provide both a title and description for the update.');
+      return;
+    }
+
+    const newPost: DevUpdateItem = {
+      id: 'update-' + Date.now(),
+      title: newUpdateTitle.trim(),
+      date: new Date().toISOString().split('T')[0],
+      category: newUpdateCategory,
+      statusTag: newUpdateStatusTag.trim() || undefined,
+      description: newUpdateDesc.trim(),
+      pictures: newUpdateAttachedPics.length > 0 ? newUpdateAttachedPics : undefined,
+    };
+
+    const updatedList = [newPost, ...devUpdatesList];
+    setDevUpdatesList(updatedList);
+
+    try {
+      await updateSettingsApi({ devUpdates: updatedList }, token);
+      showToast('Dev update timeline post published live!');
+    } catch (err) {
+      showToast('Update saved locally.');
+    }
+
+    setNewUpdateTitle('');
+    setNewUpdateDesc('');
+    setNewUpdateAttachedPics([]);
+    setIsAddingUpdate(false);
+    fetchDashboardData();
+    if (onDataChanged) onDataChanged();
+  };
+
+  const handleDeleteDevUpdatePost = async (id: string) => {
+    const updatedList = devUpdatesList.filter((u) => u.id !== id);
+    setDevUpdatesList(updatedList);
+
+    try {
+      await updateSettingsApi({ devUpdates: updatedList }, token);
+      showToast('Dev update post removed.');
+    } catch (err) {
+      showToast('Update removed locally.');
     }
     fetchDashboardData();
     if (onDataChanged) onDataChanged();
@@ -579,6 +724,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             setCustomVideoUploaded(false);
             localStorage.setItem('apex_portfolio_video_mode', 'default');
           }
+        }
+        if (data.settings.devUpdatePictures) {
+          setDevUpdatePicturesList(data.settings.devUpdatePictures);
+          localStorage.setItem('apex_dev_update_pictures', JSON.stringify(data.settings.devUpdatePictures));
+        } else {
+          const cachedPics = localStorage.getItem('apex_dev_update_pictures');
+          if (cachedPics) {
+            try { setDevUpdatePicturesList(JSON.parse(cachedPics)); } catch (e) {}
+          }
+        }
+        if (data.settings.devUpdates) {
+          setDevUpdatesList(data.settings.devUpdates);
         }
         if (data.settings.launchDateApexEditor) {
           setLaunchDateStr(new Date(data.settings.launchDateApexEditor).toISOString().split('T')[0]);
@@ -2803,6 +2960,197 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         <span>RESTORE DEFAULT REEL</span>
                       </button>
                     </div>
+                  </div>
+                </div>
+
+                {/* Dev Updates Photo & Screenshot Gallery Manager */}
+                <div className="p-8 rounded-[28px] bg-white/[0.03] backdrop-blur-2xl border border-[#FF6321]/40 space-y-6 shadow-[0_0_40px_rgba(255,99,33,0.2)]">
+                  <div className="border-b border-white/10 pb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-[11px] font-mono font-bold uppercase tracking-widest">
+                        <ImageIcon className="w-3.5 h-3.5" /> SCREENSHOT & PHOTO LOGS
+                      </div>
+                      <h2 className="text-2xl font-black text-white uppercase tracking-wider mt-2 flex items-center gap-2">
+                        DEV UPDATES PICTURES (DEV UPDATES BOX)
+                      </h2>
+                      <p className="text-xs text-gray-400 mt-1">
+                        Upload or link work-in-progress snapshots, gameplay renders, and engine architecture photos displayed directly inside the live Dev Updates box.
+                      </p>
+                    </div>
+
+                    <div className="px-4 py-2 rounded-2xl bg-black/60 border border-white/10 text-xs font-mono text-gray-300">
+                      <span>Total Active Pictures: <strong className="text-[#FF6321]">{devUpdatePicturesList.length}</strong></span>
+                    </div>
+                  </div>
+
+                  {/* Add New Picture Form */}
+                  <form onSubmit={handleAddDevPicture} className="p-6 rounded-2xl bg-black/60 border border-white/10 space-y-5">
+                    <h3 className="text-sm font-extrabold text-white uppercase flex items-center gap-2">
+                      <Plus className="w-4 h-4 text-[#FF6321]" /> ADD NEW DEV UPDATE PICTURE
+                    </h3>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Image Upload or URL */}
+                      <div className="space-y-2">
+                        <label className="text-[11px] font-mono text-gray-400 uppercase font-bold">
+                          1. CHOOSE IMAGE FILE OR PASTE IMAGE URL:
+                        </label>
+                        
+                        <div className="flex gap-2">
+                          <label className="flex-1 cursor-pointer">
+                            <div className="px-4 py-3 rounded-xl border border-dashed border-[#FF6321]/50 hover:border-[#FF6321] bg-[#FF6321]/5 hover:bg-[#FF6321]/10 text-center flex items-center justify-center gap-2 transition-all">
+                              {isUploadingPic ? (
+                                <RefreshCw className="w-4 h-4 text-[#FF6321] animate-spin" />
+                              ) : (
+                                <UploadCloud className="w-4 h-4 text-[#FF6321]" />
+                              )}
+                              <span className="text-white text-xs font-bold uppercase">
+                                {isUploadingPic ? 'UPLOADING...' : 'CHOOSE IMAGE FILE'}
+                              </span>
+                            </div>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleUploadDevPicture}
+                              className="hidden"
+                              disabled={isUploadingPic}
+                            />
+                          </label>
+                        </div>
+
+                        <input
+                          type="url"
+                          placeholder="Or paste Direct Image URL (https://...)"
+                          value={newPicUrl}
+                          onChange={(e) => setNewPicUrl(e.target.value)}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-black/80 border border-white/20 text-white text-xs font-mono focus:outline-none focus:border-[#FF6321]"
+                        />
+
+                        {newPicUrl && (
+                          <div className="relative aspect-video rounded-xl overflow-hidden border border-white/20 bg-black/80 max-h-32">
+                            <img
+                              src={newPicUrl}
+                              alt="Preview"
+                              className="w-full h-full object-cover"
+                              referrerPolicy="no-referrer"
+                            />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Details (Title, Category, Caption) */}
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-[11px] font-mono text-gray-400 uppercase font-bold">
+                            2. PICTURE TITLE:
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="e.g. Apex Editor GPU Kernel Telemetry"
+                            value={newPicTitle}
+                            onChange={(e) => setNewPicTitle(e.target.value)}
+                            required
+                            className="w-full px-3.5 py-2.5 rounded-xl bg-black/80 border border-white/20 text-white text-xs focus:outline-none focus:border-[#FF6321] mt-1"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="text-[11px] font-mono text-gray-400 uppercase font-bold">
+                              CATEGORY TAG:
+                            </label>
+                            <select
+                              value={newPicCategory}
+                              onChange={(e) => setNewPicCategory(e.target.value as any)}
+                              className="w-full px-3 py-2 rounded-xl bg-black/80 border border-white/20 text-white text-xs mt-1 focus:outline-none focus:border-[#FF6321]"
+                            >
+                              <option value="Apex Editor">Apex Editor</option>
+                              <option value="Gangster Revolution">Gangster Revolution</option>
+                              <option value="Syndicate Studio">Syndicate Studio</option>
+                              <option value="General">General</option>
+                            </select>
+                          </div>
+
+                          <div className="flex items-end">
+                            <button
+                              type="submit"
+                              disabled={isUploadingPic || !newPicUrl.trim() || !newPicTitle.trim()}
+                              className="w-full py-2.5 rounded-xl bg-[#FF6321] hover:bg-[#FF8A50] text-black font-extrabold text-xs uppercase tracking-wider shadow-[0_0_15px_rgba(255,99,33,0.4)] disabled:opacity-50 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                            >
+                              <Plus className="w-4 h-4" />
+                              <span>PUBLISH PICTURE</span>
+                            </button>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-[11px] font-mono text-gray-400 uppercase font-bold">
+                            CAPTION / MILESTONE SUMMARY (OPTIONAL):
+                          </label>
+                          <textarea
+                            placeholder="Brief notes on this build screenshot..."
+                            value={newPicCaption}
+                            onChange={(e) => setNewPicCaption(e.target.value)}
+                            rows={2}
+                            className="w-full px-3.5 py-2 rounded-xl bg-black/80 border border-white/20 text-white text-xs focus:outline-none focus:border-[#FF6321] mt-1 resize-none"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+
+                  {/* Active Dev Pictures Grid */}
+                  <div className="space-y-3">
+                    <h3 className="text-xs font-mono text-gray-400 uppercase font-bold">
+                      CURRENT DEV UPDATE PICTURES IN SHOWCASE ({devUpdatePicturesList.length}):
+                    </h3>
+
+                    {devUpdatePicturesList.length === 0 ? (
+                      <div className="p-8 rounded-2xl bg-black/40 border border-white/10 text-center space-y-2">
+                        <ImageIcon className="w-8 h-8 text-gray-600 mx-auto" />
+                        <p className="text-xs text-gray-400">
+                          No custom pictures uploaded yet. The site is currently displaying default high-definition cyber dev screenshots.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                        {devUpdatePicturesList.map((pic) => (
+                          <div
+                            key={pic.id}
+                            className="p-3.5 rounded-2xl bg-black/60 border border-white/10 space-y-2.5 flex flex-col justify-between group hover:border-[#FF6321]/50 transition-colors"
+                          >
+                            <div className="relative aspect-video rounded-xl overflow-hidden bg-black/80 border border-white/10">
+                              <img
+                                src={pic.url}
+                                alt={pic.title}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                referrerPolicy="no-referrer"
+                              />
+                              <span className="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/80 border border-white/20 text-[#FF6321] text-[9px] font-mono font-bold uppercase">
+                                {pic.category || 'Dev Log'}
+                              </span>
+                            </div>
+
+                            <div className="space-y-1">
+                              <h4 className="text-xs font-bold text-white line-clamp-1">{pic.title}</h4>
+                              {pic.caption && (
+                                <p className="text-[11px] text-gray-400 line-clamp-2">{pic.caption}</p>
+                              )}
+                              <div className="text-[9px] font-mono text-gray-500">{pic.createdAt || 'Live'}</div>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteDevPicture(pic.id)}
+                              className="w-full py-2 rounded-xl bg-red-950/40 hover:bg-red-900/60 text-red-400 border border-red-500/30 text-[11px] font-bold uppercase flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                              <span>DELETE PICTURE</span>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

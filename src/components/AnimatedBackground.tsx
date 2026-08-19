@@ -46,7 +46,7 @@ export const AnimatedBackground: React.FC = () => {
     ];
 
     // 20000% Hyper-Speed Particle System (Optimized for 120 FPS / Zero Lag)
-    const particleCount = Math.min(65, Math.floor((width * height) / 16000));
+    const particleCount = Math.min(42, Math.floor((width * height) / 22000));
     interface Particle {
       x: number;
       y: number;
@@ -68,13 +68,13 @@ export const AnimatedBackground: React.FC = () => {
       particles.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 2.8,
-        vy: -Math.random() * 3.5 - 1.2, // 20000% kinetic fast upward drift
-        size: Math.random() * 2.8 + 1,
+        vx: (Math.random() - 0.5) * 3.2,
+        vy: -Math.random() * 4.0 - 1.5, // 20000% kinetic fast upward drift
+        size: Math.random() * 2.5 + 1,
         alpha: baseAlpha,
         baseAlpha,
         color: colors[Math.floor(Math.random() * colors.length)],
-        pulseSpeed: Math.random() * 0.15 + 0.06,
+        pulseSpeed: Math.random() * 0.16 + 0.08,
         pulseVal: Math.random() * Math.PI * 2,
       });
     }
@@ -82,23 +82,23 @@ export const AnimatedBackground: React.FC = () => {
     const handleMouseDown = (e: MouseEvent) => {
       mouse.clickShockwave = 1.0;
       // Spawn burst particles on click (20000% hyper-speed blast)
-      const burstCount = 24;
+      const burstCount = 18;
       for (let i = 0; i < burstCount; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const speed = Math.random() * 14 + 6;
+        const speed = Math.random() * 16 + 8;
         particles.push({
           x: e.clientX,
           y: e.clientY,
           vx: Math.cos(angle) * speed,
           vy: Math.sin(angle) * speed,
-          size: Math.random() * 3 + 1.5,
+          size: Math.random() * 2.5 + 1.2,
           alpha: 1,
           baseAlpha: 1,
           color: colors[Math.floor(Math.random() * colors.length)],
-          pulseSpeed: 0.15,
+          pulseSpeed: 0.2,
           pulseVal: 0,
           isBurst: true,
-          life: 40,
+          life: 30,
         });
       }
     };
@@ -126,10 +126,10 @@ export const AnimatedBackground: React.FC = () => {
     const spawnComet = () => {
       comets.push({
         x: Math.random() * width * 1.3 - width * 0.15,
-        y: -50,
-        length: Math.random() * 240 + 140,
-        speed: Math.random() * 24 + 16, // 20000% hyper-speed
-        angle: Math.PI / 4 + (Math.random() - 0.5) * 0.2,
+        y: -40,
+        length: Math.random() * 220 + 120,
+        speed: Math.random() * 28 + 18, // 20000% hyper-speed
+        angle: Math.PI / 4 + (Math.random() - 0.5) * 0.15,
         alpha: Math.random() * 0.7 + 0.3,
         color: Math.random() > 0.3 ? '#FF6321' : '#FFD700',
       });
@@ -137,14 +137,14 @@ export const AnimatedBackground: React.FC = () => {
 
     // Rotating Cyber Delta HUD Geometry
     const cyberNodes: { x: number; y: number; size: number; speed: number; angle: number; deltaSpeed: number }[] = [];
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 4; i++) {
       cyberNodes.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        size: Math.random() * 55 + 25,
-        speed: (Math.random() - 0.5) * 0.06, // 20000% rotation
+        size: Math.random() * 45 + 20,
+        speed: (Math.random() - 0.5) * 0.08, // 20000% rotation
         angle: Math.random() * Math.PI * 2,
-        deltaSpeed: Math.random() * 1.4 + 0.7,
+        deltaSpeed: Math.random() * 1.6 + 0.8,
       });
     }
 
@@ -155,37 +155,21 @@ export const AnimatedBackground: React.FC = () => {
       ctx.clearRect(0, 0, width, height);
 
       // Smooth mouse follow
-      mouse.x += (mouse.targetX - mouse.x) * 0.25;
-      mouse.y += (mouse.targetY - mouse.y) * 0.25;
+      mouse.x += (mouse.targetX - mouse.x) * 0.3;
+      mouse.y += (mouse.targetY - mouse.y) * 0.3;
 
-      // Mouse interactive aura & Shockwave (Lightweight single gradient)
-      if (mouse.isHovering) {
-        const radGlow = ctx.createRadialGradient(
-          mouse.x,
-          mouse.y,
-          0,
-          mouse.x,
-          mouse.y,
-          320
-        );
-        radGlow.addColorStop(0, 'rgba(255, 99, 33, 0.18)');
-        radGlow.addColorStop(0.4, 'rgba(255, 140, 0, 0.05)');
-        radGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        ctx.fillStyle = radGlow;
-        ctx.fillRect(0, 0, width, height);
-      }
-
+      // Mouse interactive aura & Shockwave
       if (mouse.clickShockwave > 0) {
         ctx.strokeStyle = `rgba(255, 99, 33, ${mouse.clickShockwave * 0.8})`;
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 2.5;
         ctx.beginPath();
         ctx.arc(mouse.x, mouse.y, (1 - mouse.clickShockwave) * 260 + 10, 0, Math.PI * 2);
         ctx.stroke();
-        mouse.clickShockwave -= 0.06;
+        mouse.clickShockwave -= 0.08;
       }
 
       // Spawn hyper comets frequently (20000% frequency)
-      if (tick % 24 === 0 && comets.length < 6) {
+      if (tick % 20 === 0 && comets.length < 4) {
         spawnComet();
       }
 
@@ -200,7 +184,7 @@ export const AnimatedBackground: React.FC = () => {
 
         ctx.strokeStyle = c.color;
         ctx.globalAlpha = c.alpha;
-        ctx.lineWidth = 2.2;
+        ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(tailX, tailY);
         ctx.lineTo(c.x, c.y);
@@ -209,12 +193,12 @@ export const AnimatedBackground: React.FC = () => {
         // Comet Head Spark
         ctx.fillStyle = '#FFFFFF';
         ctx.beginPath();
-        ctx.arc(c.x, c.y, 2.5, 0, Math.PI * 2);
+        ctx.arc(c.x, c.y, 2, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.globalAlpha = 1.0;
 
-        if (c.y > height + 100 || c.x > width + 100) {
+        if (c.y > height + 80 || c.x > width + 80) {
           comets.splice(i, 1);
         }
       }
@@ -223,8 +207,8 @@ export const AnimatedBackground: React.FC = () => {
       for (const node of cyberNodes) {
         node.angle += node.speed;
         node.y -= node.deltaSpeed;
-        if (node.y < -80) {
-          node.y = height + 80;
+        if (node.y < -60) {
+          node.y = height + 60;
           node.x = Math.random() * width;
         }
 
@@ -232,13 +216,13 @@ export const AnimatedBackground: React.FC = () => {
         ctx.translate(node.x, node.y);
         ctx.rotate(node.angle);
 
-        // Outer Hex / Square
-        ctx.strokeStyle = 'rgba(255, 99, 33, 0.14)';
-        ctx.lineWidth = 1.2;
+        // Outer Square
+        ctx.strokeStyle = 'rgba(255, 99, 33, 0.12)';
+        ctx.lineWidth = 1;
         ctx.strokeRect(-node.size / 2, -node.size / 2, node.size, node.size);
 
         // Rotating Inner Triangle
-        ctx.strokeStyle = 'rgba(255, 165, 0, 0.18)';
+        ctx.strokeStyle = 'rgba(255, 165, 0, 0.15)';
         ctx.beginPath();
         const r = node.size * 0.45;
         ctx.moveTo(0, -r);
@@ -251,11 +235,11 @@ export const AnimatedBackground: React.FC = () => {
       }
 
       // Batched Constellation Lines (Single draw call = 0 Lag)
-      const maxDistance = 110;
+      const maxDistance = 100;
       const maxDistSq = maxDistance * maxDistance;
       ctx.beginPath();
-      ctx.strokeStyle = 'rgba(255, 99, 33, 0.18)';
-      ctx.lineWidth = 0.8;
+      ctx.strokeStyle = 'rgba(255, 99, 33, 0.15)';
+      ctx.lineWidth = 0.75;
       for (let i = 0; i < particles.length; i++) {
         const p1 = particles[i];
         for (let j = i + 1; j < particles.length; j++) {
@@ -273,15 +257,15 @@ export const AnimatedBackground: React.FC = () => {
       ctx.stroke();
 
       // Draw Equalizer Bars at Screen Bottom (Fast batched render)
-      const barCount = Math.min(50, Math.floor(width / 30));
+      const barCount = Math.min(36, Math.floor(width / 36));
       for (let i = 0; i < barCount; i++) {
-        const barX = i * 30 + 8;
-        const wave = Math.sin(tick * 0.18 + i * 0.4) * 0.5 + 0.5;
-        const barHeight = wave * 36 + Math.sin(tick * 0.1 + i) * 16 + 6;
-        const barAlpha = wave * 0.35 + 0.08;
+        const barX = i * 36 + 10;
+        const wave = Math.sin(tick * 0.22 + i * 0.45) * 0.5 + 0.5;
+        const barHeight = wave * 32 + Math.sin(tick * 0.12 + i) * 14 + 6;
+        const barAlpha = wave * 0.3 + 0.08;
 
         ctx.fillStyle = `rgba(255, 99, 33, ${barAlpha})`;
-        ctx.fillRect(barX, height - barHeight, 6, barHeight);
+        ctx.fillRect(barX, height - barHeight, 5, barHeight);
       }
 
       // Draw and Update Particles with 20000% Kinetic Speed
@@ -291,18 +275,18 @@ export const AnimatedBackground: React.FC = () => {
         if (p.isBurst) {
           p.x += p.vx;
           p.y += p.vy;
-          p.vx *= 0.92;
-          p.vy *= 0.92;
+          p.vx *= 0.91;
+          p.vy *= 0.91;
           if (p.life !== undefined) {
             p.life--;
-            p.alpha = Math.max(0, p.life / 40);
+            p.alpha = Math.max(0, p.life / 30);
             if (p.life <= 0) {
               particles.splice(i, 1);
               continue;
             }
           }
         } else {
-          p.x += p.vx + Math.sin(tick * 0.08 + i) * 0.7;
+          p.x += p.vx + Math.sin(tick * 0.1 + i) * 0.8;
           p.y += p.vy;
 
           // Wrap around edges
@@ -318,9 +302,9 @@ export const AnimatedBackground: React.FC = () => {
             const mdx = p.x - mouse.x;
             const mdy = p.y - mouse.y;
             const mdistSq = mdx * mdx + mdy * mdy;
-            if (mdistSq < 28000 && mdistSq > 0) {
+            if (mdistSq < 26000 && mdistSq > 0) {
               const mdist = Math.sqrt(mdistSq);
-              const force = (1 - mdist / 170) * 4.5;
+              const force = (1 - mdist / 160) * 5.0;
               p.x += (mdx / mdist) * force;
               p.y += (mdy / mdist) * force;
             }
@@ -341,7 +325,7 @@ export const AnimatedBackground: React.FC = () => {
         // Inner glowing core
         ctx.fillStyle = '#FFFFFF';
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size * 0.45, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, p.size * 0.4, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.globalAlpha = 1.0;
@@ -365,23 +349,23 @@ export const AnimatedBackground: React.FC = () => {
     <div
       id="apex-animated-background-wrapper"
       className="fixed inset-0 pointer-events-none z-0 overflow-hidden transform-gpu"
-      style={{ willChange: 'transform', transform: 'translate3d(0,0,0)' }}
+      style={{ willChange: 'transform', transform: 'translate3d(0,0,0)', contain: 'strict' }}
     >
       {/* 20000% Hyper-Speed Drifting Cyber Grid Layer */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,99,33,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,99,33,0.06)_1px,transparent_1px)] bg-[size:48px_48px] animate-grid-drift opacity-70" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,99,33,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,99,33,0.05)_1px,transparent_1px)] bg-[size:48px_48px] animate-grid-drift opacity-60 pointer-events-none" />
 
-      {/* Pulsing Energy Nebulas (GPU-accelerated, optimized blur for 0 lag) */}
+      {/* Pulsing Ambient Radial Gradients (Pure CSS Gradients = 0ms GPU Rasterization, ZERO Lag) */}
       <div
-        className="absolute -top-32 -left-32 w-[550px] h-[550px] bg-[#FF6321]/16 rounded-full blur-[80px] animate-pulse-glow pointer-events-none"
+        className="absolute -top-32 -left-32 w-[550px] h-[550px] bg-[radial-gradient(circle,rgba(255,99,33,0.18)_0%,transparent_70%)] animate-pulse-glow pointer-events-none"
         style={{ willChange: 'transform, opacity' }}
       />
       <div
-        className="absolute top-1/3 -right-32 w-[500px] h-[500px] bg-[#FFA500]/12 rounded-full blur-[80px] animate-pulse-glow pointer-events-none"
-        style={{ animationDelay: '-0.8s', willChange: 'transform, opacity' }}
+        className="absolute top-1/3 -right-32 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(255,165,0,0.14)_0%,transparent_70%)] animate-pulse-glow pointer-events-none"
+        style={{ animationDelay: '-0.7s', willChange: 'transform, opacity' }}
       />
       <div
-        className="absolute -bottom-32 left-1/4 w-[600px] h-[600px] bg-[#FF3300]/10 rounded-full blur-[90px] animate-pulse-glow pointer-events-none"
-        style={{ animationDelay: '-1.5s', willChange: 'transform, opacity' }}
+        className="absolute -bottom-32 left-1/4 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(255,51,0,0.12)_0%,transparent_70%)] animate-pulse-glow pointer-events-none"
+        style={{ animationDelay: '-1.4s', willChange: 'transform, opacity' }}
       />
 
       {/* Viewport Corner Cyber Brackets */}
@@ -393,12 +377,9 @@ export const AnimatedBackground: React.FC = () => {
       {/* Real-Time Canvas Particle Engine */}
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 w-full h-full block"
+        className="absolute inset-0 w-full h-full block pointer-events-none"
         style={{ willChange: 'transform', transform: 'translate3d(0,0,0)' }}
       />
-
-      {/* Cyber Scanline Overlay */}
-      <div className="absolute inset-0 pointer-events-none opacity-20 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(0,0,0,0.75)_100%)]" />
     </div>
   );
 };

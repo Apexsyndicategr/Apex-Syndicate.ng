@@ -44,17 +44,16 @@ export interface PortfolioVideoShowcaseProps {
   setActiveTab?: (tab: string) => void;
 }
 
-const DEFAULT_DEV_PICTURES: DevUpdatePicture[] = [
-  {
-    id: 'pic-demo-out-now',
-    url: '/images/apex_editor_demo_screenshot.jpg',
-    title: 'THE APEX EDITOR DEMO IS OUT NOW!',
-    caption:
-      'Official milestone release! Experience the full interactive Apex Editor in your browser right now — featuring real-time AI media generation, 60FPS canvas timeline, Topaz neural engine, and zero-latency Rust core.',
-    category: 'Apex Editor',
-    createdAt: 'Live Now',
-  },
-];
+interface DevUpdateItem {
+  id: string;
+  type: 'announcement' | 'video' | 'picture';
+  tag: string;
+  badge: string;
+  title: string;
+  subtitle: string;
+  date: string;
+  picUrl?: string;
+}
 
 export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ setActiveTab }) => {
   const TOTAL_DURATION = 18; // 18-second hyper-fast kinetic edit
@@ -65,14 +64,14 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
   const [activeHero, setActiveHero] = useState<'marcus' | 'laura' | 'john'>('marcus');
 
   // Video Mode: 'default' (kinetic reel) | 'custom' (uploaded video) | 'blank' (Portfolio Coming Soon)
-  const [videoMode, setVideoMode] = useState<'default' | 'custom' | 'blank'>('blank');
+  const [videoMode, setVideoMode] = useState<'default' | 'custom' | 'blank'>('default');
   const [customVideoUrl, setCustomVideoUrl] = useState<string | null>(null);
 
-  // Dev Updates Pictures State (Only custom uploaded photos/screenshots by owner)
-  const [devPictures, setDevPictures] = useState<DevUpdatePicture[]>(DEFAULT_DEV_PICTURES);
-  const [activeGalleryIndex, setActiveGalleryIndex] = useState<number>(0);
-  const [lightboxImage, setLightboxImage] = useState<DevUpdatePicture | null>(null);
-  const [activeFilter, setActiveFilter] = useState<string>('ALL');
+  // Active Dev Update Slide Index: 0 = Dev Update 1 (Apex Editor Demo Out Now), 1 = Dev Update 2 (Video Reel / Custom Video), etc.
+  const [currentUpdateIndex, setCurrentUpdateIndex] = useState<number>(0);
+
+  // Dev Updates Pictures State (from custom uploaded photos/screenshots by owner)
+  const [devPictures, setDevPictures] = useState<DevUpdatePicture[]>([]);
 
   // Video Export Progress state
   const [isExportingVideo, setIsExportingVideo] = useState(false);
@@ -84,10 +83,34 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const lastStepRef = useRef<number>(-1);
 
-  const displayPictures = devPictures.length > 0 ? devPictures : DEFAULT_DEV_PICTURES;
-  const filteredPictures = activeFilter === 'ALL'
-    ? displayPictures
-    : displayPictures.filter((p) => (p.category || 'General').toUpperCase() === activeFilter.toUpperCase());
+  // Unified list of Dev Updates: Currently only Dev Update 1 (additional updates can be added on request)
+  const updatesList: DevUpdateItem[] = [
+    {
+      id: 'update-1-demo-live',
+      type: 'announcement',
+      tag: 'DEV UPDATE 1',
+      badge: 'OFFICIAL MILESTONE 01',
+      title: 'THE APEX EDITOR DEMO IS OUT NOW!',
+      subtitle:
+        'Official milestone release! Experience the full interactive Apex Editor in your browser right now — featuring real-time AI media generation, 60FPS canvas timeline, Topaz neural engine, and zero-latency Rust core.',
+      date: 'Live Now',
+    },
+  ];
+
+  const totalUpdates = updatesList.length;
+  const activeUpdate = updatesList[currentUpdateIndex % totalUpdates] || updatesList[0];
+
+  const handleNextUpdate = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (isPlaying) handlePause();
+    setCurrentUpdateIndex((prev) => (prev + 1) % totalUpdates);
+  };
+
+  const handlePrevUpdate = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (isPlaying) handlePause();
+    setCurrentUpdateIndex((prev) => (prev - 1 + totalUpdates) % totalUpdates);
+  };
 
   const handleDownloadVideo = async (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
@@ -364,116 +387,63 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
 
   const isDarkMode = stage === 3;
 
-  // Video and Pictures presence checks
-  const hasVideo = videoMode !== 'blank';
-  const hasPictures = displayPictures.length > 0;
-
-  // Track if user has manually clicked a media tab
-  const userSelectedTabRef = useRef<boolean>(false);
-
-  // Display view within the single Dev Updates box: 'video' | 'picture'
-  // Auto-priority rule:
-  // - No video + pictures present -> automatically 'picture'
-  // - Video present + no pictures -> automatically 'video'
-  // - Both present -> automatically 'video'
-  // - Neither -> 'video'
-  const [activeMediaTab, setActiveMediaTab] = useState<'video' | 'picture'>(() => {
-    const localMode = typeof window !== 'undefined' ? localStorage.getItem('apex_portfolio_video_mode') : null;
-    const initialHasVideo = localMode ? localMode !== 'blank' : false; // videoMode starts as blank (no video)
-    const initialHasPictures = DEFAULT_DEV_PICTURES.length > 0;
-    if (!initialHasVideo && initialHasPictures) return 'picture';
-    return 'video';
-  });
-
-  // Automatically update active tab when media presence updates (unless manually overridden by user)
-  useEffect(() => {
-    if (userSelectedTabRef.current) return;
-    if (!hasVideo && hasPictures) {
-      setActiveMediaTab('picture');
-    } else if (hasVideo && !hasPictures) {
-      setActiveMediaTab('video');
-    } else if (hasVideo && hasPictures) {
-      setActiveMediaTab('video');
-    } else {
-      setActiveMediaTab('video');
-    }
-  }, [hasVideo, hasPictures]);
-
-  const [currentPicIndex, setCurrentPicIndex] = useState<number>(0);
-
-  const activePicture = displayPictures.length > 0 ? displayPictures[currentPicIndex % displayPictures.length] : null;
-
-  const handleNextPicture = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (displayPictures.length > 0) {
-      setCurrentPicIndex((prev) => (prev + 1) % displayPictures.length);
-    }
-  };
-
-  const handlePrevPicture = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (displayPictures.length > 0) {
-      setCurrentPicIndex((prev) => (prev - 1 + displayPictures.length) % displayPictures.length);
-    }
-  };
-
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-6 animate-fadeIn">
+    <div className="w-full max-w-6xl mx-auto space-y-4 animate-fadeIn">
       {/* =========================================================================
-          DEV UPDATES CONTAINER BOX (UNIFIED VIDEO & PICTURE LOGS)
+          DEV UPDATES SHOWCASE CONTAINER (UNIFIED MULTI-UPDATE SLIDER)
           ========================================================================= */}
-      <div className="space-y-4">
-        {/* HEADER & MEDIA TAB SELECTOR */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
+      <div className="space-y-3">
+        {/* TOP BAR: SHOWCASE TITLE & SLIDE NAVIGATION */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-white/10 pb-3">
           <div>
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-gradient-to-r from-[#FF6321]/20 to-amber-500/15 border border-[#FF6321]/40 text-[#FF6321] text-xs font-mono font-black uppercase tracking-widest shadow-[0_0_20px_rgba(255,99,33,0.3)] animate-border-glow">
               <Sparkles className="w-3.5 h-3.5 animate-spin text-amber-400" />
-              <span>DEV UPDATES SHOWCASE</span>
+              <span>APEX SYNDICATE // DEV UPDATES</span>
             </div>
-            <h2 className="text-2xl sm:text-4xl font-black text-white uppercase tracking-tight mt-2 flex items-center gap-3">
-              APEX SYNDICATE // <span className="bg-gradient-to-r from-[#FF6321] via-amber-400 to-[#FF4500] bg-clip-text text-transparent animate-shimmer-text">DEV UPDATES</span>
+            <h2 className="text-xl sm:text-3xl font-black text-white uppercase tracking-tight mt-1.5 flex items-center gap-2.5">
+              <span>{activeUpdate.tag}:</span>
+              <span className="bg-gradient-to-r from-[#FF6321] via-amber-400 to-[#FF4500] bg-clip-text text-transparent animate-shimmer-text">
+                {activeUpdate.title}
+              </span>
             </h2>
           </div>
 
-          {/* Right Side: Media Switcher (Inside Same Box) + Founder Tag */}
-          <div className="flex flex-wrap items-center gap-2.5">
-            {/* View Mode Switcher in the same box */}
-            <div className="flex p-1 rounded-2xl bg-black/80 border border-white/15 backdrop-blur-xl">
-              <button
-                type="button"
-                onClick={() => {
-                  userSelectedTabRef.current = true;
-                  setActiveMediaTab('video');
-                }}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-mono font-black uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer ${
-                  activeMediaTab === 'video'
-                    ? 'bg-[#FF6321] text-black shadow-[0_0_15px_rgba(255,99,33,0.4)]'
-                    : 'text-gray-400 hover:text-white'
-                }`}
-              >
-                <Film className="w-3.5 h-3.5" />
-                <span>VIDEO REEL</span>
-              </button>
+          {/* Right Side: Prev / Next Arrow Switcher (shown when multi-updates exist) or Milestone Badge + Founder Tag */}
+          <div className="flex items-center gap-2">
+            {totalUpdates > 1 ? (
+              <div className="flex items-center p-1 rounded-2xl bg-black/80 border border-white/15 backdrop-blur-xl">
+                <button
+                  type="button"
+                  onClick={handlePrevUpdate}
+                  className="px-3 py-1.5 rounded-xl text-xs font-mono font-black uppercase tracking-wider flex items-center gap-1 text-gray-300 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
+                  title="Previous Dev Update"
+                >
+                  <ChevronLeft className="w-4 h-4 text-[#FF6321]" />
+                  <span className="hidden sm:inline">PREV</span>
+                </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  userSelectedTabRef.current = true;
-                  setActiveMediaTab('picture');
-                  if (isPlaying) handlePause();
-                }}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-mono font-black uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer ${
-                  activeMediaTab === 'picture'
-                    ? 'bg-[#FF6321] text-black shadow-[0_0_15px_rgba(255,99,33,0.4)]'
-                    : 'text-gray-400 hover:text-white'
-                }`}
-              >
-                <ImageIcon className="w-3.5 h-3.5" />
-                <span>PICTURES {devPictures.length > 0 ? `(${devPictures.length})` : ''}</span>
-              </button>
-            </div>
+                <div className="px-3 py-1 text-xs font-mono font-black text-white bg-white/5 rounded-lg border border-white/10 mx-1">
+                  <span className="text-[#FF6321]">{currentUpdateIndex + 1}</span> / {totalUpdates}
+                </div>
 
-            <div className="hidden lg:flex items-center gap-2 text-xs font-mono text-gray-300 bg-black/60 border border-white/15 px-3.5 py-2 rounded-2xl backdrop-blur-xl">
+                <button
+                  type="button"
+                  onClick={handleNextUpdate}
+                  className="px-3 py-1.5 rounded-xl text-xs font-mono font-black uppercase tracking-wider flex items-center gap-1 text-black bg-[#FF6321] hover:bg-[#FF8A50] transition-all cursor-pointer shadow-[0_0_15px_rgba(255,99,33,0.4)]"
+                  title="Next Dev Update"
+                >
+                  <span className="hidden sm:inline">NEXT</span>
+                  <ChevronRight className="w-4 h-4 text-black" />
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-black/80 border border-[#FF6321]/40 text-[#FF6321] text-xs font-mono font-bold backdrop-blur-xl">
+                <span className="w-2 h-2 rounded-full bg-[#FF6321] animate-ping" />
+                <span>DEV UPDATE #1 LIVE</span>
+              </div>
+            )}
+
+            <div className="hidden md:flex items-center gap-2 text-xs font-mono text-gray-300 bg-black/60 border border-white/15 px-3.5 py-2 rounded-2xl backdrop-blur-xl">
               <User className="w-3.5 h-3.5 text-[#FF6321]" />
               <span>FOUNDER: <strong className="text-white font-black uppercase">OKERE CHIEMEKA</strong></span>
             </div>
@@ -481,293 +451,145 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
         </div>
 
         {/* =========================================================================
-            PICTURE MODE (RENDERED INSIDE THIS EXACT SAME DEV UPDATES BOX)
+            MAIN DEV UPDATE DISPLAY FRAME
             ========================================================================= */}
-        {activeMediaTab === 'picture' ? (
-          displayPictures.length === 0 ? (
-            <div
-              id="portfolio-pictures-coming-soon-card"
-              className="relative w-full aspect-video rounded-3xl bg-gradient-to-b from-[#0e0e14] via-[#07070a] to-[#040406] border-2 border-white/10 p-6 sm:p-12 overflow-hidden flex flex-col justify-between items-center text-center shadow-[0_25px_80px_rgba(0,0,0,0.8)] select-none"
-            >
-              <div className="absolute inset-0 pointer-events-none opacity-25 bg-[radial-gradient(#FF6321_1px,transparent_1px)] [background-size:24px_24px] animate-grid-drift" />
-              <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-96 bg-[#FF6321]/20 rounded-full blur-3xl pointer-events-none animate-pulse-glow" />
+        <div
+          ref={containerRef}
+          id="portfolio-dev-update-frame"
+          className={`relative w-full aspect-video min-h-[380px] sm:min-h-[460px] rounded-3xl transition-all duration-300 border-2 overflow-hidden flex flex-col justify-between select-none shadow-[0_25px_80px_rgba(0,0,0,0.8)] ${
+            activeUpdate.type === 'announcement'
+              ? 'bg-gradient-to-br from-[#0e0907] via-[#08080c] to-[#040508] border-[#FF6321] shadow-[0_0_80px_rgba(255,99,33,0.35)]'
+              : isDarkMode
+              ? 'bg-[#030306] border-[#FF6321]/60 text-white shadow-[0_25px_70px_rgba(255,99,33,0.35)]'
+              : 'bg-[#0a0a0f] border-[#FF6321]/40 text-white shadow-[0_20px_60px_rgba(0,0,0,0.4)]'
+          } ${isFullscreen ? 'rounded-none border-none shadow-none' : ''}`}
+        >
+          {/* Animated Background Cyber Matrix & Neon Light Orbs */}
+          <div className="absolute inset-0 pointer-events-none opacity-20 bg-[radial-gradient(#FF6321_1px,transparent_1px)] [background-size:28px_28px] animate-grid-drift" />
+          <div className="absolute -top-32 left-1/4 w-96 h-96 bg-[#FF6321]/25 rounded-full blur-3xl pointer-events-none animate-pulse-glow" />
+          <div className="absolute -bottom-32 right-1/4 w-96 h-96 bg-[#00F0FF]/15 rounded-full blur-3xl pointer-events-none animate-pulse-glow" />
 
-              <div className="relative z-10 w-full flex items-center justify-between text-xs font-mono">
-                <div className="flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/5 border border-white/10 text-gray-300">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#FF6321] animate-ping" />
-                  <span className="font-bold text-[11px] uppercase tracking-wider text-[#FF6321]">
-                    DEV PICTURES RENDERING IN PROGRESS
+          {/* Floating Prev & Next Side Arrows (shown only when multi-updates exist) */}
+          {totalUpdates > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={handlePrevUpdate}
+                className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/85 hover:bg-[#FF6321] text-white hover:text-black border border-white/20 flex items-center justify-center transition-all cursor-pointer shadow-2xl active:scale-90 z-30 group"
+                title="Previous Dev Update"
+              >
+                <ChevronLeft className="w-6 h-6 transform group-hover:-translate-x-0.5 transition-transform" />
+              </button>
+
+              <button
+                type="button"
+                onClick={handleNextUpdate}
+                className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/85 hover:bg-[#FF6321] text-white hover:text-black border border-white/20 flex items-center justify-center transition-all cursor-pointer shadow-2xl active:scale-90 z-30 group"
+                title="Next Dev Update"
+              >
+                <ChevronRight className="w-6 h-6 transform group-hover:translate-x-0.5 transition-transform" />
+              </button>
+            </>
+          )}
+
+          {/* SLIDE 1: DEV UPDATE 1 — VIBRANT GIANT TEXT COVERING SCREEN */}
+          {activeUpdate.type === 'announcement' && (
+            <div className="relative z-10 flex-1 flex flex-col justify-between p-6 sm:p-10 lg:p-12 text-center items-center">
+              {/* Top Milestone Badge */}
+              <div className="w-full flex items-center justify-between text-xs font-mono">
+                <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FF6321]/20 border border-[#FF6321]/60 text-[#FF6321] shadow-[0_0_20px_rgba(255,99,33,0.4)] animate-pulse">
+                  <Flame className="w-4 h-4 text-amber-400" />
+                  <span className="font-black text-[11px] sm:text-xs uppercase tracking-widest">
+                    DEV UPDATE 1 // OFFICIAL MILESTONE RELEASE
                   </span>
                 </div>
-                <div className="text-[11px] text-gray-400 font-mono hidden sm:block">
-                  Apex Syndicate Dev Updates
+                <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-black/70 border border-[#00F0FF]/40 text-[#00F0FF] text-[11px] font-mono font-bold shadow-[0_0_15px_rgba(0,240,255,0.3)]">
+                  <Sparkles className="w-3.5 h-3.5 animate-spin" />
+                  <span>IN-BROWSER WORKSTATION READY</span>
                 </div>
               </div>
 
-              <div className="relative z-10 my-auto space-y-4 max-w-2xl">
+              {/* CENTER MASSIVE VIBRANT TEXT HEADLINE COVERING MOST OF SCREEN */}
+              <div className="my-auto space-y-4 sm:space-y-6 max-w-4xl px-4">
                 <motion.div
-                  initial={{ scale: 0.8, opacity: 0 }}
+                  initial={{ scale: 0.92, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-[#FF6321]/15 border-2 border-[#FF6321]/50 text-[#FF6321] shadow-[0_0_45px_rgba(255,99,33,0.4)] mb-2 animate-bounce"
-                  style={{ animationDuration: '3s' }}
+                  transition={{ duration: 0.4 }}
+                  className="space-y-3"
                 >
-                  <ImageIcon className="w-8 h-8 sm:w-10 sm:h-10 animate-pulse" />
+                  <h3 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-tight leading-[1.05] bg-gradient-to-r from-[#FF6321] via-amber-300 via-yellow-200 to-[#00F0FF] bg-clip-text text-transparent drop-shadow-[0_0_45px_rgba(255,99,33,0.9)] animate-shimmer-text">
+                    THE APEX EDITOR DEMO IS OUT NOW!
+                  </h3>
+
+                  <p className="text-sm sm:text-base md:text-lg text-gray-200 font-light max-w-3xl mx-auto leading-relaxed drop-shadow-md">
+                    Experience our flagship video creation suite live in your browser right now — featuring real-time AI media generation, 60FPS canvas timeline, Topaz neural upscaler, and zero-latency Rust core.
+                  </p>
                 </motion.div>
 
-                <h3 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white uppercase tracking-tight font-sans drop-shadow-2xl">
-                  DEV PICTURES <span className="bg-gradient-to-r from-[#FF6321] to-amber-400 bg-clip-text text-transparent animate-shimmer-text">COMING SOON</span>
-                </h3>
-
-                <p className="text-sm sm:text-base text-gray-300 font-light max-w-xl mx-auto leading-relaxed">
-                  Work-in-progress snapshots, UI designs, 3D asset renders, and concept art milestone pictures from the owner are coming soon!
-                </p>
-              </div>
-
-              <div className="relative z-10 w-full pt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono text-gray-400">
-                <div className="flex items-center gap-4">
-                  <span>Instagram: <strong className="text-white font-bold">@apexsyndicateng</strong></span>
-                  <span>TikTok: <strong className="text-white font-bold">@apex.syndicateng</strong></span>
+                {/* Feature highlights pill strip */}
+                <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 pt-1">
+                  <span className="px-3.5 py-1.5 rounded-xl bg-white/[0.06] border border-white/15 text-gray-200 text-xs font-mono font-semibold flex items-center gap-1.5 backdrop-blur-md">
+                    <Zap className="w-3.5 h-3.5 text-[#FF6321]" /> 60FPS Canvas Timeline
+                  </span>
+                  <span className="px-3.5 py-1.5 rounded-xl bg-white/[0.06] border border-white/15 text-gray-200 text-xs font-mono font-semibold flex items-center gap-1.5 backdrop-blur-md">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Topaz Neural Upscaler
+                  </span>
+                  <span className="px-3.5 py-1.5 rounded-xl bg-white/[0.06] border border-white/15 text-gray-200 text-xs font-mono font-semibold flex items-center gap-1.5 backdrop-blur-md">
+                    <Cpu className="w-3.5 h-3.5 text-cyan-400" /> Rust AST Kernel
+                  </span>
                 </div>
-                <div className="text-[11px] text-[#FF6321] font-bold uppercase tracking-wider">
-                  Official Creator Showcase
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div
-              id="portfolio-picture-frame"
-              className="relative w-full aspect-video rounded-3xl transition-colors duration-300 border-2 border-[#FF6321] bg-[#06070a] overflow-hidden flex flex-col justify-between group select-none shadow-[0_25px_80px_rgba(255,99,33,0.35)]"
-            >
-              {activePicture && (
-                <>
-                  {/* Picture Canvas Area */}
-                  <div
-                    className="relative flex-1 min-h-0 w-full flex items-center justify-center bg-black overflow-hidden cursor-pointer"
-                    onClick={() => setLightboxImage(activePicture)}
+
+                {/* PROMINENT INTERACTIVE LAUNCH ACTION BUTTONS */}
+                <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (setActiveTab) {
+                        setActiveTab('apex-editor-demo');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      } else {
+                        window.open('https://apex-editor-demo.vercel.app/', '_blank');
+                      }
+                    }}
+                    className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-[#FF6321] via-amber-400 to-[#FF4500] hover:from-[#FF8A50] hover:to-amber-300 text-black font-black text-sm sm:text-base font-mono uppercase tracking-wider flex items-center justify-center gap-3 shadow-[0_0_40px_rgba(255,99,33,0.8)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
                   >
-                    <img
-                      src={activePicture.url}
-                      alt={activePicture.title}
-                      className="w-full h-full object-contain transform-gpu transition-all duration-300 group-hover:scale-102"
-                      referrerPolicy="no-referrer"
-                    />
+                    <Zap className="w-5 h-5 fill-black animate-bounce" />
+                    <span>TRY APEX EDITOR DEMO NOW</span>
+                  </button>
 
-                    {/* Gradient cyber backdrop overlays */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-black/40 pointer-events-none" />
-
-                    {/* Top Overlay Badges */}
-                    <div className="absolute top-4 left-4 flex flex-wrap items-center gap-2 z-10">
-                      <span className="px-3.5 py-1 rounded-xl bg-gradient-to-r from-[#FF6321] to-amber-500 text-black text-xs font-mono font-black uppercase tracking-wider shadow-[0_0_20px_rgba(255,99,33,0.8)] animate-pulse flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5 fill-black" />
-                        <span>{activePicture.category || 'DEV UPDATE'}</span>
-                      </span>
-                      <span className="px-3 py-1 rounded-xl bg-black/80 border border-[#00F0FF]/60 text-[#00F0FF] text-[11px] font-mono font-extrabold shadow-[0_0_15px_rgba(0,240,255,0.4)] backdrop-blur-md">
-                        MILESTONE LIVE
-                      </span>
-                      <span className="px-2.5 py-1 rounded-xl bg-black/70 border border-white/15 text-gray-300 text-[11px] font-mono">
-                        {currentPicIndex + 1} / {displayPictures.length}
-                      </span>
-                    </div>
-
-                    {/* Top Right Action & Expand Zoom Button */}
-                    <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (setActiveTab) {
-                            setActiveTab('apex-editor-demo');
-                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                          } else {
-                            window.open('https://apex-editor-demo.vercel.app/', '_blank');
-                          }
-                        }}
-                        className="px-3.5 py-1.5 rounded-xl bg-[#00F0FF] hover:bg-[#4df4ff] text-black font-black text-xs font-mono uppercase tracking-wider flex items-center gap-1.5 shadow-[0_0_20px_rgba(0,240,255,0.6)] active:scale-95 transition-all cursor-pointer"
-                        title="Try Apex Editor Demo"
-                      >
-                        <Zap className="w-3.5 h-3.5 fill-black" />
-                        <span className="hidden sm:inline">TRY DEMO</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setLightboxImage(activePicture);
-                        }}
-                        className="p-2 rounded-xl bg-black/80 hover:bg-[#FF6321] text-white hover:text-black border border-white/20 transition-all cursor-pointer shadow-lg"
-                        title="Expand Image"
-                      >
-                        <Maximize2 className="w-4 h-4" />
-                      </button>
-                    </div>
-
-                    {/* Prev / Next Floating Arrows */}
-                    {displayPictures.length > 1 && (
-                      <>
-                        <button
-                          type="button"
-                          onClick={handlePrevPicture}
-                          className="absolute left-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/80 hover:bg-[#FF6321] text-white hover:text-black border border-white/20 flex items-center justify-center transition-all cursor-pointer shadow-2xl active:scale-95 z-20"
-                          title="Previous Picture"
-                        >
-                          <ChevronLeft className="w-6 h-6" />
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={handleNextPicture}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/80 hover:bg-[#FF6321] text-white hover:text-black border border-white/20 flex items-center justify-center transition-all cursor-pointer shadow-2xl active:scale-95 z-20"
-                          title="Next Picture"
-                        >
-                          <ChevronRight className="w-6 h-6" />
-                        </button>
-                      </>
-                    )}
-
-                    {/* Bottom Vibrant Caption Announcement Overlay */}
-                    <div className="absolute bottom-3 left-4 right-4 z-10 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-3 bg-gradient-to-t from-black/95 via-black/85 to-transparent p-4 sm:p-5 rounded-2xl border border-white/15 backdrop-blur-lg shadow-2xl">
-                      <div className="space-y-1.5 max-w-2xl">
-                        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#FF6321]/25 border border-[#FF6321]/60 text-[#FF6321] text-[10px] font-mono font-black uppercase tracking-widest animate-pulse">
-                          <Flame className="w-3 h-3 text-amber-400" />
-                          <span>OFFICIAL ANNOUNCEMENT</span>
-                        </div>
-                        <h4 className="text-xl sm:text-3xl font-black uppercase tracking-tight bg-gradient-to-r from-[#FF6321] via-amber-300 via-yellow-200 to-[#00F0FF] bg-clip-text text-transparent drop-shadow-[0_0_35px_rgba(255,99,33,0.9)] animate-shimmer-text">
-                          {activePicture.title}
-                        </h4>
-                        {activePicture.caption && (
-                          <p className="text-xs sm:text-sm text-gray-200 line-clamp-2 font-light leading-relaxed drop-shadow">
-                            {activePicture.caption}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Launch Demo Direct CTA Button */}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (setActiveTab) {
-                            setActiveTab('apex-editor-demo');
-                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                          } else {
-                            window.open('https://apex-editor-demo.vercel.app/', '_blank');
-                          }
-                        }}
-                        className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#FF6321] via-amber-400 to-[#FF4500] hover:from-[#FF8A50] hover:to-amber-300 text-black font-black text-xs font-mono uppercase tracking-wider flex items-center gap-2 shadow-[0_0_30px_rgba(255,99,33,0.7)] hover:scale-105 active:scale-95 transition-all cursor-pointer whitespace-nowrap self-stretch sm:self-auto justify-center"
-                      >
-                        <Zap className="w-4 h-4 fill-black animate-bounce" />
-                        <span>TRY DEMO NOW</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Picture Controls Bar */}
-                  <div className="relative z-20 px-5 py-2.5 bg-black/90 border-t border-white/10 flex items-center justify-between text-xs font-mono">
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={handlePrevPicture}
-                        className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold flex items-center gap-1 transition-all cursor-pointer"
-                      >
-                        <ChevronLeft className="w-3.5 h-3.5" />
-                        <span>PREV</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={handleNextPicture}
-                        className="px-3 py-1.5 rounded-xl bg-[#FF6321] hover:bg-[#FF8A50] text-black font-bold flex items-center gap-1 transition-all cursor-pointer shadow-[0_0_15px_rgba(255,99,33,0.4)]"
-                      >
-                        <span>NEXT</span>
-                        <ChevronRight className="w-3.5 h-3.5" />
-                      </button>
-
-                      <span className="text-amber-400 font-bold text-[11px] ml-2 hidden sm:inline flex items-center gap-1">
-                        <Sparkles className="w-3 h-3 text-[#FF6321]" />
-                        THE APEX EDITOR DEMO IS OUT NOW!
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setActiveMediaTab('video')}
-                        className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold flex items-center gap-1.5 transition-all cursor-pointer"
-                      >
-                        <Film className="w-3.5 h-3.5 text-[#FF6321]" />
-                        <span>SWITCH TO VIDEO</span>
-                      </button>
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-          )
-        ) : (
-          /* =========================================================================
-              VIDEO MODE (ACTIVE DEV VIDEO SHOWCASE IN THIS SAME BOX)
-              ========================================================================= */
-          videoMode === 'blank' ? (
-            <div
-              id="portfolio-coming-soon-card"
-              className="relative w-full aspect-video rounded-3xl bg-gradient-to-b from-[#0e0e14] via-[#07070a] to-[#040406] border-2 border-white/10 p-6 sm:p-12 overflow-hidden flex flex-col justify-between items-center text-center shadow-[0_25px_80px_rgba(0,0,0,0.8)] select-none"
-            >
-              <div className="absolute inset-0 pointer-events-none opacity-25 bg-[radial-gradient(#FF6321_1px,transparent_1px)] [background-size:24px_24px] animate-grid-drift" />
-              <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-96 bg-[#FF6321]/20 rounded-full blur-3xl pointer-events-none animate-pulse-glow" />
-
-              <div className="relative z-10 w-full flex items-center justify-between text-xs font-mono">
-                <div className="flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/5 border border-white/10 text-gray-300">
-                  <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping" />
-                  <span className="font-bold text-[11px] uppercase tracking-wider text-amber-400">
-                    DEVLOG RENDERING IN PROGRESS
-                  </span>
-                </div>
-                <div className="text-[11px] text-gray-400 font-mono hidden sm:block">
-                  Apex Syndicate Dev Updates
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (setActiveTab) {
+                        setActiveTab('apex-editor');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }
+                    }}
+                    className="w-full sm:w-auto px-6 py-4 rounded-2xl bg-black/80 hover:bg-white/10 text-white font-mono font-black text-xs sm:text-sm uppercase tracking-wider border border-white/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  >
+                    <Layers className="w-4 h-4 text-[#FF6321]" />
+                    <span>VIEW PRODUCT SPECS</span>
+                  </button>
                 </div>
               </div>
 
-              <div className="relative z-10 my-auto space-y-4 max-w-2xl">
-                <motion.div
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-[#FF6321]/15 border-2 border-[#FF6321]/50 text-[#FF6321] shadow-[0_0_45px_rgba(255,99,33,0.4)] mb-2 animate-bounce"
-                  style={{ animationDuration: '3s' }}
-                >
-                  <Film className="w-8 h-8 sm:w-10 sm:h-10 animate-pulse" />
-                </motion.div>
-
-                <h3 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white uppercase tracking-tight font-sans drop-shadow-2xl">
-                  DEV UPDATES <span className="bg-gradient-to-r from-[#FF6321] to-amber-400 bg-clip-text text-transparent animate-shimmer-text">COMING SOON</span>
-                </h3>
-
-                <p className="text-sm sm:text-base text-gray-300 font-light max-w-xl mx-auto leading-relaxed">
-                  Video updates showcasing our live developer milestones, code optimizations, and gameplay mechanics at Apex Syndicate are coming soon!
-                </p>
-              </div>
-
-              <div className="relative z-10 w-full pt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono text-gray-400">
+              {/* Bottom Status Bar */}
+              <div className="w-full pt-3 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs font-mono text-gray-400">
                 <div className="flex items-center gap-4">
                   <span>Instagram: <strong className="text-white font-bold">@apexsyndicateng</strong></span>
                   <span>TikTok: <strong className="text-white font-bold">@apex.syndicateng</strong></span>
                 </div>
-                <div className="text-[11px] text-[#FF6321] font-bold uppercase tracking-wider">
-                  Official Creator Showcase
+                <div className="text-[11px] text-[#FF6321] font-bold uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                  <span>Interactive Cloud Workstation Active</span>
                 </div>
               </div>
             </div>
-          ) : (
-            <div
-              ref={containerRef}
-              id="portfolio-video-frame"
-              className={`relative w-full aspect-video rounded-3xl transition-colors duration-300 border-2 overflow-hidden flex flex-col justify-between group select-none shadow-2xl ${
-                isDarkMode
-                  ? 'bg-[#030306] border-[#FF6321]/60 text-white shadow-[0_25px_70px_rgba(255,99,33,0.35)]'
-                  : 'bg-[#0a0a0f] border-[#FF6321]/40 text-white shadow-[0_20px_60px_rgba(0,0,0,0.4)]'
-              } ${isFullscreen ? 'rounded-none border-none shadow-none' : ''}`}
-            >
-              {/* Custom Video Player */}
+          )}
+
+          {/* SLIDE 2: DEV UPDATE 2 — KINETIC VIDEO REEL OR CUSTOM DEVLOG */}
+          {activeUpdate.type === 'video' && (
+            <>
               {videoMode === 'custom' && customVideoUrl ? (
                 <div
                   className="relative flex-1 min-h-0 w-full flex items-center justify-center bg-black cursor-pointer overflow-hidden"
@@ -901,8 +723,8 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
                 </div>
               )}
 
-              {/* Bottom Timeline Controls */}
-              <div className="relative z-20 px-5 py-2.5 bg-black/80 border-t border-white/10 flex items-center justify-between text-xs font-mono">
+              {/* Bottom Video Timeline Controls */}
+              <div className="relative z-20 px-5 py-2.5 bg-black/85 border-t border-white/10 flex items-center justify-between text-xs font-mono">
                 <div className="absolute top-0 left-0 right-0 h-1.5 bg-black/20 overflow-hidden">
                   <div
                     className="h-full bg-gradient-to-r from-[#FF6321] via-amber-400 to-[#FF4500] transition-all duration-75"
@@ -932,7 +754,7 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
                     ) : (
                       <>
                         <Play className="w-4 h-4 fill-current ml-0.5" />
-                        <span>PLAY</span>
+                        <span>PLAY REEL</span>
                       </>
                     )}
                   </button>
@@ -977,93 +799,67 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
                   </button>
                 </div>
               </div>
+            </>
+          )}
+
+          {/* SLIDE 3+: CUSTOM UPLOADED DEV UPDATE PICTURE (IF ANY) */}
+          {activeUpdate.type === 'picture' && activeUpdate.picUrl && (
+            <div className="relative flex-1 min-h-0 w-full flex flex-col justify-between bg-black overflow-hidden p-6">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <img
+                  src={activeUpdate.picUrl}
+                  alt={activeUpdate.title}
+                  className="w-full h-full object-contain"
+                  referrerPolicy="no-referrer"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-black/40 pointer-events-none" />
+              </div>
+
+              {/* Top badge */}
+              <div className="relative z-10 flex items-center justify-between">
+                <span className="px-3.5 py-1 rounded-xl bg-[#FF6321] text-black font-mono font-black text-xs uppercase">
+                  {activeUpdate.tag}
+                </span>
+                <span className="px-3 py-1 rounded-xl bg-black/80 border border-white/20 text-gray-300 text-xs font-mono">
+                  {activeUpdate.date}
+                </span>
+              </div>
+
+              {/* Bottom title */}
+              <div className="relative z-10 space-y-1 max-w-2xl bg-black/80 p-4 rounded-2xl border border-white/15 backdrop-blur-md">
+                <h4 className="text-xl sm:text-2xl font-black text-white uppercase">
+                  {activeUpdate.title}
+                </h4>
+                <p className="text-xs sm:text-sm text-gray-300">
+                  {activeUpdate.subtitle}
+                </p>
+              </div>
             </div>
-          )
+          )}
+        </div>
+
+        {/* BOTTOM DOTS INDICATOR & QUICK JUMP STRIP (shown only when multi-updates exist) */}
+        {totalUpdates > 1 && (
+          <div className="flex items-center justify-center gap-2 pt-1">
+            {updatesList.map((update, idx) => (
+              <button
+                key={update.id}
+                type="button"
+                onClick={() => {
+                  if (isPlaying) handlePause();
+                  setCurrentUpdateIndex(idx);
+                }}
+                className={`transition-all duration-300 rounded-full cursor-pointer ${
+                  idx === currentUpdateIndex
+                    ? 'w-8 h-2.5 bg-gradient-to-r from-[#FF6321] to-amber-400 shadow-[0_0_12px_rgba(255,99,33,0.8)]'
+                    : 'w-2.5 h-2.5 bg-white/20 hover:bg-white/50'
+                }`}
+                title={`Go to ${update.tag}: ${update.title}`}
+              />
+            ))}
+          </div>
         )}
       </div>
-
-      {/* =========================================================================
-          LIGHTBOX MODAL FOR EXPANDING DEV UPDATE PICTURES
-          ========================================================================= */}
-      {lightboxImage && (
-        <div
-          className="fixed inset-0 z-[120] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 sm:p-8 animate-fadeIn"
-          onClick={() => setLightboxImage(null)}
-        >
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            className="relative max-w-5xl w-full bg-[#0b0c10] border-2 border-[#FF6321] rounded-3xl overflow-hidden shadow-[0_0_70px_rgba(255,99,33,0.5)]"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Top Bar */}
-            <div className="p-4 bg-black/80 border-b border-white/10 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className="px-2.5 py-1 rounded-lg bg-[#FF6321]/20 border border-[#FF6321]/40 text-[#FF6321] text-xs font-mono font-bold uppercase">
-                  {lightboxImage.category || 'Dev Update'}
-                </span>
-                <h3 className="text-base sm:text-lg font-black bg-gradient-to-r from-[#FF6321] via-amber-300 to-[#00F0FF] bg-clip-text text-transparent truncate max-w-md">
-                  {lightboxImage.title}
-                </h3>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setLightboxImage(null);
-                    if (setActiveTab) {
-                      setActiveTab('apex-editor-demo');
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    } else {
-                      window.open('https://apex-editor-demo.vercel.app/', '_blank');
-                    }
-                  }}
-                  className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#FF6321] to-amber-400 text-black font-black text-xs font-mono uppercase tracking-wider flex items-center gap-1.5 shadow-[0_0_20px_rgba(255,99,33,0.6)] cursor-pointer hover:scale-105 active:scale-95 transition-all"
-                >
-                  <Zap className="w-3.5 h-3.5 fill-black" />
-                  <span>TRY DEMO</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setLightboxImage(null)}
-                  className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-
-            {/* Main Image */}
-            <div className="max-h-[65vh] w-full flex items-center justify-center bg-black overflow-hidden">
-              <img
-                src={lightboxImage.url}
-                alt={lightboxImage.title}
-                className="max-h-[65vh] w-full object-contain"
-                referrerPolicy="no-referrer"
-              />
-            </div>
-
-            {/* Bottom Caption */}
-            {lightboxImage.caption && (
-              <div className="p-5 bg-black/80 border-t border-white/10 space-y-2">
-                <h4 className="text-lg sm:text-2xl font-black bg-gradient-to-r from-[#FF6321] via-amber-300 to-[#00F0FF] bg-clip-text text-transparent uppercase tracking-tight drop-shadow-[0_0_25px_rgba(255,99,33,0.8)]">
-                  {lightboxImage.title}
-                </h4>
-                <div className="text-xs sm:text-sm text-gray-200 leading-relaxed font-sans">
-                  {lightboxImage.caption}
-                </div>
-                <div className="text-[10px] font-mono text-gray-400 pt-1 flex items-center justify-between">
-                  <span>Apex Syndicate Official Dev Artifact • Published {lightboxImage.createdAt || 'Live'}</span>
-                  <span className="text-[#00F0FF] font-bold">INTERACTIVE DEMO READY</span>
-                </div>
-              </div>
-            )}
-          </motion.div>
-        </div>
-      )}
 
       {/* MP4 Export Progress Modal */}
       {isExportingVideo && (
@@ -1104,3 +900,4 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
     </div>
   );
 };
+

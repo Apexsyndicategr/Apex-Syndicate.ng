@@ -287,17 +287,17 @@ export const ApexEditor: React.FC<ApexEditorProps> = ({
 
             <div className="p-4 rounded-2xl bg-black/40 border border-white/5 space-y-1">
               <div className="text-gray-500 font-mono">MEMORY (RAM)</div>
-              <div className="font-bold text-white">512 MB Minimum (2 GB Recommended)</div>
+              <div className="font-bold text-white">TBD</div>
             </div>
 
             <div className="p-4 rounded-2xl bg-black/40 border border-white/5 space-y-1">
               <div className="text-gray-500 font-mono">PROCESSOR</div>
-              <div className="font-bold text-white">64-bit Dual-Core x86 / ARM64</div>
+              <div className="font-bold text-white">TBD</div>
             </div>
 
             <div className="p-4 rounded-2xl bg-black/40 border border-white/5 space-y-1">
               <div className="text-gray-500 font-mono">STORAGE SPACE</div>
-              <div className="font-bold text-white">120 MB Free Storage Space</div>
+              <div className="font-bold text-white">TBD</div>
             </div>
           </div>
         </motion.div>

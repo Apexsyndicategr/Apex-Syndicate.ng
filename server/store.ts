@@ -104,9 +104,9 @@ function getDefaultData(): StoreData {
         fileSize: 'Pending Build',
         systemRequirements: {
           os: 'Windows 10/11, macOS 12+, Ubuntu 22.04+',
-          processor: '64-bit Quad-Core Intel / AMD or Apple M1/M2/M3',
-          memory: '8 GB RAM minimum (16 GB recommended)',
-          storage: '500 MB available NVMe SSD space',
+          processor: 'TBD',
+          memory: 'TBD',
+          storage: 'TBD',
         },
         features: [
           'GPU-Accelerated 60FPS Editor Core',

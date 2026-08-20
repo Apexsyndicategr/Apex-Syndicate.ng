@@ -92,11 +92,11 @@ export const GangsterRevolution: React.FC<GangsterRevolutionProps> = ({
             transition={{ delay: 0.2, duration: 0.6 }}
             className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4"
           >
-            {isComingSoon ? (
-              <div className="px-8 py-4 rounded-2xl bg-white/[0.05] border border-amber-500/40 backdrop-blur-xl text-amber-300 font-extrabold text-xs uppercase tracking-widest shadow-[0_0_30px_rgba(245,158,11,0.2)] flex items-center justify-center gap-3">
-                <Clock className="w-4 h-4 text-amber-400 animate-spin" />
-                <span>COMING SOON • IN ACTIVE DEVELOPMENT</span>
-                <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-mono border border-amber-500/40">
+            {!product?.fileUrl ? (
+              <div className="px-8 py-4 rounded-2xl bg-white/[0.05] border border-red-500/40 backdrop-blur-xl text-red-300 font-extrabold text-xs uppercase tracking-widest shadow-[0_0_30px_rgba(239,68,68,0.2)] flex items-center justify-center gap-3">
+                <Clock className="w-4 h-4 text-red-400 animate-spin" />
+                <span>RELEASE DATE: TBD • IN ACTIVE DEVELOPMENT</span>
+                <span className="px-2 py-0.5 rounded bg-red-500/20 text-red-300 text-[10px] font-mono border border-red-500/40">
                   TBD
                 </span>
               </div>

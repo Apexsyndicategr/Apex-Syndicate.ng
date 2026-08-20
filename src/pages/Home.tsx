@@ -18,6 +18,7 @@ import {
   Zap,
   Layers,
   Code2,
+  Play,
 } from 'lucide-react';
 
 interface HomeProps {
@@ -186,7 +187,7 @@ export const Home: React.FC<HomeProps> = ({
         transition={{ duration: 0.7 }}
         className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
       >
-        <PortfolioVideoShowcase />
+        <PortfolioVideoShowcase setActiveTab={setActiveTab} />
       </motion.section>
 
       {/* ==========================================
@@ -340,11 +341,15 @@ export const Home: React.FC<HomeProps> = ({
                     <span className="px-3 py-1 rounded-full bg-[#FF6321]/10 border border-[#FF6321]/30 text-[#FF6321] text-[10px] font-bold uppercase tracking-wider">
                       {prod.category}
                     </span>
-                    {(prod.isComingSoon || prod.releaseDate === 'Coming Soon') && (
+                    {(prod.releaseDate === 'TBD' || prod.id === 'gangster-revolution') ? (
+                      <span className="px-2.5 py-0.5 rounded-full bg-red-500/20 text-red-400 border border-red-500/40 text-[9px] font-black uppercase tracking-wider font-mono">
+                        TBD
+                      </span>
+                    ) : (prod.isComingSoon || prod.releaseDate === 'Coming Soon') ? (
                       <span className="px-2.5 py-0.5 rounded-full bg-[#FF6321] text-black text-[9px] font-black uppercase tracking-wider animate-pulse shadow-[0_0_10px_rgba(255,99,33,0.5)]">
                         COMING SOON
                       </span>
-                    )}
+                    ) : null}
                   </div>
                   <span className="text-xs font-mono text-gray-500">{prod.version}</span>
                 </div>
@@ -398,7 +403,27 @@ export const Home: React.FC<HomeProps> = ({
                     </motion.a>
                   )}
 
-                  {prod.isComingSoon || !prod.fileUrl ? (
+                  {prod.id === 'apex-editor' && (
+                    <motion.button
+                      whileHover={{ scale: 1.08, y: -2 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => {
+                        setActiveTab('apex-editor-demo');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#FF6321] to-amber-500 hover:from-[#FF8A50] hover:to-amber-400 text-black font-black text-[11px] tracking-wider uppercase shadow-[0_0_15px_rgba(255,99,33,0.4)] transition-all flex items-center gap-1.5 cursor-pointer btn-shimmer-sweep"
+                      title="Launch Apex Editor Interactive Demo"
+                    >
+                      <Play className="w-3.5 h-3.5 fill-black" />
+                      <span>TRY DEMO</span>
+                    </motion.button>
+                  )}
+
+                  {prod.releaseDate === 'TBD' || prod.id === 'gangster-revolution' ? (
+                    <span className="px-3.5 py-2 rounded-xl bg-white/[0.04] border border-red-500/30 text-red-400 text-xs font-bold tracking-wider uppercase flex items-center gap-1.5 font-mono">
+                      <Clock className="w-3.5 h-3.5 text-red-400 animate-spin" /> TBD
+                    </span>
+                  ) : prod.isComingSoon || !prod.fileUrl ? (
                     <span className="px-3.5 py-2 rounded-xl bg-white/[0.04] border border-amber-500/30 text-amber-400 text-xs font-bold tracking-wider uppercase flex items-center gap-1.5 cursor-not-allowed">
                       <Clock className="w-3.5 h-3.5 text-amber-400 animate-spin" /> COMING SOON
                     </span>

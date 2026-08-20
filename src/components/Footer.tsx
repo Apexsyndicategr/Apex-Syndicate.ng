@@ -62,7 +62,7 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab, openAdminModal }) 
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-red-500 group-hover:scale-125 transition-transform"></span>
                   <span>Gangster Revolution</span>
-                  <span className="text-[10px] text-red-400 font-mono">(Coming Soon)</span>
+                  <span className="text-[10px] text-red-400 font-mono">(TBD)</span>
                 </button>
               </li>
               <li>

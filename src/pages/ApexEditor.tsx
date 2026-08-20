@@ -17,6 +17,7 @@ import {
   RotateCw,
   Clock,
   ExternalLink,
+  Play,
 } from 'lucide-react';
 
 interface ApexEditorProps {
@@ -24,6 +25,7 @@ interface ApexEditorProps {
   launchPricing: LaunchPricingInfo | null;
   openDownloadModal: (product: Product) => void;
   onRefreshPricing?: () => void;
+  setActiveTab?: (tab: string) => void;
 }
 
 export const ApexEditor: React.FC<ApexEditorProps> = ({
@@ -31,6 +33,7 @@ export const ApexEditor: React.FC<ApexEditorProps> = ({
   launchPricing,
   openDownloadModal,
   onRefreshPricing,
+  setActiveTab,
 }) => {
   if (!product) {
     return (
@@ -90,6 +93,22 @@ export const ApexEditor: React.FC<ApexEditorProps> = ({
             transition={{ delay: 0.2, duration: 0.6 }}
             className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4"
           >
+            {setActiveTab && (
+              <motion.button
+                whileHover={{ scale: 1.06, y: -2 }}
+                whileTap={{ scale: 0.96 }}
+                onClick={() => {
+                  setActiveTab('apex-editor-demo');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="px-8 py-4 rounded-2xl bg-gradient-to-r from-[#FF6321] to-amber-500 hover:from-[#FF8A50] hover:to-amber-400 text-black font-black text-xs uppercase tracking-widest shadow-[0_10px_30px_rgba(255,99,33,0.4)] transition-all flex items-center justify-center gap-2.5 btn-shimmer-sweep cursor-pointer"
+                title="Launch Apex Editor Interactive Demo Sandbox"
+              >
+                <Play className="w-4 h-4 fill-black" />
+                <span>TRY DEMO</span>
+              </motion.button>
+            )}
+
             {product.isComingSoon || !product.fileUrl ? (
               <div className="px-8 py-4 rounded-2xl bg-white/[0.05] border border-amber-500/40 backdrop-blur-xl text-amber-300 font-extrabold text-xs uppercase tracking-widest shadow-[0_0_20px_rgba(245,158,11,0.2)] flex items-center justify-center gap-2.5">
                 <Clock className="w-4 h-4 text-amber-400 animate-spin" />

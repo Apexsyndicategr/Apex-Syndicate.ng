@@ -135,6 +135,18 @@ export function getDefaultData(): StoreData {
       portfolioVideoUrl: '',
       devUpdates: [
         {
+          id: 'update-demo-out-now',
+          title: 'THE APEX EDITOR DEMO IS OUT NOW!',
+          category: 'Apex Editor',
+          date: '2026-08-20',
+          description:
+            'The official Apex Editor Web Demo is now LIVE! Explore the zero-latency GPU-accelerated video editing interface, AI media generation tools, 60FPS timeline workstation, and real-time Rust engine directly in your browser.',
+          images: [
+            '/images/apex_editor_demo_screenshot.jpg',
+          ],
+          statusTag: 'DEMO LIVE NOW',
+        },
+        {
           id: 'update-1',
           title: 'Apex Editor GPU Canvas & Rust Kernel Optimization',
           category: 'Apex Editor',
@@ -171,6 +183,15 @@ export function getDefaultData(): StoreData {
         },
       ],
       devUpdatePictures: [
+        {
+          id: 'pic-demo-out-now',
+          url: '/images/apex_editor_demo_screenshot.jpg',
+          title: 'THE APEX EDITOR DEMO IS OUT NOW!',
+          caption:
+            'Official milestone release! Experience the full interactive Apex Editor in your browser right now — featuring real-time AI media generation, 60FPS canvas timeline, Topaz neural engine, and zero-latency Rust core.',
+          category: 'Apex Editor',
+          createdAt: 'Live Now',
+        },
         {
           id: 'pic-1',
           url: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80',
@@ -274,11 +295,11 @@ export function getDefaultData(): StoreData {
           'Next-generation open-world action game featuring intense storylines, syndicate warfare, and high-octane gameplay.',
         fullDescription:
           'Gangster Revolution is the explosive new game from Apex Syndicate. Dive into an immersive open-world city filled with syndicate turf wars, customizable vehicles, story missions, and realistic physics powered by Apex Games Engine.',
-        version: 'v1.0.0 (Coming Soon)',
-        releaseDate: 'Coming Soon',
+        version: 'v1.0.0 (TBD)',
+        releaseDate: 'TBD',
         isFeatured: true,
         isPublished: true,
-        isComingSoon: true,
+        isComingSoon: false,
         pricingType: 'tbd',
         fixedPrice: 0,
         iconName: 'Gamepad',
@@ -301,7 +322,7 @@ export function getDefaultData(): StoreData {
           'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?auto=format&fit=crop&w=1200&q=80',
           'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1200&q=80',
         ],
-        whatsNew: ['In active development! Official release build coming soon.'],
+        whatsNew: ['In active development! Official release date and specifications are To Be Determined (TBD).'],
       },
     ],
     requests: [],

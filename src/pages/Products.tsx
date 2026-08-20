@@ -16,18 +16,21 @@ import {
   ExternalLink,
   Globe,
   Clock,
+  Play,
 } from 'lucide-react';
 
 interface ProductsProps {
   products: Product[];
   openDownloadModal: (product: Product) => void;
   launchPricing: LaunchPricingInfo | null;
+  setActiveTab?: (tab: string) => void;
 }
 
 export const Products: React.FC<ProductsProps> = ({
   products,
   openDownloadModal,
   launchPricing,
+  setActiveTab,
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
@@ -188,11 +191,15 @@ export const Products: React.FC<ProductsProps> = ({
                             {getCategoryIcon(prod.category)}
                             <span>{prod.category}</span>
                           </div>
-                          {(prod.isComingSoon || prod.releaseDate === 'Coming Soon') && (
+                          {(prod.releaseDate === 'TBD' || prod.id === 'gangster-revolution') ? (
+                            <span className="px-2.5 py-0.5 rounded-full bg-red-500/20 text-red-400 border border-red-500/40 text-[10px] font-black uppercase tracking-wider font-mono">
+                              TBD
+                            </span>
+                          ) : (prod.isComingSoon || prod.releaseDate === 'Coming Soon') ? (
                             <span className="px-2.5 py-0.5 rounded-full bg-[#FF6321] text-black text-[10px] font-black uppercase tracking-wider animate-pulse shadow-[0_0_10px_rgba(255,99,33,0.5)]">
                               COMING SOON
                             </span>
-                          )}
+                          ) : null}
                         </div>
                         <span className="text-xs font-mono text-gray-500 font-semibold">{prod.version}</span>
                       </div>
@@ -267,7 +274,27 @@ export const Products: React.FC<ProductsProps> = ({
                           <ExternalLink className="w-4 h-4" />
                         </motion.button>
 
-                        {prod.isComingSoon || !prod.fileUrl ? (
+                        {prod.id === 'apex-editor' && setActiveTab && (
+                          <motion.button
+                            whileHover={{ scale: 1.08, y: -2 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => {
+                              setActiveTab('apex-editor-demo');
+                              window.scrollTo({ top: 0, behavior: 'smooth' });
+                            }}
+                            className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#FF6321] to-amber-500 hover:from-[#FF8A50] hover:to-amber-400 text-black font-black text-xs tracking-wider uppercase shadow-[0_0_15px_rgba(255,99,33,0.4)] transition-all flex items-center gap-1.5 cursor-pointer btn-shimmer-sweep"
+                            title="Launch Apex Editor Interactive Demo"
+                          >
+                            <Play className="w-3.5 h-3.5 fill-black" />
+                            <span>TRY DEMO</span>
+                          </motion.button>
+                        )}
+
+                        {prod.releaseDate === 'TBD' || prod.id === 'gangster-revolution' ? (
+                          <span className="px-3.5 py-2 rounded-xl bg-white/[0.04] border border-red-500/30 text-red-400 text-xs font-bold tracking-wider uppercase flex items-center gap-1.5 font-mono">
+                            <Clock className="w-3.5 h-3.5 text-red-400 animate-spin" /> TBD
+                          </span>
+                        ) : prod.isComingSoon || !prod.fileUrl ? (
                           <span className="px-3.5 py-2 rounded-xl bg-white/[0.04] border border-amber-500/30 text-amber-400 text-xs font-bold tracking-wider uppercase flex items-center gap-1.5 cursor-not-allowed">
                             <Clock className="w-3.5 h-3.5 text-amber-400 animate-spin" /> COMING SOON
                           </span>
@@ -416,22 +443,42 @@ export const Products: React.FC<ProductsProps> = ({
                   </div>
                 </div>
 
-                {selectedProductDetails.isComingSoon || !selectedProductDetails.fileUrl ? (
-                  <div className="px-6 py-3.5 rounded-xl bg-white/[0.05] border border-amber-500/30 text-amber-300 font-extrabold text-xs uppercase tracking-wider flex items-center gap-2 cursor-not-allowed">
-                    <Clock className="w-4 h-4 text-amber-400 animate-spin" /> COMING SOON • IN DEVELOPMENT
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => {
-                      const prod = selectedProductDetails;
-                      setSelectedProductDetails(null);
-                      openDownloadModal(prod);
-                    }}
-                    className="px-8 py-3.5 rounded-xl bg-[#FF6321] hover:bg-[#FF8A50] text-black font-extrabold text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(255,99,33,0.35)]"
-                  >
-                    DOWNLOAD NOW
-                  </button>
-                )}
+                <div className="flex items-center gap-3 flex-wrap">
+                  {selectedProductDetails.id === 'apex-editor' && setActiveTab && (
+                    <button
+                      onClick={() => {
+                        setSelectedProductDetails(null);
+                        setActiveTab('apex-editor-demo');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#FF6321] to-amber-500 hover:from-[#FF8A50] hover:to-amber-400 text-black font-black text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(255,99,33,0.5)] flex items-center gap-2 cursor-pointer btn-shimmer-sweep"
+                    >
+                      <Play className="w-4 h-4 fill-black" />
+                      <span>TRY DEMO</span>
+                    </button>
+                  )}
+
+                  {selectedProductDetails.releaseDate === 'TBD' || selectedProductDetails.id === 'gangster-revolution' ? (
+                    <div className="px-6 py-3.5 rounded-xl bg-white/[0.05] border border-red-500/30 text-red-300 font-extrabold text-xs uppercase tracking-wider flex items-center gap-2 cursor-not-allowed font-mono">
+                      <Clock className="w-4 h-4 text-red-400 animate-spin" /> RELEASE DATE: TBD • IN DEVELOPMENT
+                    </div>
+                  ) : selectedProductDetails.isComingSoon || !selectedProductDetails.fileUrl ? (
+                    <div className="px-6 py-3.5 rounded-xl bg-white/[0.05] border border-amber-500/30 text-amber-300 font-extrabold text-xs uppercase tracking-wider flex items-center gap-2 cursor-not-allowed">
+                      <Clock className="w-4 h-4 text-amber-400 animate-spin" /> COMING SOON • IN DEVELOPMENT
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        const prod = selectedProductDetails;
+                        setSelectedProductDetails(null);
+                        openDownloadModal(prod);
+                      }}
+                      className="px-8 py-3.5 rounded-xl bg-[#FF6321] hover:bg-[#FF8A50] text-black font-extrabold text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(255,99,33,0.35)]"
+                    >
+                      DOWNLOAD NOW
+                    </button>
+                  )}
+                </div>
               </div>
             </motion.div>
           </motion.div>

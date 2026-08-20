@@ -429,7 +429,7 @@ export function drawKineticFrame(ctx: CanvasRenderingContext2D, time: number, wi
       ctx.fill();
       ctx.fillStyle = '#000000';
       ctx.font = '900 18px monospace';
-      ctx.fillText('🔥 GANGSTER REVOLUTION IS COMING SOON!', 0, 153);
+      ctx.fillText('🎮 GANGSTER REVOLUTION • RELEASE DATE TBD!', 0, 153);
 
       ctx.restore();
     }

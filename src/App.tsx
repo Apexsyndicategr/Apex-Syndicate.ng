@@ -231,6 +231,7 @@ export default function App() {
                 products={products}
                 openDownloadModal={handleOpenDownloadModal}
                 launchPricing={launchPricing}
+                setActiveTab={setActiveTab}
               />
             )}
 
@@ -240,6 +241,7 @@ export default function App() {
                 launchPricing={launchPricing}
                 openDownloadModal={handleOpenDownloadModal}
                 onRefreshPricing={fetchPublicData}
+                setActiveTab={setActiveTab}
               />
             )}
 

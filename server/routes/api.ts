@@ -756,20 +756,541 @@ function getGenAIClient(): GoogleGenAI | null {
   return genAIInstance;
 }
 
-// Visitor Tracking
-router.post('/track-visit', (req: Request, res: Response) => {
+// Visitor & Demo Tracking & User Authentication
+function parseDeviceFromUA(uaStr?: string): string {
+  if (!uaStr) return 'Web Browser';
+  const ua = uaStr.toLowerCase();
+  let os = 'Desktop PC';
+  if (ua.includes('windows nt 10.0') || ua.includes('windows nt 11.0')) os = 'Windows 11 PC';
+  else if (ua.includes('windows')) os = 'Windows PC';
+  else if (ua.includes('macintosh') || ua.includes('mac os x')) os = 'macOS Workstation';
+  else if (ua.includes('iphone')) os = 'iPhone Mobile';
+  else if (ua.includes('ipad')) os = 'iPad Tablet';
+  else if (ua.includes('android')) os = 'Android Mobile';
+  else if (ua.includes('linux')) os = 'Linux Workstation';
+
+  let browser = 'Browser';
+  if (ua.includes('edg/')) browser = 'Edge';
+  else if (ua.includes('chrome/') && !ua.includes('edg/')) browser = 'Chrome';
+  else if (ua.includes('safari/') && !ua.includes('chrome/')) browser = 'Safari';
+  else if (ua.includes('firefox/')) browser = 'Firefox';
+  else if (ua.includes('opera') || ua.includes('opr/')) browser = 'Opera';
+
+  return `${os} • ${browser}`;
+}
+
+// User Authentication Endpoints
+router.post('/auth/register', (req: Request, res: Response) => {
   try {
-    const newCount = store.incrementVisitorCount();
-    res.json({ success: true, count: newCount });
+    const { email, password, name, avatar, newsletterSubscribed, device, location } = req.body;
+    if (!email || !email.includes('@')) {
+      return res.status(400).json({ error: 'Valid email address is required.' });
+    }
+    const cleanEmail = email.toLowerCase().trim();
+    const isOwner = cleanEmail === 'apexsyndicategr@gmail.com';
+    const user = store.registerOrLoginUser({
+      email: cleanEmail,
+      password,
+      name: name || (isOwner ? 'Apex Syndicate Owner' : cleanEmail.split('@')[0]),
+      avatar,
+    });
+
+    // Auto-subscribe to newsletter if accepted and not owner
+    if (newsletterSubscribed && !isOwner) {
+      store.addNewsletterSubscriber({
+        email: cleanEmail,
+        name: user.name,
+        avatar: user.avatar,
+        device: device || parseDeviceFromUA(req.headers['user-agent']),
+        source: 'Registration',
+      });
+    }
+
+    // Register device session & check multi-device alert
+    const detectedDevice = device || parseDeviceFromUA(req.headers['user-agent']);
+    const clientIp = (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || '127.0.0.1';
+    const sessionResult = store.registerDeviceSession(user, {
+      device: detectedDevice,
+      browser: parseDeviceFromUA(req.headers['user-agent']).split('•')[1]?.trim() || 'Chrome',
+      ip: clientIp,
+      location,
+    });
+
+    const token = sessionResult.session.token || `usr-token-${user.id}-${Date.now()}`;
+    res.json({
+      success: true,
+      token,
+      user,
+      session: sessionResult.session,
+      securityAlert: sessionResult.securityAlert,
+      isNewDevice: sessionResult.isNewDevice,
+    });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
 });
 
-router.post('/admin/reset-visitor-count', requireAdmin, (req: Request, res: Response) => {
+router.post('/auth/login', (req: Request, res: Response) => {
   try {
-    const newCount = store.resetVisitorCount();
-    res.json({ success: true, count: newCount, stats: store.getDashboardStats() });
+    const { email, password, device, location } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required.' });
+    }
+    const cleanEmail = email.toLowerCase().trim();
+    const isOwner = cleanEmail === 'apexsyndicategr@gmail.com';
+    const user = store.registerOrLoginUser({
+      email: cleanEmail,
+      password,
+      name: isOwner ? 'Apex Syndicate Owner' : undefined,
+    });
+
+    // Register device session & check multi-device alert
+    const detectedDevice = device || parseDeviceFromUA(req.headers['user-agent']);
+    const clientIp = (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || '127.0.0.1';
+    const sessionResult = store.registerDeviceSession(user, {
+      device: detectedDevice,
+      browser: parseDeviceFromUA(req.headers['user-agent']).split('•')[1]?.trim() || 'Chrome',
+      ip: clientIp,
+      location,
+    });
+
+    const token = sessionResult.session.token || `usr-token-${user.id}-${Date.now()}`;
+    res.json({
+      success: true,
+      token,
+      user,
+      session: sessionResult.session,
+      securityAlert: sessionResult.securityAlert,
+      isNewDevice: sessionResult.isNewDevice,
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/auth/google-sim', (req: Request, res: Response) => {
+  try {
+    const { email, name, avatar, newsletterSubscribed, device, location } = req.body;
+    if (!email || !email.includes('@')) {
+      return res.status(400).json({ error: 'Valid Google email is required.' });
+    }
+    const cleanEmail = email.toLowerCase().trim();
+    const isOwner = cleanEmail === 'apexsyndicategr@gmail.com';
+    const user = store.registerOrLoginUser({
+      email: cleanEmail,
+      name: name || (isOwner ? 'Apex Syndicate Owner' : cleanEmail.split('@')[0]),
+      avatar: avatar || (isOwner ? 'https://api.dicebear.com/7.x/bottts/svg?seed=apex-owner' : `https://api.dicebear.com/7.x/bottts/svg?seed=${cleanEmail}`),
+    });
+
+    // Auto-subscribe to newsletter if accepted and not owner
+    if (newsletterSubscribed && !isOwner) {
+      store.addNewsletterSubscriber({
+        email: cleanEmail,
+        name: user.name,
+        avatar: user.avatar,
+        device: device || parseDeviceFromUA(req.headers['user-agent']),
+        source: 'Google Sign-In',
+      });
+    }
+
+    // Register device session & check multi-device alert
+    const detectedDevice = device || parseDeviceFromUA(req.headers['user-agent']);
+    const clientIp = (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || '127.0.0.1';
+    const sessionResult = store.registerDeviceSession(user, {
+      device: detectedDevice,
+      browser: parseDeviceFromUA(req.headers['user-agent']).split('•')[1]?.trim() || 'Chrome',
+      ip: clientIp,
+      location,
+    });
+
+    const token = sessionResult.session.token || `usr-token-${user.id}-${Date.now()}`;
+    res.json({
+      success: true,
+      token,
+      user,
+      session: sessionResult.session,
+      securityAlert: sessionResult.securityAlert,
+      isNewDevice: sessionResult.isNewDevice,
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/auth/me', (req: Request, res: Response) => {
+  try {
+    const authHeader = req.headers.authorization;
+    const emailQuery = req.query.email as string;
+    if (emailQuery) {
+      const user = store.getUserByEmail(emailQuery);
+      if (user) return res.json({ success: true, user });
+    }
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No authorization header provided.' });
+    }
+    // Token extraction
+    const token = authHeader.replace('Bearer ', '').trim();
+    const users = store.getUsers();
+    const foundUser = users.find((u) => token.includes(u.id));
+    if (foundUser) {
+      return res.json({ success: true, user: foundUser });
+    }
+    res.json({ success: true, user: null });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.put('/auth/profile', (req: Request, res: Response) => {
+  try {
+    const { userId, name, avatar, email } = req.body;
+    if (!userId) {
+      return res.status(400).json({ error: 'User ID is required.' });
+    }
+    const updated = store.updateUserProfile(userId, { name, avatar, email });
+    if (!updated) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+    res.json({ success: true, user: updated });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Terminate All Other Sessions for Security
+router.post('/auth/terminate-other-sessions', (req: Request, res: Response) => {
+  try {
+    const { email, userId, currentSessionId } = req.body;
+    const target = email || userId;
+    if (!target) {
+      return res.status(400).json({ error: 'Email or User ID is required.' });
+    }
+    const result = store.terminateAllOtherSessions(target, currentSessionId);
+    res.json({ success: true, terminatedCount: result.terminatedCount });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Dismiss Security Alert
+router.post('/auth/dismiss-security-alert', (req: Request, res: Response) => {
+  try {
+    const { alertId } = req.body;
+    if (!alertId) {
+      return res.status(400).json({ error: 'Alert ID is required.' });
+    }
+    const success = store.dismissSecurityAlert(alertId);
+    res.json({ success });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get User Active Security Alerts
+router.get('/auth/security-alerts', (req: Request, res: Response) => {
+  try {
+    const email = req.query.email as string;
+    const alerts = store.getSecurityAlerts(email);
+    res.json({ success: true, alerts });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ==========================================
+// NEWSLETTER & CAMPAIGN TRANSMITTER ENDPOINTS
+// ==========================================
+
+// Get Subscribers List (Admin / Owner)
+router.get('/newsletter/subscribers', requireAdmin, (req: Request, res: Response) => {
+  try {
+    const subscribers = store.getNewsletterSubscribers();
+    res.json({ success: true, count: subscribers.length, subscribers });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Public Newsletter Subscription Opt-In
+router.post('/newsletter/subscribe', (req: Request, res: Response) => {
+  try {
+    const { email, name, avatar, device, source } = req.body;
+    if (!email || !email.includes('@')) {
+      return res.status(400).json({ error: 'Valid email address is required.' });
+    }
+    const cleanEmail = email.toLowerCase().trim();
+    if (cleanEmail === 'apexsyndicategr@gmail.com') {
+      return res.json({ success: true, message: 'Owner recognized — exempt from subscription list.' });
+    }
+
+    const sub = store.addNewsletterSubscriber({
+      email: cleanEmail,
+      name,
+      avatar,
+      device: device || parseDeviceFromUA(req.headers['user-agent']),
+      source: source || 'Website Opt-in',
+    });
+
+    res.json({ success: true, subscriber: sub });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Unsubscribe
+router.post('/newsletter/unsubscribe', (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email required.' });
+    const success = store.unsubscribeNewsletter(email);
+    res.json({ success });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get Newsletter Broadcasts History (Admin / Owner)
+router.get('/newsletter/broadcasts', requireAdmin, (req: Request, res: Response) => {
+  try {
+    const broadcasts = store.getNewsletterBroadcasts();
+    res.json({ success: true, broadcasts });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Send Newsletter Broadcast to Subscribers (Admin / Owner)
+router.post('/newsletter/send-broadcast', requireAdmin, (req: Request, res: Response) => {
+  try {
+    const { subject, previewText, htmlContent, textContent, imageUrl, targetEmails, author } = req.body;
+    if (!subject || !htmlContent) {
+      return res.status(400).json({ error: 'Subject and HTML email content are required.' });
+    }
+
+    const broadcast = store.saveAndSendNewsletterBroadcast({
+      subject,
+      previewText,
+      htmlContent,
+      textContent,
+      imageUrl,
+      targetEmails,
+      author: author || 'Apex Syndicate Campaign AI',
+    });
+
+    res.json({ success: true, broadcast });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Dedicated Apex AI Newsletter & Campaign Generator Endpoint
+router.post('/newsletter/ai-generate', async (req: Request, res: Response) => {
+  try {
+    const { prompt, topic, tone, imageUrl, targetAudience, aiPassword } = req.body;
+
+    // Verify AI password
+    if (aiPassword !== 'apexsyndicate.com.ng') {
+      return res.status(403).json({ error: 'Invalid AI Helper security password. Access denied.' });
+    }
+
+    const effectivePrompt = prompt || `Write an engaging newsletter campaign about: ${topic || 'Apex Syndicate software drops, Apex Editor demo live, and game releases'}`;
+    const effectiveTone = tone || 'Cyberpunk, High-Tech, Professional, Exciting';
+
+    const systemInstruction = `
+You are the Apex Syndicate Autonomous Email Campaign & Newsletter AI.
+Your job is to generate world-class, captivating, high-conversion email newsletters for Apex Syndicate subscribers (software developers, gamers, video creators, and tech enthusiasts).
+
+The official sender is:
+"Apex Syndicate <apexsyndicategr@gmail.com>"
+
+Format your response as a strictly valid JSON object with the following fields:
+{
+  "subject": "Compelling, punchy subject line that maximizes open rate",
+  "previewText": "Short 1-line preheader snippet preview",
+  "headline": "Main banner headline inside email",
+  "htmlContent": "Full modern HTML styled body with clean dark styling, sleek cards, bullet points, call-to-actions, formatted typography, and footer signature from Apex Syndicate <apexsyndicategr@gmail.com>",
+  "textContent": "Clean plain text version of the email",
+  "suggestedTags": ["Apex Editor", "Game Drop", "Update"]
+}
+
+Guidelines for the HTML content:
+- Use inline CSS styling suitable for email clients with dark theme palette (#0d0d12 background, #FF6321 accents, white text, #9ca3af subtitles).
+${imageUrl ? `- Incorporate this featured picture URL in a prominent hero image container at the top: "${imageUrl}"` : ''}
+- Include clear button links with #FF6321 background.
+- Include footer: "Apex Syndicate Software & Games Studio • Sent to subscribers • Reply to apexsyndicategr@gmail.com".
+- Do NOT wrap response in markdown blocks if returning JSON, or return standard JSON.
+`;
+
+    const ai = getGenAIClient();
+    let generatedResult: any = null;
+
+    if (ai) {
+      try {
+        const response = await ai.models.generateContent({
+          model: 'gemini-2.5-flash',
+          contents: [
+            {
+              role: 'user',
+              parts: [{ text: `${systemInstruction}\n\nUSER PROMPT: ${effectivePrompt}\nTONE: ${effectiveTone}\nTARGET AUDIENCE: ${targetAudience || 'Developers & Gamers'}` }],
+            },
+          ],
+        });
+
+        const textOutput = response.text || '';
+        const cleanJson = textOutput.replace(/```json/g, '').replace(/```/g, '').trim();
+        generatedResult = JSON.parse(cleanJson);
+      } catch (err) {
+        console.warn('Gemini AI Newsletter generation error, using neural fallback engine:', err);
+      }
+    }
+
+    // High-intelligence fallback generator if API key absent or transient error
+    if (!generatedResult || !generatedResult.subject) {
+      const subject = prompt && prompt.length > 5 ? prompt.slice(0, 60) : '⚡ Apex Syndicate Intel Drop: New Engine & Tools Released';
+      const preview = 'The next evolution of Apex Syndicate software and game engines is here. Read the official briefing.';
+      
+      const heroImageHtml = imageUrl
+        ? `<div style="margin-bottom:24px; text-align:center;"><img src="${imageUrl}" alt="Apex Syndicate" style="width:100%; max-width:600px; border-radius:16px; border:1px solid rgba(255,99,33,0.4); box-shadow:0 0 30px rgba(255,99,33,0.3); display:block; margin:0 auto;" /></div>`
+        : '';
+
+      const htmlContent = `
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #08080c; color: #f3f4f6; max-width: 650px; margin: 0 auto; border-radius: 24px; border: 1px solid rgba(255, 99, 33, 0.3); overflow: hidden; box-shadow: 0 0 50px rgba(255, 99, 33, 0.15);">
+  <div style="background: linear-gradient(135deg, #18100c 0%, #0d0d12 100%); padding: 32px; border-bottom: 1px solid rgba(255,255,255,0.08); text-align: center;">
+    <div style="display: inline-block; padding: 6px 14px; background: rgba(255,99,33,0.15); border: 1px solid #FF6321; border-radius: 20px; font-size: 11px; font-weight: 800; color: #FF6321; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 16px;">
+      APEX SYNDICATE INTEL
+    </div>
+    <h1 style="margin: 0; font-size: 26px; font-weight: 900; color: #ffffff; letter-spacing: -0.5px; text-transform: uppercase;">
+      ${subject}
+    </h1>
+    <p style="margin: 10px 0 0; color: #9ca3af; font-size: 14px; font-family: monospace;">
+      Official Intelligence & Dev Update • Apex Syndicate Dispatch
+    </p>
+  </div>
+
+  <div style="padding: 32px; line-height: 1.7; font-size: 15px; color: #d1d5db;">
+    ${heroImageHtml}
+
+    <p style="margin-top: 0; font-size: 16px; color: #ffffff; font-weight: 600;">
+      Greetings Operative,
+    </p>
+
+    <p>
+      ${prompt || 'We are excited to bring you the latest intelligence from the Apex Syndicate engineering and game studio.'}
+    </p>
+
+    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 20px; margin: 24px 0;">
+      <h3 style="margin: 0 0 12px; color: #FF6321; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">
+        🚀 HIGHLIGHTS & PATCH BRIEFING
+      </h3>
+      <ul style="margin: 0; padding-left: 20px; color: #e5e7eb;">
+        <li style="margin-bottom: 8px;"><strong>Apex Editor Web Demo:</strong> Zero-latency GPU timeline, ultra-fast editing directly in browser.</li>
+        <li style="margin-bottom: 8px;"><strong>Gangster Revolution:</strong> Next-gen open world action engine entering active development.</li>
+        <li style="margin-bottom: 8px;"><strong>Syndicate Security:</strong> Multi-device identity protection and instant session management.</li>
+      </ul>
+    </div>
+
+    <div style="text-align: center; margin: 32px 0;">
+      <a href="https://apexsyndicate.com.ng" style="display: inline-block; background: #FF6321; color: #000000; font-weight: 900; font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px; padding: 14px 32px; border-radius: 14px; text-decoration: none; box-shadow: 0 0 25px rgba(255,99,33,0.4);">
+        EXPLORE SUITE & DEMOS →
+      </a>
+    </div>
+
+    <p style="margin-bottom: 0; font-size: 14px; color: #9ca3af;">
+      Stay tuned for more updates. If you have questions, feedback, or custom inquiries, you can reply directly to this email at <strong style="color:#ffffff;">apexsyndicategr@gmail.com</strong>.
+    </p>
+  </div>
+
+  <div style="background: #050508; padding: 24px 32px; border-top: 1px solid rgba(255,255,255,0.05); font-size: 12px; color: #6b7280; text-align: center;">
+    <p style="margin: 0 0 6px;">From: <strong>Apex Syndicate &lt;apexsyndicategr@gmail.com&gt;</strong></p>
+    <p style="margin: 0;">You received this because you subscribed to Apex Syndicate updates. <a href="#" style="color:#FF6321; text-decoration:none;">Unsubscribe</a></p>
+  </div>
+</div>
+      `.trim();
+
+      generatedResult = {
+        subject,
+        previewText: preview,
+        headline: subject,
+        htmlContent,
+        textContent: `${subject}\n\n${preview}\n\nHighlights:\n- Apex Editor Web Demo\n- Gangster Revolution Engine\n- Syndicate Security\n\nVisit: https://apexsyndicate.com.ng\nFrom: Apex Syndicate <apexsyndicategr@gmail.com>`,
+        suggestedTags: ['Apex Intel', 'Update', 'Studio'],
+      };
+    }
+
+    res.json({
+      success: true,
+      campaign: generatedResult,
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Real Site Visitor Tracking (With Owner Exclusion)
+router.post('/track-visit', (req: Request, res: Response) => {
+  try {
+    const { email, name, avatar, isGuest, isOwner, device, path } = req.body;
+    const detectedDevice = device || parseDeviceFromUA(req.headers['user-agent']);
+    const clientIp = (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || '127.0.0.1';
+
+    const result = store.trackSiteVisit({
+      email,
+      name,
+      avatar,
+      isGuest,
+      isOwner,
+      device: detectedDevice,
+      ip: clientIp.split(',')[0].trim(),
+      path,
+    });
+
+    res.json({ success: true, count: result.count, isOwner: result.isOwner, log: result.log });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Apex Editor Demo Click / Launch Tracking (With Owner Exclusion)
+router.post('/track-demo', (req: Request, res: Response) => {
+  try {
+    const { email, name, avatar, isGuest, isOwner, device, action } = req.body;
+    const detectedDevice = device || parseDeviceFromUA(req.headers['user-agent']);
+
+    const result = store.trackDemoVisit({
+      email,
+      name,
+      avatar,
+      isGuest,
+      isOwner,
+      device: detectedDevice,
+      action: action || 'launch_demo',
+    });
+
+    res.json({ success: true, count: result.count, isOwner: result.isOwner, log: result.log });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get Viewers and Demo Audience in Owner Portal
+router.get('/admin/viewers', requireAdmin, (req: Request, res: Response) => {
+  try {
+    const totalVisitors = store.getVisitorCount();
+    const totalDemoClicks = store.getDemoVisitorCount();
+    const siteVisitors = store.getSiteVisitors();
+    const demoVisitors = store.getDemoVisitors();
+    const users = store.getUsers();
+    const stats = store.getDashboardStats();
+
+    res.json({
+      success: true,
+      totalVisitors,
+      totalDemoClicks,
+      siteVisitors,
+      demoVisitors,
+      users,
+      stats,
+    });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }

@@ -156,6 +156,136 @@ export interface OwnerSettings {
   apexEditorDemoUrl?: string;
   // Visitor Analytics
   visitorCount?: number;
+  demoVisitorCount?: number;
+}
+
+export interface UserAccount {
+  id: string;
+  email: string;
+  name: string;
+  avatar: string;
+  role: 'owner' | 'member';
+  createdAt: string;
+  lastLoginAt?: string;
+  newsletterSubscribed?: boolean;
+  newsletterSubscribedAt?: string;
+}
+
+export interface NewsletterSubscriber {
+  id: string;
+  email: string;
+  name: string;
+  avatar?: string;
+  subscribedAt: string;
+  status: 'ACTIVE' | 'UNSUBSCRIBED';
+  device?: string;
+  source?: string;
+  userId?: string;
+  emailsReceivedCount?: number;
+  lastEmailSentAt?: string;
+}
+
+export interface NewsletterBroadcast {
+  id: string;
+  subject: string;
+  sender: string; // 'Apex Syndicate <apexsyndicategr@gmail.com>'
+  previewText?: string;
+  htmlContent: string;
+  textContent?: string;
+  imageUrl?: string;
+  sentAt: string;
+  recipientsCount: number;
+  recipientCount?: number;
+  recipientEmails: string[];
+  status: 'SENT' | 'DRAFT';
+  author?: string;
+}
+
+export interface UserSession {
+  id: string;
+  userId: string;
+  email: string;
+  device: string;
+  browser: string;
+  ip: string;
+  location: string;
+  loggedInAt: string;
+  lastSeenAt: string;
+  isActive: boolean;
+  token: string;
+}
+
+export interface SecurityAlert {
+  id: string;
+  userId?: string;
+  userEmail?: string;
+  email?: string;
+  userName?: string;
+  name?: string;
+  alertType?: 'NEW_DEVICE_SIGNIN';
+  timestamp: string;
+  deviceInfo?: string;
+  isRead?: boolean;
+  newDevice?: {
+    device: string;
+    browser: string;
+    ip: string;
+    location: string;
+    time: string;
+  };
+  previousDevice?: {
+    device: string;
+    browser: string;
+    ip: string;
+    location: string;
+    time: string;
+  };
+  emailSubject?: string;
+  emailBody?: string;
+  senderEmail?: string; // 'apexsyndicategr@gmail.com'
+  status?: 'PENDING_REVIEW' | 'DISMISSED' | 'TERMINATED_OTHER_SESSIONS';
+}
+
+export interface SiteVisitorLog {
+  id: string;
+  visitorNumber: number; // 1, 2, 3...
+  email?: string;
+  userEmail?: string;
+  name?: string;
+  userName?: string;
+  avatar?: string;
+  userAvatar?: string;
+  isGuest: boolean;
+  isOwner?: boolean;
+  isRegisteredUser?: boolean;
+  accountType?: 'GMAIL' | 'REGISTERED' | 'GUEST';
+  ip?: string;
+  device: string;
+  browser?: string;
+  visitedAt: string;
+  timestamp?: string;
+  path?: string;
+}
+
+export interface DemoVisitorLog {
+  id: string;
+  demoNumber?: number; // 1, 2, 3...
+  demoClickNumber?: number;
+  email?: string;
+  userEmail?: string;
+  name?: string;
+  userName?: string;
+  avatar?: string;
+  userAvatar?: string;
+  isGuest: boolean;
+  isOwner?: boolean;
+  isRegisteredUser?: boolean;
+  accountType?: 'GMAIL' | 'REGISTERED' | 'GUEST';
+  device: string;
+  browser?: string;
+  action: string;
+  clickedAt: string;
+  timestamp?: string;
 }
 
 export interface ContactMessage {
@@ -175,5 +305,7 @@ export interface DashboardStats {
   totalRevenueNgn: number;
   totalProducts: number;
   unreadNotifications: number;
-  totalVisitors?: number;
+  totalVisitors: number;
+  totalDemoClicks: number;
+  registeredUsersCount?: number;
 }

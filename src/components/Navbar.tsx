@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ApexLogo } from './ApexLogo';
-import { CustomTab } from '../types';
+import { CustomTab, UserAccount } from '../types';
 import { motion } from 'motion/react';
 import {
   Menu,
@@ -10,6 +10,10 @@ import {
   Sparkles,
   Gamepad2,
   Play,
+  User,
+  Crown,
+  Shield,
+  LogIn,
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -18,6 +22,8 @@ interface NavbarProps {
   openAdminModal: () => void;
   isAdminLoggedIn: boolean;
   customTabs?: CustomTab[];
+  currentUser?: UserAccount | null;
+  onOpenAuthModal?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -26,6 +32,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   openAdminModal,
   isAdminLoggedIn,
   customTabs = [],
+  currentUser = null,
+  onOpenAuthModal = () => {},
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -66,6 +74,8 @@ export const Navbar: React.FC<NavbarProps> = ({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const isOwner = currentUser?.role === 'owner' || currentUser?.email?.toLowerCase() === 'apexsyndicategr@gmail.com';
+
   return (
     <header className="sticky top-0 z-50 backdrop-blur-xl bg-black/40 border-b border-white/10 shadow-2xl transition-all duration-300">
       {/* Top glowing laser line */}
@@ -78,13 +88,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             onClick={() => handleNavClick('home')}
-            className="flex items-center gap-2 group focus:outline-none"
+            className="flex items-center gap-2 group focus:outline-none cursor-pointer"
           >
             <ApexLogo size="md" />
           </motion.button>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center space-x-1 lg:space-x-2">
+          <nav className="hidden xl:flex items-center space-x-1">
             {navItems.map((item) => {
               const isActive = activeTab === item.id;
               if (item.highlight) {
@@ -94,7 +104,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     whileHover={{ scale: 1.04 }}
                     whileTap={{ scale: 0.96 }}
                     onClick={() => handleNavClick(item.id)}
-                    className={`relative px-4 py-2.5 rounded-xl text-xs font-bold tracking-wider transition-all duration-300 flex items-center gap-2 ${
+                    className={`relative px-3.5 py-2 rounded-xl text-xs font-bold tracking-wider transition-all duration-300 flex items-center gap-1.5 cursor-pointer ${
                       isActive
                         ? 'bg-[#FF6321] text-black shadow-[0_0_25px_rgba(255,99,33,0.6)] font-black'
                         : 'bg-[#FF6321]/10 text-[#FF6321] hover:bg-[#FF6321]/20 border border-[#FF6321]/30 hover:shadow-[0_0_15px_rgba(255,99,33,0.25)]'
@@ -117,7 +127,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     whileHover={{ scale: 1.04 }}
                     whileTap={{ scale: 0.96 }}
                     onClick={() => handleNavClick(item.id)}
-                    className={`relative px-3.5 py-2.5 rounded-xl text-xs font-bold tracking-wider transition-all duration-300 flex items-center gap-2 ${
+                    className={`relative px-3 py-2 rounded-xl text-xs font-bold tracking-wider transition-all duration-300 flex items-center gap-1.5 cursor-pointer ${
                       isActive
                         ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-black shadow-[0_0_25px_rgba(245,158,11,0.6)] font-black'
                         : 'bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 border border-amber-500/30'
@@ -139,7 +149,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     whileHover={{ scale: 1.04 }}
                     whileTap={{ scale: 0.96 }}
                     onClick={() => handleNavClick(item.id)}
-                    className={`relative px-3.5 py-2.5 rounded-xl text-xs font-bold tracking-wider transition-all duration-300 flex items-center gap-2 ${
+                    className={`relative px-3 py-2 rounded-xl text-xs font-bold tracking-wider transition-all duration-300 flex items-center gap-1.5 cursor-pointer ${
                       isActive
                         ? 'bg-gradient-to-r from-red-600 to-amber-600 text-white shadow-[0_0_25px_rgba(220,38,38,0.6)] border border-red-500/50'
                         : 'bg-red-950/20 text-red-400 hover:bg-red-950/40 hover:text-red-300 border border-red-500/20'
@@ -161,7 +171,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     whileHover={{ scale: 1.04 }}
                     whileTap={{ scale: 0.96 }}
                     onClick={() => handleNavClick(item.id)}
-                    className={`px-3.5 py-2.5 rounded-xl text-xs font-bold tracking-wider transition-all duration-200 flex items-center gap-1.5 ${
+                    className={`px-3 py-2 rounded-xl text-xs font-bold tracking-wider transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
                       isActive
                         ? 'text-white bg-[#FF6321]/20 border border-[#FF6321]/50 shadow-[0_0_15px_rgba(255,99,33,0.3)]'
                         : 'text-gray-300 hover:text-white hover:bg-white/5'
@@ -179,7 +189,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   whileHover={{ scale: 1.04 }}
                   whileTap={{ scale: 0.96 }}
                   onClick={() => handleNavClick(item.id)}
-                  className={`relative px-3.5 py-2.5 rounded-xl text-xs font-bold tracking-wider transition-all duration-200 ${
+                  className={`relative px-3 py-2 rounded-xl text-xs font-bold tracking-wider transition-all duration-200 cursor-pointer ${
                     isActive
                       ? 'text-white bg-white/10 border border-white/15 shadow-[0_0_15px_rgba(255,255,255,0.08)]'
                       : 'text-gray-400 hover:text-white hover:bg-white/5'
@@ -191,26 +201,141 @@ export const Navbar: React.FC<NavbarProps> = ({
             })}
           </nav>
 
-          {/* Mobile Hamburger Toggle */}
-          <div className="flex md:hidden items-center gap-2">
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2.5 rounded-xl bg-white/5 text-gray-400 hover:text-white hover:bg-white/10 border border-white/10 focus:outline-none"
-            >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
+          {/* Right Action Hub: User Profile, Owner Portal & Mobile Menu Toggle */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Owner Portal Quick Link if Owner or Admin Logged In */}
+            {(isOwner || isAdminLoggedIn) && (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={openAdminModal}
+                className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-amber-500/20 via-[#FF6321]/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 border border-amber-500/40 text-amber-300 text-xs font-bold font-mono tracking-wider cursor-pointer shadow-[0_0_15px_rgba(245,158,11,0.2)]"
+              >
+                <Crown className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+                <span>OWNER'S TAB</span>
+              </motion.button>
+            )}
+
+            {/* User Account / Gmail Sign-in Button with PFP */}
+            {currentUser ? (
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={onOpenAuthModal}
+                className="flex items-center gap-2 px-2.5 py-1.5 rounded-2xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/15 transition-all cursor-pointer group"
+                title="Manage Syndicate Account & Profile"
+              >
+                <div className="relative">
+                  <img
+                    src={currentUser.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=user'}
+                    alt={currentUser.name}
+                    className="w-8 h-8 rounded-xl object-cover border border-[#FF6321] group-hover:shadow-[0_0_12px_rgba(255,99,33,0.5)]"
+                  />
+                  {isOwner && (
+                    <div className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-amber-500 text-black flex items-center justify-center shadow-md">
+                      <Crown className="w-2.5 h-2.5" />
+                    </div>
+                  )}
+                </div>
+                <div className="text-left hidden sm:block pr-1">
+                  <p className="text-[11px] font-bold text-white leading-tight truncate max-w-[110px]">
+                    {currentUser.name}
+                  </p>
+                  <p className="text-[9px] text-[#FF6321] font-mono leading-none">
+                    {isOwner ? '👑 OWNER' : 'MEMBER'}
+                  </p>
+                </div>
+              </motion.button>
+            ) : (
+              <motion.button
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
+                onClick={onOpenAuthModal}
+                className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#FF6321] to-amber-500 hover:from-[#FF8A50] hover:to-amber-400 text-black font-extrabold text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(255,99,33,0.35)] transition-all cursor-pointer"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                <span>LOG IN / SIGN UP</span>
+              </motion.button>
+            )}
+
+            {/* Mobile Hamburger Toggle */}
+            <div className="flex xl:hidden items-center">
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="p-2.5 rounded-xl bg-white/5 text-gray-400 hover:text-white hover:bg-white/10 border border-white/10 focus:outline-none cursor-pointer"
+              >
+                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden backdrop-blur-xl bg-black/90 border-b border-white/10 px-4 pt-3 pb-6 space-y-2 animate-fadeIn">
+        <div className="xl:hidden backdrop-blur-xl bg-black/95 border-b border-white/10 px-4 pt-3 pb-6 space-y-2 animate-fadeIn max-h-[80vh] overflow-y-auto">
+          {/* User Auth Item at top of Mobile Menu */}
+          <div className="pb-2 mb-1 border-b border-white/10">
+            {currentUser ? (
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenAuthModal();
+                }}
+                className="w-full text-left px-4 py-3 rounded-xl text-xs font-bold tracking-wider flex items-center justify-between bg-white/5 hover:bg-white/10 text-white border border-white/10 transition-all cursor-pointer"
+              >
+                <div className="flex items-center gap-2.5">
+                  <img
+                    src={currentUser.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=user'}
+                    alt={currentUser.name}
+                    className="w-7 h-7 rounded-lg object-cover border border-[#FF6321]"
+                  />
+                  <div className="truncate">
+                    <span className="block font-bold">{currentUser.name}</span>
+                    <span className="text-[10px] text-gray-400 font-mono">{currentUser.email}</span>
+                  </div>
+                </div>
+                <span className="text-[10px] text-[#FF6321] font-mono font-bold uppercase">
+                  {isOwner ? '👑 OWNER' : 'MANAGE'}
+                </span>
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenAuthModal();
+                }}
+                className="w-full text-left px-4 py-3 rounded-xl text-xs font-bold tracking-wider flex items-center justify-center gap-2 bg-gradient-to-r from-[#FF6321] to-amber-500 text-black font-extrabold shadow-[0_0_15px_rgba(255,99,33,0.4)] uppercase cursor-pointer"
+              >
+                <LogIn className="w-4 h-4" />
+                <span>LOG IN / SIGN UP</span>
+              </button>
+            )}
+          </div>
+          {/* Owner Quick Entry in Mobile */}
+          {(isOwner || isAdminLoggedIn) && (
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                openAdminModal();
+              }}
+              className="w-full text-left px-4 py-3 rounded-xl text-xs font-bold tracking-wider flex items-center justify-between bg-amber-500/20 border border-amber-500/40 text-amber-300 mb-2 cursor-pointer"
+            >
+              <div className="flex items-center gap-2">
+                <Crown className="w-4 h-4 text-amber-400" />
+                <span>ENTER OWNER'S DASHBOARD</span>
+              </div>
+              <span className="text-[10px] bg-amber-400 text-black px-1.5 py-0.5 rounded font-black">
+                MASTER
+              </span>
+            </button>
+          )}
+
           {navItems.map((item) => (
             <button
               key={item.id}
               onClick={() => handleNavClick(item.id)}
-              className={`w-full text-left px-4 py-3 rounded-xl text-xs font-bold tracking-wider flex items-center justify-between transition-all ${
+              className={`w-full text-left px-4 py-3 rounded-xl text-xs font-bold tracking-wider flex items-center justify-between transition-all cursor-pointer ${
                 activeTab === item.id
                   ? 'bg-[#FF6321] text-black shadow-[0_0_15px_rgba(255,99,33,0.4)]'
                   : 'text-gray-300 hover:bg-white/5'
@@ -229,3 +354,4 @@ export const Navbar: React.FC<NavbarProps> = ({
     </header>
   );
 };
+

@@ -12,6 +12,9 @@ import {
   GangsterSpecs,
   DevUpdatePicture,
   DevUpdateItem,
+  UserAccount,
+  SiteVisitorLog,
+  DemoVisitorLog,
 } from '../types';
 import {
   fetchAdminDashboard,
@@ -26,9 +29,11 @@ import {
   uploadPortfolioVideoApi,
   uploadDevUpdatePictureApi,
   resetVisitorCountApi,
+  getViewersLogsApi,
 } from '../lib/api';
 import { exportPortfolioVideo } from '../lib/videoExporter';
 import { AiChatMessageContent } from '../components/AiChatMessageContent';
+import { NewsletterAdminTab } from '../components/NewsletterAdminTab';
 import {
   LayoutDashboard,
   Package,
@@ -71,6 +76,16 @@ import {
   Key,
   Gamepad2,
   Image as ImageIcon,
+  Search,
+  Laptop,
+  Smartphone,
+  Monitor,
+  Shield,
+  Mail,
+  UserCheck,
+  Activity,
+  ArrowUpRight,
+  Crown,
 } from 'lucide-react';
 
 interface AdminDashboardProps {
@@ -86,6 +101,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<
     | 'overview'
+    | 'site-visitors'
+    | 'demo-visitors'
+    | 'newsletter'
     | 'ai-helper'
     | 'products'
     | 'add-product'
@@ -107,6 +125,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [contacts, setContacts] = useState<ContactMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
+
+  // Live Visitors & Demo Telemetry State
+  const [siteVisitors, setSiteVisitors] = useState<SiteVisitorLog[]>([]);
+  const [demoVisitors, setDemoVisitors] = useState<DemoVisitorLog[]>([]);
+  const [registeredUsers, setRegisteredUsers] = useState<UserAccount[]>([]);
+  const [isRefreshingVisitors, setIsRefreshingVisitors] = useState(false);
+  const [visitorFilter, setVisitorFilter] = useState<'all' | 'gmail' | 'guest'>('all');
+  const [visitorSearch, setVisitorSearch] = useState('');
+  const [demoSearch, setDemoSearch] = useState('');
 
   // New Product Form state
   const [newProdName, setNewProdName] = useState('');
@@ -663,12 +690,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const fetchDashboardData = async () => {
     setLoading(true);
     try {
-      const data = await fetchAdminDashboard(token);
+      const [data, viewersData] = await Promise.all([
+        fetchAdminDashboard(token),
+        getViewersLogsApi(token).catch(() => ({ siteVisitors: [], demoVisitors: [], users: [] })),
+      ]);
       setStats(data.stats);
       setProducts(data.products);
       setRequests(data.requests);
       setNotifications(data.notifications);
       setContacts(data.contacts);
+
+      if (viewersData) {
+        setSiteVisitors(viewersData.siteVisitors || []);
+        setDemoVisitors(viewersData.demoVisitors || []);
+        setRegisteredUsers(viewersData.users || []);
+      }
 
       const pricing = await fetchLaunchPricing('apex-editor');
       setLaunchPricing(pricing);
@@ -1107,17 +1143,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     }
   };
 
-  // Handle Reset Visitor Counter
-  const handleResetVisitorCount = async () => {
+  // Handle Refresh Live Viewers & Telemetry
+  const handleRefreshVisitors = async () => {
+    setIsRefreshingVisitors(true);
     try {
-      const res = await resetVisitorCountApi(token);
-      setVisitorCount(0);
-      if (stats) setStats({ ...stats, totalVisitors: 0 });
-      showToast('Visitor traffic counter reset to 0!');
-      fetchDashboardData();
-      if (onDataChanged) onDataChanged();
+      await fetchDashboardData();
+      showToast('Live visitor & demo interaction logs refreshed!');
     } catch (err) {
-      showToast('Error resetting visitor count.');
+      showToast('Failed to refresh visitor data.');
+    } finally {
+      setIsRefreshingVisitors(false);
     }
   };
 
@@ -1313,6 +1348,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         <div className="max-w-7xl mx-auto px-4 sm:px-8 flex items-center gap-2 overflow-x-auto py-3 scrollbar-none">
           {[
             { id: 'overview', label: 'OVERVIEW', icon: LayoutDashboard },
+            {
+              id: 'site-visitors',
+              label: 'SITE VISITORS',
+              icon: Globe,
+              badge: stats?.totalVisitors ?? siteVisitors.length ?? 28,
+            },
+            {
+              id: 'demo-visitors',
+              label: 'DEMO VISITORS',
+              icon: Play,
+              badge: stats?.totalDemoClicks ?? demoVisitors.length ?? 0,
+            },
+            { id: 'newsletter', label: 'NEWSLETTER & AI MAILER', icon: Mail, badge: 'AI' },
             { id: 'ai-helper', label: 'APEX AI HELPER', icon: Sparkles, badge: 'AI' },
             { id: 'products', label: 'PRODUCTS', icon: Package },
             { id: 'add-product', label: 'UPLOAD PRODUCT', icon: Plus },
@@ -1370,50 +1418,86 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             {/* TAB 1: OVERVIEW */}
             {activeTab === 'overview' && (
               <div className="space-y-8 animate-fadeIn">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-                  {/* Visitor Analytics Card */}
-                  <div className="p-6 rounded-[28px] bg-white/[0.03] backdrop-blur-xl border border-amber-500/40 space-y-2 shadow-[0_0_25px_rgba(245,158,11,0.15)] flex flex-col justify-between">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-5">
+                  {/* Site Visitors Telemetry Card */}
+                  <div className="p-5 rounded-[28px] bg-white/[0.03] backdrop-blur-xl border border-amber-500/40 space-y-2 shadow-[0_0_25px_rgba(245,158,11,0.15)] flex flex-col justify-between">
                     <div className="space-y-1">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-amber-400 uppercase font-mono font-bold flex items-center gap-1.5">
+                        <span className="text-[11px] text-amber-400 uppercase font-mono font-bold flex items-center gap-1.5">
                           <Globe className="w-3.5 h-3.5 text-amber-400" /> LIVE VISITORS
                         </span>
                         <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
                       </div>
                       <div className="text-3xl font-black text-white font-mono">
-                        {(stats?.totalVisitors ?? visitorCount ?? 0).toLocaleString()}
+                        {(stats?.totalVisitors ?? siteVisitors.length ?? 28).toLocaleString()}
                       </div>
-                      <div className="text-[10px] text-gray-400 font-mono">Total tracked site visits</div>
+                      <div className="text-[10px] text-gray-400 font-mono">Baseline 28 • Real-time</div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={handleResetVisitorCount}
-                      className="mt-2 w-full py-1.5 px-2.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-mono font-bold uppercase flex items-center justify-center gap-1.5 transition-all"
-                    >
-                      <RotateCcw className="w-3 h-3" /> RESET TO 0
-                    </button>
+                    <div className="pt-2 flex flex-col gap-1.5">
+                      <button
+                        type="button"
+                        onClick={handleRefreshVisitors}
+                        disabled={isRefreshingVisitors}
+                        className="w-full py-1.5 px-2.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-mono font-bold uppercase flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                      >
+                        <RefreshCw className={`w-3 h-3 ${isRefreshingVisitors ? 'animate-spin' : ''}`} />
+                        {isRefreshingVisitors ? 'REFRESHING...' : 'REFRESH VIEWERS'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('site-visitors')}
+                        className="w-full py-1 px-2 text-center text-[10px] text-amber-400/80 hover:text-amber-300 font-mono underline cursor-pointer"
+                      >
+                        VIEW FULL LOGS ({siteVisitors.length || stats?.totalVisitors || 28}) →
+                      </button>
+                    </div>
                   </div>
 
-                  <div className="p-6 rounded-[28px] bg-white/[0.03] backdrop-blur-xl border border-white/10 space-y-2">
-                    <div className="text-xs text-gray-500 uppercase font-mono font-bold">TOTAL REQUESTS</div>
+                  {/* Apex Demo Clicks Card */}
+                  <div className="p-5 rounded-[28px] bg-white/[0.03] backdrop-blur-xl border border-cyan-500/40 space-y-2 shadow-[0_0_25px_rgba(6,182,212,0.15)] flex flex-col justify-between">
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-cyan-400 uppercase font-mono font-bold flex items-center gap-1.5">
+                          <Play className="w-3.5 h-3.5 text-cyan-400" /> DEMO CLICKS
+                        </span>
+                        <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+                      </div>
+                      <div className="text-3xl font-black text-cyan-300 font-mono">
+                        {(stats?.totalDemoClicks ?? demoVisitors.length ?? 0).toLocaleString()}
+                      </div>
+                      <div className="text-[10px] text-gray-400 font-mono">Apex Editor demo testers</div>
+                    </div>
+                    <div className="pt-2 flex flex-col gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('demo-visitors')}
+                        className="w-full py-1.5 px-2.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-[10px] font-mono font-bold uppercase flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                      >
+                        <Activity className="w-3 h-3" /> DEMO LOGS ({demoVisitors.length})
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="p-5 rounded-[28px] bg-white/[0.03] backdrop-blur-xl border border-white/10 space-y-2">
+                    <div className="text-[11px] text-gray-400 uppercase font-mono font-bold">TOTAL REQUESTS</div>
                     <div className="text-3xl font-black text-white">{stats?.totalRequests || 0}</div>
                     <div className="text-[10px] text-gray-400 font-mono">Download submissions</div>
                   </div>
 
-                  <div className="p-6 rounded-[28px] bg-white/[0.03] backdrop-blur-xl border border-[#FF6321]/40 space-y-2 shadow-[0_0_20px_rgba(255,99,33,0.15)]">
-                    <div className="text-xs text-[#FF6321] uppercase font-mono font-bold">PENDING APPROVALS</div>
+                  <div className="p-5 rounded-[28px] bg-white/[0.03] backdrop-blur-xl border border-[#FF6321]/40 space-y-2 shadow-[0_0_20px_rgba(255,99,33,0.15)]">
+                    <div className="text-[11px] text-[#FF6321] uppercase font-mono font-bold">PENDING</div>
                     <div className="text-3xl font-black text-[#FF6321]">{stats?.pendingApprovals || 0}</div>
-                    <div className="text-[10px] text-gray-400 font-mono">Awaiting owner verification</div>
+                    <div className="text-[10px] text-gray-400 font-mono">Awaiting verification</div>
                   </div>
 
-                  <div className="p-6 rounded-[28px] bg-white/[0.03] backdrop-blur-xl border border-white/10 space-y-2">
-                    <div className="text-xs text-gray-500 uppercase font-mono font-bold">APPROVED DOWNLOADS</div>
+                  <div className="p-5 rounded-[28px] bg-white/[0.03] backdrop-blur-xl border border-white/10 space-y-2">
+                    <div className="text-[11px] text-gray-400 uppercase font-mono font-bold">APPROVED</div>
                     <div className="text-3xl font-black text-emerald-400">{stats?.approvedCount || 0}</div>
                     <div className="text-[10px] text-gray-400 font-mono">Tokens generated</div>
                   </div>
 
-                  <div className="p-6 rounded-[28px] bg-white/[0.03] backdrop-blur-xl border border-white/10 space-y-2">
-                    <div className="text-xs text-gray-500 uppercase font-mono font-bold">TOTAL REVENUE (NGN)</div>
+                  <div className="p-5 rounded-[28px] bg-white/[0.03] backdrop-blur-xl border border-white/10 space-y-2">
+                    <div className="text-[11px] text-gray-400 uppercase font-mono font-bold">TOTAL REVENUE</div>
                     <div className="text-3xl font-black text-white">₦{(stats?.totalRevenueNgn || 0).toLocaleString()}</div>
                     <div className="text-[10px] text-gray-400 font-mono">Verified transfers</div>
                   </div>
@@ -1523,6 +1607,427 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   )}
                 </div>
               </div>
+            )}
+
+            {/* TAB: SITE VISITORS TELEMETRY */}
+            {activeTab === 'site-visitors' && (
+              <div className="space-y-6 animate-fadeIn">
+                {/* Header Banner & Telemetry Cards */}
+                <div className="p-6 rounded-[28px] bg-gradient-to-r from-amber-500/10 via-black to-[#FF6321]/10 border border-amber-500/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-mono font-bold uppercase">
+                        REAL-TIME TELEMETRY ENGINE
+                      </span>
+                      <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+                    </div>
+                    <h2 className="text-2xl font-black text-white uppercase tracking-wider">
+                      SITE VISITORS & VIEWER PROFILES
+                    </h2>
+                    <p className="text-xs text-gray-400 font-mono">
+                      Live visitor logging with Gmail account detection, guest profiles, avatars & devices.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleRefreshVisitors}
+                    disabled={isRefreshingVisitors}
+                    className="px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-xs uppercase tracking-wider flex items-center gap-2 shadow-[0_0_20px_rgba(245,158,11,0.35)] transition-all cursor-pointer"
+                  >
+                    <RefreshCw className={`w-4 h-4 ${isRefreshingVisitors ? 'animate-spin' : ''}`} />
+                    {isRefreshingVisitors ? 'FETCHING NEW VIEWERS...' : 'REFRESH VISITOR DATA'}
+                  </button>
+                </div>
+
+                {/* Metrics Breakdown */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="p-5 rounded-2xl bg-black/60 border border-amber-500/30 space-y-1">
+                    <div className="text-[10px] text-amber-400 uppercase font-mono font-bold">TOTAL REGISTERED VISITS</div>
+                    <div className="text-3xl font-black text-white font-mono">
+                      {(stats?.totalVisitors ?? siteVisitors.length ?? 28).toLocaleString()}
+                    </div>
+                    <div className="text-[10px] text-gray-500 font-mono">Baseline 28 + live tracked</div>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-black/60 border border-white/10 space-y-1">
+                    <div className="text-[10px] text-gray-400 uppercase font-mono font-bold flex items-center gap-1.5">
+                      <Mail className="w-3.5 h-3.5 text-amber-400" /> GMAIL & SYNDICATE ACCOUNTS
+                    </div>
+                    <div className="text-3xl font-black text-amber-300 font-mono">
+                      {siteVisitors.filter((v) => v.accountType === 'GMAIL' || v.accountType === 'REGISTERED').length}
+                    </div>
+                    <div className="text-[10px] text-gray-500 font-mono">Signed-in community members</div>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-black/60 border border-white/10 space-y-1">
+                    <div className="text-[10px] text-gray-400 uppercase font-mono font-bold flex items-center gap-1.5">
+                      <Shield className="w-3.5 h-3.5 text-blue-400" /> GUEST VIEWERS
+                    </div>
+                    <div className="text-3xl font-black text-blue-300 font-mono">
+                      {siteVisitors.filter((v) => v.accountType === 'GUEST' || !v.accountType).length}
+                    </div>
+                    <div className="text-[10px] text-gray-500 font-mono">Anonymous web visitors</div>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-black/60 border border-white/10 space-y-1">
+                    <div className="text-[10px] text-gray-400 uppercase font-mono font-bold flex items-center gap-1.5">
+                      <Crown className="w-3.5 h-3.5 text-amber-400" /> OWNER EXCLUSION ACTIVE
+                    </div>
+                    <div className="text-sm font-bold text-emerald-400 font-mono pt-2 flex items-center gap-1">
+                      <Check className="w-4 h-4" /> apexsyndicategr@gmail.com
+                    </div>
+                    <div className="text-[10px] text-gray-500 font-mono">Owner visits bypassed from counter</div>
+                  </div>
+                </div>
+
+                {/* Filter and Search Bar */}
+                <div className="p-4 rounded-2xl bg-black/60 border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="relative w-full sm:w-80">
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                    <input
+                      type="text"
+                      value={visitorSearch}
+                      onChange={(e) => setVisitorSearch(e.target.value)}
+                      placeholder="Search visitor number, email, browser..."
+                      className="w-full pl-10 pr-4 py-2 rounded-xl bg-black/80 border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-amber-500"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    {[
+                      { id: 'all', label: 'ALL VISITORS' },
+                      { id: 'gmail', label: 'GMAIL / USERS' },
+                      { id: 'guest', label: 'GUESTS ONLY' },
+                    ].map((f) => (
+                      <button
+                        key={f.id}
+                        onClick={() => setVisitorFilter(f.id as any)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold font-mono uppercase transition-all cursor-pointer ${
+                          visitorFilter === f.id
+                            ? 'bg-amber-500 text-black shadow-md'
+                            : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'
+                        }`}
+                      >
+                        {f.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Visitors Table & Profile Cards */}
+                <div className="rounded-[28px] bg-white/[0.02] border border-white/10 overflow-hidden shadow-2xl">
+                  <div className="p-4 border-b border-white/10 bg-black/40 flex items-center justify-between">
+                    <h3 className="text-xs font-mono font-bold text-gray-400 uppercase tracking-wider">
+                      VISITOR LOG STREAM ({siteVisitors.length} TRACKED VIEWERS)
+                    </h3>
+                    <span className="text-[10px] text-gray-500 font-mono">Sorted by latest visit</span>
+                  </div>
+
+                  {siteVisitors.length === 0 ? (
+                    <div className="p-12 text-center space-y-3">
+                      <Globe className="w-12 h-12 text-gray-600 mx-auto animate-pulse" />
+                      <p className="text-sm font-mono text-gray-400">No visitor logs stored yet.</p>
+                      <p className="text-xs text-gray-600 font-mono max-w-md mx-auto">
+                        Real-time visitor tracker is active. As new devices load the site, their profile badges will display here.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-xs text-gray-300">
+                        <thead className="bg-black/80 text-gray-500 uppercase font-mono text-[10px] border-b border-white/5">
+                          <tr>
+                            <th className="p-4">Visitor #</th>
+                            <th className="p-4">Profile & Identity</th>
+                            <th className="p-4">Account Type</th>
+                            <th className="p-4">Device & Platform</th>
+                            <th className="p-4">Visited Time</th>
+                            <th className="p-4 text-right">Entry Path</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/5">
+                          {siteVisitors
+                            .filter((v) => {
+                              if (visitorFilter === 'gmail') {
+                                return v.accountType === 'GMAIL' || v.accountType === 'REGISTERED';
+                              }
+                              if (visitorFilter === 'guest') {
+                                return v.accountType === 'GUEST' || !v.accountType;
+                              }
+                              return true;
+                            })
+                            .filter((v) => {
+                              if (!visitorSearch.trim()) return true;
+                              const q = visitorSearch.toLowerCase();
+                              return (
+                                String(v.visitorNumber).includes(q) ||
+                                (v.userName && v.userName.toLowerCase().includes(q)) ||
+                                (v.userEmail && v.userEmail.toLowerCase().includes(q)) ||
+                                (v.device && v.device.toLowerCase().includes(q)) ||
+                                (v.browser && v.browser.toLowerCase().includes(q))
+                              );
+                            })
+                            .map((v) => {
+                              const isGmail = v.accountType === 'GMAIL';
+                              const isRegistered = v.accountType === 'REGISTERED';
+                              return (
+                                <tr key={v.id} className="hover:bg-white/[0.04] transition-colors">
+                                  <td className="p-4 font-mono font-bold text-amber-400 text-sm">
+                                    #{String(v.visitorNumber).padStart(2, '0')}
+                                  </td>
+                                  <td className="p-4">
+                                    <div className="flex items-center gap-3">
+                                      <div className="relative">
+                                        <img
+                                          src={
+                                            v.userAvatar ||
+                                            `https://api.dicebear.com/7.x/bottts/svg?seed=${v.visitorNumber}`
+                                          }
+                                          alt={v.userName || 'Visitor'}
+                                          referrerPolicy="no-referrer"
+                                          className="w-10 h-10 rounded-xl object-cover bg-black border border-white/15 p-0.5 shadow-md"
+                                        />
+                                        {isGmail && (
+                                          <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-amber-400 border-2 border-black flex items-center justify-center text-[7px] text-black font-black">
+                                            G
+                                          </span>
+                                        )}
+                                      </div>
+                                      <div>
+                                        <div className="font-bold text-white flex items-center gap-1.5">
+                                          <span>{v.userName || `Syndicate Guest #${v.visitorNumber}`}</span>
+                                        </div>
+                                        <div className="text-[10px] text-gray-400 font-mono">
+                                          {v.userEmail || `guest_session_${v.visitorNumber}@apex.io`}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </td>
+                                  <td className="p-4">
+                                    {isGmail ? (
+                                      <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center gap-1 w-fit">
+                                        <Mail className="w-3 h-3 text-amber-400" /> GMAIL USER
+                                      </span>
+                                    ) : isRegistered ? (
+                                      <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-[#FF6321]/20 text-[#FF6321] border border-[#FF6321]/40 flex items-center gap-1 w-fit">
+                                        <UserCheck className="w-3 h-3" /> REGISTERED USER
+                                      </span>
+                                    ) : (
+                                      <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-blue-500/15 text-blue-300 border border-blue-500/30 flex items-center gap-1 w-fit">
+                                        <Shield className="w-3 h-3 text-blue-400" /> GUEST VIEWER
+                                      </span>
+                                    )}
+                                  </td>
+                                  <td className="p-4 font-mono text-xs text-gray-300">
+                                    <div className="flex items-center gap-1.5">
+                                      <Monitor className="w-3.5 h-3.5 text-gray-500" />
+                                      <span>{v.device || 'Desktop PC'}</span>
+                                    </div>
+                                    <div className="text-[10px] text-gray-500">{v.browser || 'Modern Browser'}</div>
+                                  </td>
+                                  <td className="p-4 font-mono text-xs text-gray-400">
+                                    {new Date(v.timestamp).toLocaleString()}
+                                  </td>
+                                  <td className="p-4 text-right font-mono text-xs text-amber-400/90">
+                                    {v.path || '/home'}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* TAB: DEMO VISITORS TELEMETRY */}
+            {activeTab === 'demo-visitors' && (
+              <div className="space-y-6 animate-fadeIn">
+                {/* Header Banner & Demo Analytics */}
+                <div className="p-6 rounded-[28px] bg-gradient-to-r from-cyan-500/10 via-black to-[#FF6321]/10 border border-cyan-500/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 text-[10px] font-mono font-bold uppercase">
+                        APEX EDITOR INTERACTION LOGS
+                      </span>
+                      <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+                    </div>
+                    <h2 className="text-2xl font-black text-white uppercase tracking-wider">
+                      DEMO VISITORS & TEST RUNS
+                    </h2>
+                    <p className="text-xs text-gray-400 font-mono">
+                      Real-time tracker for users and guests who clicked or interacted with Apex Editor Demo.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleRefreshVisitors}
+                    disabled={isRefreshingVisitors}
+                    className="px-6 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-extrabold text-xs uppercase tracking-wider flex items-center gap-2 shadow-[0_0_20px_rgba(6,182,212,0.35)] transition-all cursor-pointer"
+                  >
+                    <RefreshCw className={`w-4 h-4 ${isRefreshingVisitors ? 'animate-spin' : ''}`} />
+                    {isRefreshingVisitors ? 'FETCHING DEMO LOGS...' : 'REFRESH DEMO DATA'}
+                  </button>
+                </div>
+
+                {/* Metrics Row */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="p-5 rounded-2xl bg-black/60 border border-cyan-500/30 space-y-1">
+                    <div className="text-[10px] text-cyan-400 uppercase font-mono font-bold">TOTAL DEMO CLICKS</div>
+                    <div className="text-3xl font-black text-cyan-300 font-mono">
+                      {(stats?.totalDemoClicks ?? demoVisitors.length ?? 0).toLocaleString()}
+                    </div>
+                    <div className="text-[10px] text-gray-500 font-mono">Live tracked demo engagements</div>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-black/60 border border-white/10 space-y-1">
+                    <div className="text-[10px] text-gray-400 uppercase font-mono font-bold">ENGAGEMENT RATIO</div>
+                    <div className="text-3xl font-black text-white font-mono">
+                      {siteVisitors.length > 0
+                        ? `${Math.round((demoVisitors.length / (siteVisitors.length || 1)) * 100)}%`
+                        : '0%'}
+                    </div>
+                    <div className="text-[10px] text-gray-500 font-mono">Demo testers / Site visitors</div>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-black/60 border border-white/10 space-y-1">
+                    <div className="text-[10px] text-gray-400 uppercase font-mono font-bold flex items-center gap-1.5">
+                      <Crown className="w-3.5 h-3.5 text-amber-400" /> OWNER DEMO CLICKS BYPASSED
+                    </div>
+                    <div className="text-sm font-bold text-emerald-400 font-mono pt-2 flex items-center gap-1">
+                      <Check className="w-4 h-4" /> Owner Protected
+                    </div>
+                    <div className="text-[10px] text-gray-500 font-mono">apexsyndicategr@gmail.com bypassed</div>
+                  </div>
+                </div>
+
+                {/* Search Bar */}
+                <div className="p-4 rounded-2xl bg-black/60 border border-white/10 flex items-center justify-between">
+                  <div className="relative w-full sm:w-80">
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                    <input
+                      type="text"
+                      value={demoSearch}
+                      onChange={(e) => setDemoSearch(e.target.value)}
+                      placeholder="Search demo click logs..."
+                      className="w-full pl-10 pr-4 py-2 rounded-xl bg-black/80 border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-cyan-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Demo Visitors List */}
+                <div className="rounded-[28px] bg-white/[0.02] border border-white/10 overflow-hidden shadow-2xl">
+                  <div className="p-4 border-b border-white/10 bg-black/40 flex items-center justify-between">
+                    <h3 className="text-xs font-mono font-bold text-gray-400 uppercase tracking-wider">
+                      DEMO INTERACTION STREAM ({demoVisitors.length} LOGS)
+                    </h3>
+                  </div>
+
+                  {demoVisitors.length === 0 ? (
+                    <div className="p-16 text-center space-y-3">
+                      <div className="w-14 h-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center mx-auto text-cyan-400">
+                        <Play className="w-7 h-7" />
+                      </div>
+                      <h4 className="text-base font-bold text-white font-mono uppercase">
+                        0 DEMO VISITORS LOGGED YET (BASELINE: 0)
+                      </h4>
+                      <p className="text-xs text-gray-400 font-mono max-w-lg mx-auto leading-relaxed">
+                        Real-time tracking is listening. When any visitor clicks "APEX EDITOR DEMO" on the navigation bar or explores the interactive engine, their profile avatar, device specs, and timestamps will immediately register here.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-xs text-gray-300">
+                        <thead className="bg-black/80 text-gray-500 uppercase font-mono text-[10px] border-b border-white/5">
+                          <tr>
+                            <th className="p-4">Demo Click #</th>
+                            <th className="p-4">User Identity & PFP</th>
+                            <th className="p-4">Account Type</th>
+                            <th className="p-4">Action Triggered</th>
+                            <th className="p-4">Device & Platform</th>
+                            <th className="p-4 text-right">Timestamp</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/5">
+                          {demoVisitors
+                            .filter((d) => {
+                              if (!demoSearch.trim()) return true;
+                              const q = demoSearch.toLowerCase();
+                              return (
+                                String(d.demoClickNumber).includes(q) ||
+                                (d.userName && d.userName.toLowerCase().includes(q)) ||
+                                (d.userEmail && d.userEmail.toLowerCase().includes(q)) ||
+                                (d.device && d.device.toLowerCase().includes(q))
+                              );
+                            })
+                            .map((d) => (
+                              <tr key={d.id} className="hover:bg-white/[0.04] transition-colors">
+                                <td className="p-4 font-mono font-bold text-cyan-400 text-sm">
+                                  #{String(d.demoClickNumber).padStart(2, '0')}
+                                </td>
+                                <td className="p-4">
+                                  <div className="flex items-center gap-3">
+                                    <img
+                                      src={
+                                        d.userAvatar ||
+                                        `https://api.dicebear.com/7.x/bottts/svg?seed=demo-${d.demoClickNumber}`
+                                      }
+                                      alt={d.userName || 'Demo Tester'}
+                                      referrerPolicy="no-referrer"
+                                      className="w-10 h-10 rounded-xl object-cover bg-black border border-cyan-500/30 p-0.5 shadow-md"
+                                    />
+                                    <div>
+                                      <div className="font-bold text-white">
+                                        {d.userName || `Demo Tester #${d.demoClickNumber}`}
+                                      </div>
+                                      <div className="text-[10px] text-gray-400 font-mono">
+                                        {d.userEmail || `demo_guest_${d.demoClickNumber}@apex.io`}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="p-4">
+                                  {d.accountType === 'GMAIL' ? (
+                                    <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                                      GMAIL USER
+                                    </span>
+                                  ) : d.accountType === 'REGISTERED' ? (
+                                    <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-[#FF6321]/20 text-[#FF6321] border border-[#FF6321]/40">
+                                      REGISTERED
+                                    </span>
+                                  ) : (
+                                    <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-blue-500/15 text-blue-300 border border-blue-500/30">
+                                      GUEST
+                                    </span>
+                                  )}
+                                </td>
+                                <td className="p-4 font-mono text-cyan-300 text-xs">
+                                  <span className="px-2 py-0.5 rounded bg-cyan-950/60 border border-cyan-500/30 text-[10px] uppercase">
+                                    {d.action || 'LAUNCHED APEX DEMO'}
+                                  </span>
+                                </td>
+                                <td className="p-4 font-mono text-xs text-gray-300">
+                                  {d.device || 'Desktop PC'} • {d.browser || 'Browser'}
+                                </td>
+                                <td className="p-4 text-right font-mono text-xs text-gray-400">
+                                  {new Date(d.timestamp).toLocaleString()}
+                                </td>
+                              </tr>
+                            ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* TAB: NEWSLETTER SUBSCRIBERS & AI MAILER */}
+            {activeTab === 'newsletter' && (
+              <NewsletterAdminTab token={token} showToast={showToast} />
             )}
 
             {/* TAB: APEX AI HELPER */}

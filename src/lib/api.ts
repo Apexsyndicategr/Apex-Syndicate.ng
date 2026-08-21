@@ -6,6 +6,13 @@ import {
   AdminNotification,
   ContactMessage,
   DashboardStats,
+  UserAccount,
+  SiteVisitorLog,
+  DemoVisitorLog,
+  SecurityAlert,
+  NewsletterSubscriber,
+  NewsletterBroadcast,
+  UserSession,
 } from '../types';
 import { loadClientData, saveClientData, calculateLaunchPricing } from './clientStore';
 
@@ -161,6 +168,8 @@ export async function fetchAdminDashboard(token: string): Promise<{
       totalRevenueNgn,
       totalProducts,
       unreadNotifications,
+      totalVisitors: data.settings.visitorCount || 28,
+      totalDemoClicks: data.settings.demoVisitorCount || 0,
     },
     products: data.products,
     requests: data.requests,
@@ -522,6 +531,8 @@ export async function sendAiAssistantPrompt(
         totalRevenueNgn: data.requests.filter(r => r.status === 'APPROVED').reduce((sum, r) => sum + (r.amount || 0), 0),
         totalProducts: data.products.length,
         unreadNotifications: data.notifications.filter(n => !n.read).length,
+        totalVisitors: data.settings.visitorCount || 28,
+        totalDemoClicks: data.settings.demoVisitorCount || 0,
       },
       settings: data.settings,
       products: data.products,
@@ -576,9 +587,115 @@ export async function uploadPortfolioVideoApi(
   return await res.json();
 }
 
-export async function trackVisitApi(): Promise<{ success: boolean; count: number }> {
+export async function registerUserApi(payload: {
+  email: string;
+  password?: string;
+  name?: string;
+  avatar?: string;
+  newsletterSubscribed?: boolean;
+}): Promise<{ success: boolean; token: string; user: UserAccount; securityAlert?: SecurityAlert }> {
+  const res = await fetch('/api/auth/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData.error || 'Failed to register account');
+  }
+
+  return await res.json();
+}
+
+export async function loginUserApi(payload: {
+  email: string;
+  password?: string;
+}): Promise<{ success: boolean; token: string; user: UserAccount; securityAlert?: SecurityAlert }> {
+  const res = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData.error || 'Failed to sign in');
+  }
+
+  return await res.json();
+}
+
+export async function googleSimLoginApi(payload: {
+  email: string;
+  name?: string;
+  avatar?: string;
+  newsletterSubscribed?: boolean;
+}): Promise<{ success: boolean; token: string; user: UserAccount; securityAlert?: SecurityAlert }> {
+  const res = await fetch('/api/auth/google-sim', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData.error || 'Failed to authenticate with Google');
+  }
+
+  return await res.json();
+}
+
+export async function getCurrentUserApi(token?: string, email?: string): Promise<{ success: boolean; user: UserAccount | null }> {
   try {
-    const res = await fetch('/api/track-visit', { method: 'POST' });
+    const url = email ? `/api/auth/me?email=${encodeURIComponent(email)}` : '/api/auth/me';
+    const res = await fetch(url, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (err) {
+    console.warn('Backend getCurrentUserApi unreachable');
+  }
+  return { success: true, user: null };
+}
+
+export async function updateUserProfileApi(payload: {
+  userId: string;
+  name?: string;
+  avatar?: string;
+  email?: string;
+}): Promise<{ success: boolean; user: UserAccount }> {
+  const res = await fetch('/api/auth/profile', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData.error || 'Failed to update profile');
+  }
+
+  return await res.json();
+}
+
+export async function trackVisitApi(payload?: {
+  email?: string;
+  name?: string;
+  avatar?: string;
+  isGuest?: boolean;
+  isOwner?: boolean;
+  device?: string;
+  path?: string;
+}): Promise<{ success: boolean; count: number; isOwner?: boolean; log?: SiteVisitorLog }> {
+  try {
+    const res = await fetch('/api/track-visit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload || {}),
+    });
     if (res.ok) {
       return await res.json();
     }
@@ -586,27 +703,214 @@ export async function trackVisitApi(): Promise<{ success: boolean; count: number
     console.warn('Backend track-visit unreachable, incrementing local visitor count');
   }
   const data = loadClientData();
-  data.settings.visitorCount = (data.settings.visitorCount || 0) + 1;
-  saveClientData(data);
-  return { success: true, count: data.settings.visitorCount };
+  if (!payload?.isOwner && payload?.email?.toLowerCase() !== 'apexsyndicategr@gmail.com') {
+    data.settings.visitorCount = (data.settings.visitorCount || 28) + 1;
+    saveClientData(data);
+  }
+  return { success: true, count: data.settings.visitorCount || 28 };
 }
 
-export async function resetVisitorCountApi(token: string): Promise<{ success: boolean; count: number }> {
+export async function trackDemoClickApi(payload?: {
+  email?: string;
+  name?: string;
+  avatar?: string;
+  isGuest?: boolean;
+  isOwner?: boolean;
+  device?: string;
+  action?: string;
+}): Promise<{ success: boolean; count: number; isOwner?: boolean; log?: DemoVisitorLog }> {
   try {
-    const res = await fetch('/api/admin/reset-visitor-count', {
+    const res = await fetch('/api/track-demo', {
       method: 'POST',
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload || {}),
     });
     if (res.ok) {
       return await res.json();
     }
   } catch (err) {
-    console.warn('Backend reset-visitor-count unreachable, resetting locally');
+    console.warn('Backend track-demo unreachable');
   }
   const data = loadClientData();
-  data.settings.visitorCount = 0;
-  saveClientData(data);
-  return { success: true, count: 0 };
+  if (!payload?.isOwner && payload?.email?.toLowerCase() !== 'apexsyndicategr@gmail.com') {
+    data.settings.demoVisitorCount = (data.settings.demoVisitorCount || 0) + 1;
+    saveClientData(data);
+  }
+  return { success: true, count: data.settings.demoVisitorCount || 0 };
+}
+
+export async function getViewersLogsApi(token: string): Promise<{
+  success: boolean;
+  totalVisitors: number;
+  totalDemoClicks: number;
+  siteVisitors: SiteVisitorLog[];
+  demoVisitors: DemoVisitorLog[];
+  users: UserAccount[];
+  stats: DashboardStats;
+}> {
+  const res = await fetch('/api/admin/viewers', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData.error || 'Failed to fetch viewers logs');
+  }
+
+  return await res.json();
+}
+
+export async function resetVisitorCountApi(token: string): Promise<{ success: boolean; count: number }> {
+  // Reset is disabled per owner specification — acts as refresh
+  const viewers = await getViewersLogsApi(token);
+  return { success: true, count: viewers.totalVisitors };
+}
+
+// Security & Sessions API
+export async function terminateOtherSessionsApi(payload: {
+  email?: string;
+  userId?: string;
+  currentSessionId?: string;
+}): Promise<{ success: boolean; terminatedCount: number }> {
+  const res = await fetch('/api/auth/terminate-other-sessions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || 'Failed to terminate other sessions');
+  }
+  return await res.json();
+}
+
+export async function dismissSecurityAlertApi(alertId: string): Promise<{ success: boolean }> {
+  const res = await fetch('/api/auth/dismiss-security-alert', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ alertId }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || 'Failed to dismiss security alert');
+  }
+  return await res.json();
+}
+
+export async function getSecurityAlertsApi(email: string): Promise<{ success: boolean; alerts: SecurityAlert[] }> {
+  const res = await fetch(`/api/auth/security-alerts?email=${encodeURIComponent(email)}`);
+  if (!res.ok) {
+    return { success: true, alerts: [] };
+  }
+  return await res.json();
+}
+
+// Newsletter & AI Campaign API
+export async function getNewsletterSubscribersApi(token: string): Promise<{
+  success: boolean;
+  count: number;
+  subscribers: NewsletterSubscriber[];
+}> {
+  const res = await fetch('/api/newsletter/subscribers', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || 'Failed to fetch newsletter subscribers');
+  }
+  return await res.json();
+}
+
+export async function subscribeNewsletterApi(payload: {
+  email: string;
+  name?: string;
+  avatar?: string;
+  device?: string;
+  source?: string;
+}): Promise<{ success: boolean; subscriber?: NewsletterSubscriber; message?: string }> {
+  const res = await fetch('/api/newsletter/subscribe', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || 'Failed to subscribe to newsletter');
+  }
+  return await res.json();
+}
+
+export async function getNewsletterBroadcastsApi(token: string): Promise<{
+  success: boolean;
+  broadcasts: NewsletterBroadcast[];
+}> {
+  const res = await fetch('/api/newsletter/broadcasts', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || 'Failed to fetch broadcast history');
+  }
+  return await res.json();
+}
+
+export async function sendNewsletterBroadcastApi(
+  payload: {
+    subject: string;
+    previewText?: string;
+    htmlContent: string;
+    textContent?: string;
+    imageUrl?: string;
+    targetEmails?: string[];
+    author?: string;
+  },
+  token: string
+): Promise<{ success: boolean; broadcast: NewsletterBroadcast }> {
+  const res = await fetch('/api/newsletter/send-broadcast', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || 'Failed to send broadcast');
+  }
+  return await res.json();
+}
+
+export async function generateAiNewsletterApi(payload: {
+  prompt?: string;
+  topic?: string;
+  tone?: string;
+  imageUrl?: string;
+  targetAudience?: string;
+  aiPassword: string; // 'apexsyndicate.com.ng'
+}): Promise<{
+  success: boolean;
+  campaign: {
+    subject: string;
+    previewText: string;
+    headline: string;
+    htmlContent: string;
+    textContent: string;
+    suggestedTags?: string[];
+  };
+}> {
+  const res = await fetch('/api/newsletter/ai-generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || 'AI Campaign Generation Failed');
+  }
+  return await res.json();
 }
 
 

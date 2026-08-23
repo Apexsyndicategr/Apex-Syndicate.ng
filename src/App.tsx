@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Product, LaunchPricingInfo, OwnerSettings, CustomTab, UserAccount, SecurityAlert } from './types';
-import { fetchProducts, fetchLaunchPricing, fetchPaymentSettings, fetchPublicSettings, trackVisitApi, getSecurityAlertsApi } from './lib/api';
+import { Product, LaunchPricingInfo, OwnerSettings, CustomTab } from './types';
+import { fetchProducts, fetchLaunchPricing, fetchPaymentSettings, fetchPublicSettings, trackVisitApi } from './lib/api';
 import { loadClientData } from './lib/clientStore';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
@@ -14,8 +14,6 @@ import { Contact } from './pages/Contact';
 import { CustomerNotifications } from './components/CustomerNotifications';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { AdminLoginModal } from './pages/AdminLoginModal';
-import { AuthModal } from './components/AuthModal';
-import { SecurityAlertModal } from './components/SecurityAlertModal';
 import { DownloadModal } from './components/DownloadModal';
 import { IntroCinematic } from './components/IntroCinematic';
 import { AnimatedBackground } from './components/AnimatedBackground';
@@ -33,33 +31,6 @@ export default function App() {
     accountNumber: string;
     bankInstructions: string;
   } | null>(null);
-
-  // User Authentication State
-  const [currentUser, setCurrentUser] = useState<UserAccount | null>(() => {
-    try {
-      const stored = localStorage.getItem('apex_current_user') || sessionStorage.getItem('apex_current_user');
-      return stored ? JSON.parse(stored) : null;
-    } catch {
-      return null;
-    }
-  });
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [isEntryPrompt, setIsEntryPrompt] = useState(false);
-  const [activeSecurityAlert, setActiveSecurityAlert] = useState<SecurityAlert | null>(null);
-
-  // Check for active unread security alerts (multi-device login)
-  useEffect(() => {
-    if (currentUser?.email) {
-      getSecurityAlertsApi(currentUser.email)
-        .then((res) => {
-          const unread = res.alerts?.find((a: SecurityAlert) => !a.isRead);
-          if (unread) {
-            setActiveSecurityAlert(unread);
-          }
-        })
-        .catch(() => {});
-    }
-  }, [currentUser?.email]);
 
   // Admin Auth State (sessionStorage so closing tab auto logs out)
   const [adminToken, setAdminToken] = useState<string | null>(
@@ -103,18 +74,6 @@ export default function App() {
       trackVisitApi().catch((e) => console.warn('Could not track visit:', e));
     }
 
-    // On initial site entry, prompt user to sign up or log in, with option to continue as guest
-    const hasUser = !!localStorage.getItem('apex_current_user') || !!sessionStorage.getItem('apex_current_user');
-    const hasDismissed = !!sessionStorage.getItem('apex_entry_prompt_dismissed');
-
-    if (!hasUser && !hasDismissed) {
-      const timer = setTimeout(() => {
-        setIsEntryPrompt(true);
-        setIsAuthModalOpen(true);
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-
     fetchPublicData();
 
     // Global real-time sync across all connected visitor devices
@@ -138,7 +97,7 @@ export default function App() {
     };
   }, []);
 
-  // Secret Hotkey Sequence ('6872' or '5') Handler for Owner Portal Password Login
+  // Secret Passcode Sequence ('6872') Handler for Owner Portal Login
   useEffect(() => {
     let keyBuffer = '';
     let resetTimer: NodeJS.Timeout | null = null;
@@ -154,13 +113,6 @@ export default function App() {
 
       if (isInput) return;
 
-      // Handle single hotkey '5'
-      if (e.key === '5') {
-        e.preventDefault();
-        setIsAdminModalOpen(true);
-        return;
-      }
-
       // Handle key sequence buffer (typing '6872' anywhere on page)
       if (e.key.length === 1) {
         keyBuffer = (keyBuffer + e.key).slice(-10);
@@ -172,7 +124,12 @@ export default function App() {
 
         if (keyBuffer.endsWith('6872')) {
           keyBuffer = '';
-          setIsAdminModalOpen(true);
+          if (adminToken) {
+            setActiveTab('admin');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          } else {
+            setIsAdminModalOpen(true);
+          }
         }
       }
     };
@@ -213,51 +170,6 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Auth Modal Handlers
-  const handleOpenAuthModal = () => {
-    setIsEntryPrompt(false);
-    setIsAuthModalOpen(true);
-  };
-
-  const handleAuthSuccess = (user: UserAccount, token: string, securityAlert?: SecurityAlert) => {
-    setCurrentUser(user);
-    try {
-      localStorage.setItem('apex_current_user', JSON.stringify(user));
-      sessionStorage.setItem('apex_current_user', JSON.stringify(user));
-      sessionStorage.setItem('apex_entry_prompt_dismissed', 'true');
-    } catch (e) {
-      console.warn('Storage save warning:', e);
-    }
-
-    // Auto grant owner session if signed in as apexsyndicategr@gmail.com
-    if (user.role === 'owner' || user.email?.toLowerCase().trim() === 'apexsyndicategr@gmail.com') {
-      const ownerToken = token || 'apex-owner-session';
-      setAdminToken(ownerToken);
-      sessionStorage.setItem('apex_admin_token', ownerToken);
-    }
-
-    // Trigger multi-device security alert modal if another active device exists
-    if (securityAlert) {
-      setActiveSecurityAlert(securityAlert);
-    }
-
-    setIsAuthModalOpen(false);
-    setIsEntryPrompt(false);
-  };
-
-  const handleLogout = () => {
-    setCurrentUser(null);
-    localStorage.removeItem('apex_current_user');
-    sessionStorage.removeItem('apex_current_user');
-    handleAdminLogout();
-  };
-
-  const handleContinueAsGuest = () => {
-    sessionStorage.setItem('apex_entry_prompt_dismissed', 'true');
-    setIsAuthModalOpen(false);
-    setIsEntryPrompt(false);
-  };
-
   const apexEditorProduct = products.find((p) => p.id === 'apex-editor') || products[0] || null;
   const gangsterRevolutionProduct = products.find((p) => p.id === 'gangster-revolution') || null;
 
@@ -290,8 +202,6 @@ export default function App() {
           openAdminModal={handleOpenAdminPortal}
           isAdminLoggedIn={!!adminToken}
           customTabs={ownerSettings?.customTabs}
-          currentUser={currentUser}
-          onOpenAuthModal={handleOpenAuthModal}
         />
       )}
 
@@ -404,27 +314,6 @@ export default function App() {
         isOpen={isAdminModalOpen}
         onClose={() => setIsAdminModalOpen(false)}
         onLoginSuccess={handleAdminLoginSuccess}
-      />
-
-      {/* Syndicate User Account Auth & Entry Prompt Modal */}
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => {
-          setIsAuthModalOpen(false);
-          setIsEntryPrompt(false);
-        }}
-        currentUser={currentUser}
-        onAuthSuccess={handleAuthSuccess}
-        onLogout={handleLogout}
-        onOpenAdminPortal={handleOpenAdminPortal}
-        onContinueAsGuest={handleContinueAsGuest}
-        isEntryPrompt={isEntryPrompt}
-      />
-
-      {/* Google-Style Multi-Device Concurrent Login Security Alert Modal */}
-      <SecurityAlertModal
-        alert={activeSecurityAlert}
-        onClose={() => setActiveSecurityAlert(null)}
       />
 
       {/* Fullscreen Game-Style Cinematic Intro Overlay */}

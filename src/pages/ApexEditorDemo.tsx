@@ -21,6 +21,7 @@ import {
   Copy,
   Check,
   X,
+  ChevronRight,
 } from 'lucide-react';
 
 interface ApexEditorDemoProps {
@@ -66,6 +67,7 @@ export const ApexEditorDemo: React.FC<ApexEditorDemoProps> = ({
   settings,
   openDownloadModal,
 }) => {
+  const [showPausedWarningModal, setShowPausedWarningModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showUnavailableModal, setShowUnavailableModal] = useState(false);
   const [showDeviceUnsupportedModal, setShowDeviceUnsupportedModal] = useState(false);
@@ -77,10 +79,11 @@ export const ApexEditorDemo: React.FC<ApexEditorDemoProps> = ({
 
   // Prevent background body scrolling when modal is active & support ESC to dismiss
   useEffect(() => {
-    if (showConfirmModal || showUnavailableModal || showDeviceUnsupportedModal) {
+    if (showPausedWarningModal || showConfirmModal || showUnavailableModal || showDeviceUnsupportedModal) {
       document.body.style.overflow = 'hidden';
       const handleKeyDown = (e: KeyboardEvent) => {
         if (e.key === 'Escape' || e.code === 'Escape' || e.keyCode === 27) {
+          setShowPausedWarningModal(false);
           setShowConfirmModal(false);
           setShowUnavailableModal(false);
           setShowDeviceUnsupportedModal(false);
@@ -94,9 +97,15 @@ export const ApexEditorDemo: React.FC<ApexEditorDemoProps> = ({
     } else {
       document.body.style.overflow = '';
     }
-  }, [showConfirmModal, showUnavailableModal, showDeviceUnsupportedModal]);
+  }, [showPausedWarningModal, showConfirmModal, showUnavailableModal, showDeviceUnsupportedModal]);
 
   const handleOpenDemoPrompt = () => {
+    // Show the production paused warning first before the "yes proceed" confirmation prompt
+    setShowPausedWarningModal(true);
+  };
+
+  const handleProceedFromWarning = () => {
+    setShowPausedWarningModal(false);
     setShowConfirmModal(true);
   };
 
@@ -319,6 +328,96 @@ export const ApexEditorDemo: React.FC<ApexEditorDemoProps> = ({
       {/* ==========================================
           DEMO CONFIRMATION & WARNING MODAL (RENDERED VIA PORTAL AT TOP LEVEL)
          ========================================== */}
+      {/* ==========================================
+          STEP 1: PRODUCTION PAUSED WARNING MODAL
+         ========================================== */}
+      {showPausedWarningModal &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[9999999] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setShowPausedWarningModal(false);
+            }}
+          >
+            <div className="relative w-full max-w-lg p-6 sm:p-8 rounded-3xl bg-[#0e0e12] border border-amber-500/60 shadow-[0_0_60px_rgba(245,158,11,0.35)] space-y-6 max-h-[90vh] overflow-y-auto">
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={() => setShowPausedWarningModal(false)}
+                className="absolute top-5 right-5 p-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors cursor-pointer"
+                title="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="flex items-center gap-3.5 pr-8">
+                <div className="p-3.5 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/50 shadow-[0_0_25px_rgba(245,158,11,0.35)] shrink-0">
+                  <AlertCircle className="w-7 h-7" />
+                </div>
+                <div>
+                  <h3 className="text-xl sm:text-2xl font-black text-white uppercase tracking-wide">
+                    PRODUCTION PAUSED
+                  </h3>
+                  <span className="text-xs font-mono text-amber-400 font-bold uppercase tracking-wider">
+                    OFFICIAL APEX EDITOR NOTICE
+                  </span>
+                </div>
+              </div>
+
+              {/* PRIMARY WARNING STATEMENT BANNER */}
+              <div className="p-5 rounded-2xl bg-gradient-to-r from-amber-950/70 via-orange-950/60 to-black border border-amber-500/60 space-y-3 shadow-inner">
+                <div className="flex items-center gap-2 text-amber-300 text-xs font-mono font-bold uppercase tracking-wider">
+                  <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+                  <span>CRITICAL NOTICE</span>
+                </div>
+                <p className="text-base sm:text-lg font-black text-white leading-relaxed">
+                  ⚠️ Production of Apex Editor has been paused by the Apex Editor team.
+                </p>
+                <p className="text-xs sm:text-sm text-gray-200 leading-relaxed font-sans">
+                  Active production updates and upcoming releases for Apex Editor have currently been placed on pause by the development team. However, you can still access and use the interactive pre-release demo environment to test out editor tools, explore the workstation, and evaluate features.
+                </p>
+              </div>
+
+              {/* SANDBOX CAVEAT */}
+              <div className="p-3.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs font-mono text-gray-300 space-y-1">
+                <div className="flex items-center gap-1.5 text-amber-400 font-bold">
+                  <Terminal className="w-3.5 h-3.5" />
+                  <span>PREVIEW SANDBOX ENVIRONMENT</span>
+                </div>
+                <p className="text-[11px] text-gray-400">
+                  As this is a pre-release sandbox build, expect potential experimental tools and minor bugs.
+                </p>
+              </div>
+
+              {/* ACTION BUTTONS */}
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowPausedWarningModal(false)}
+                  className="w-full py-4 px-4 rounded-xl bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white font-black text-xs uppercase tracking-wider border border-white/10 transition-all cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <X className="w-4 h-4" />
+                  <span>CANCEL</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleProceedFromWarning}
+                  className="w-full py-4 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-[#FF6321] to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-black text-xs uppercase tracking-wider shadow-[0_0_25px_rgba(255,99,33,0.4)] transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer text-center select-none"
+                >
+                  <span>CONTINUE</span>
+                  <ChevronRight className="w-4 h-4 text-black" />
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+
+      {/* ==========================================
+          STEP 2: CONFIRMATION PROMPT MODAL
+         ========================================== */}
       {showConfirmModal &&
         typeof document !== 'undefined' &&
         createPortal(
@@ -357,10 +456,10 @@ export const ApexEditorDemo: React.FC<ApexEditorDemoProps> = ({
               <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-950/60 via-orange-950/50 to-black border border-amber-500/60 space-y-2.5 shadow-inner">
                 <div className="flex items-center gap-2 text-amber-300 text-xs font-mono font-bold uppercase tracking-wider">
                   <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
-                  <span>IMPORTANT NOTICE</span>
+                  <span>PRODUCTION PAUSED • DEMO AVAILABLE</span>
                 </div>
                 <p className="text-sm sm:text-base font-extrabold text-white leading-relaxed">
-                  ⚠️ This is just a demo, expect bugs and some errors.
+                  ⚠️ Production has been paused by the Apex Editor team, but you can still use the demo.
                 </p>
                 <p className="text-xs text-gray-300 leading-relaxed">
                   This preview environment is in active pre-release sandbox mode. Features and capabilities may vary from the final production build.

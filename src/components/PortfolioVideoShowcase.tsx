@@ -35,10 +35,16 @@ import {
   X,
   Layers,
   Sparkle,
+  ShieldAlert,
+  Activity,
+  Trophy,
 } from 'lucide-react';
 import { fetchPublicSettings } from '../lib/api';
 import { exportPortfolioVideo } from '../lib/videoExporter';
 import { DevUpdatePicture } from '../types';
+import apexXi2027CoverImg from '../assets/images/apex_xi_2027_pc_cover_ronaldo_messi_1788293335110.jpg';
+import gangsterRevImg from '../assets/images/gangster_revolution_art_1788292147475.jpg';
+import apexEditorImg from '../assets/images/apex_editor_demo_official_1787236453861.jpg';
 
 export interface PortfolioVideoShowcaseProps {
   setActiveTab?: (tab: string) => void;
@@ -46,13 +52,18 @@ export interface PortfolioVideoShowcaseProps {
 
 interface DevUpdateItem {
   id: string;
-  type: 'announcement' | 'video' | 'picture';
+  type: 'announcement' | 'game-reveal' | 'video' | 'picture';
   tag: string;
   badge: string;
   title: string;
   subtitle: string;
   date: string;
   picUrl?: string;
+  highlights?: string[];
+  primaryActionLabel?: string;
+  primaryActionTarget?: string;
+  secondaryActionLabel?: string;
+  secondaryActionTarget?: string;
 }
 
 export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ setActiveTab }) => {
@@ -67,7 +78,7 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
   const [videoMode, setVideoMode] = useState<'default' | 'custom' | 'blank'>('default');
   const [customVideoUrl, setCustomVideoUrl] = useState<string | null>(null);
 
-  // Active Dev Update Slide Index: 0 = Dev Update 1 (Apex Editor Demo Out Now), 1 = Dev Update 2 (Video Reel / Custom Video), etc.
+  // Active Dev Update Slide Index: 0 = Dev Update 1 (Apex XI 2027), 1 = Dev Update 2 (Gangster Revolution), 2 = Dev Update 3 (Apex Editor Demo)
   const [currentUpdateIndex, setCurrentUpdateIndex] = useState<number>(0);
 
   // Dev Updates Pictures State (from custom uploaded photos/screenshots by owner)
@@ -83,19 +94,76 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const lastStepRef = useRef<number>(-1);
 
-  // Unified list of Dev Updates: Currently only Dev Update 1 (additional updates can be added on request)
-  const updatesList: DevUpdateItem[] = [
+  // Core Dev Updates List:
+  // 1: Apex XI 2027 (New PC football simulation game in active development)
+  // 2: Gangster Revolution (Flagship open-world crime title in active development)
+  // 3: Apex Editor Demo (Official milestone release - out now!)
+  const baseUpdatesList: DevUpdateItem[] = [
     {
-      id: 'update-1-demo-live',
-      type: 'announcement',
+      id: 'update-1-apex-xi-2027',
+      type: 'game-reveal',
       tag: 'DEV UPDATE 1',
-      badge: 'OFFICIAL MILESTONE 01',
+      badge: 'NEW PC GAME IN ACTIVE DEVELOPMENT',
+      title: 'APEX XI 2027',
+      subtitle:
+        'A groundbreaking new football simulation game engineered exclusively for PC, currently in active development by Apex Syndicate. Featuring advanced AI pitch dynamics, hyper-realistic ball and player physics, intelligent tactical maneuvering, dynamic stadium floodlights, and next-gen club management.',
+      date: 'In Active PC Development',
+      picUrl: apexXi2027CoverImg,
+      highlights: [
+        'PC Exclusive Architecture',
+        'Tactical AI Pitch Engine',
+        'Hyper-Realistic Ball Kinematics',
+        'High Refresh Rate & Ultrawide Support',
+      ],
+      primaryActionLabel: 'VIEW APEX XI 2027 HUB',
+      primaryActionTarget: 'apex-xi-2027',
+      secondaryActionLabel: 'PC GAME DETAILS',
+      secondaryActionTarget: 'apex-xi-2027',
+    },
+    {
+      id: 'update-2-gangster-revolution',
+      type: 'game-reveal',
+      tag: 'DEV UPDATE 2',
+      badge: 'IN ACTIVE MULTI-PHASE DEVELOPMENT',
+      title: 'GANGSTER REVOLUTION',
+      subtitle:
+        'Our flagship open-world crime title is currently in active development. Featuring sprawling syndicate turf warfare, high-octane vehicular combat, cinematic story heists, and ray-traced urban districts across a living, reactive metropolis.',
+      date: 'In Development • Pre-Alpha',
+      picUrl: gangsterRevImg,
+      highlights: [
+        'Open-World Metropolis',
+        'Syndicate Turf Wars',
+        'High-Octane Muscle Cars',
+        'Cinematic Heist Ops',
+      ],
+      primaryActionLabel: 'VIEW GAME SPECS & HUB',
+      primaryActionTarget: 'gangster-revolution',
+      secondaryActionLabel: 'IN DEVELOPMENT',
+    },
+    {
+      id: 'update-3-apex-editor-demo',
+      type: 'announcement',
+      tag: 'DEV UPDATE 3',
+      badge: 'OFFICIAL MILESTONE RELEASE',
       title: 'THE APEX EDITOR DEMO IS OUT NOW!',
       subtitle:
         'Official milestone release! Experience the full interactive Apex Editor in your browser right now — featuring real-time AI media generation, 60FPS canvas timeline, Topaz neural engine, and zero-latency Rust core.',
-      date: 'Live Now',
+      date: 'Live Demo Available',
+      picUrl: apexEditorImg,
+      highlights: [
+        '60FPS Canvas Timeline',
+        'Topaz Neural Upscaler',
+        'Rust AST Kernel',
+      ],
+      primaryActionLabel: 'TRY APEX EDITOR DEMO NOW',
+      primaryActionTarget: 'apex-editor-demo',
+      secondaryActionLabel: 'VIEW PRODUCT SPECS',
+      secondaryActionTarget: 'apex-editor',
     },
   ];
+
+  // Strictly 3 Dev Updates (1: Apex XI 2027, 2: Gangster Revolution, 3: Apex Editor Demo)
+  const updatesList: DevUpdateItem[] = baseUpdatesList;
 
   const totalUpdates = updatesList.length;
   const activeUpdate = updatesList[currentUpdateIndex % totalUpdates] || updatesList[0];
@@ -492,25 +560,153 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
             </>
           )}
 
-          {/* SLIDE 1: DEV UPDATE 1 — VIBRANT GIANT TEXT COVERING SCREEN */}
-          {activeUpdate.type === 'announcement' && (
-            <div className="relative z-10 flex-1 flex flex-col justify-between p-6 sm:p-10 lg:p-12 text-center items-center">
-              {/* Top Milestone Badge */}
-              <div className="w-full flex items-center justify-between text-xs font-mono">
-                <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FF6321]/20 border border-[#FF6321]/60 text-[#FF6321] shadow-[0_0_20px_rgba(255,99,33,0.4)] animate-pulse">
-                  <Flame className="w-4 h-4 text-amber-400" />
+          {/* SLIDE TYPE: GAME-REVEAL (FOR APEX XI 2027 & GANGSTER REVOLUTION) */}
+          {activeUpdate.type === 'game-reveal' && (
+            <div className="relative z-10 flex-1 flex flex-col justify-between p-5 sm:p-8 lg:p-10 text-left overflow-hidden">
+              {/* Background Art Image with Cinematic Contrast Scrim */}
+              {activeUpdate.picUrl && (
+                <div className="absolute inset-0 z-0">
+                  <img
+                    src={activeUpdate.picUrl}
+                    alt={activeUpdate.title}
+                    className="w-full h-full object-cover object-center transform scale-105 transition-transform duration-1000 ease-out"
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/75 to-black/40 pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-transparent pointer-events-none" />
+                </div>
+              )}
+
+              {/* Top Status & Milestone Header */}
+              <div className="relative z-10 w-full flex items-center justify-between text-xs font-mono">
+                <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FF6321]/25 border border-[#FF6321]/60 text-[#FF6321] shadow-[0_0_20px_rgba(255,99,33,0.4)] backdrop-blur-md">
+                  <Flame className="w-4 h-4 text-amber-400 animate-bounce" />
                   <span className="font-black text-[11px] sm:text-xs uppercase tracking-widest">
-                    DEV UPDATE 1 // OFFICIAL MILESTONE RELEASE
+                    {activeUpdate.tag} // {activeUpdate.badge}
                   </span>
                 </div>
-                <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-black/70 border border-[#00F0FF]/40 text-[#00F0FF] text-[11px] font-mono font-bold shadow-[0_0_15px_rgba(0,240,255,0.3)]">
+                <div className="hidden sm:flex items-center gap-2 px-3.5 py-1 rounded-full bg-black/80 border border-emerald-500/40 text-emerald-400 text-[11px] font-mono font-bold shadow-[0_0_15px_rgba(16,185,129,0.25)] backdrop-blur-md">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                  <span>{activeUpdate.date}</span>
+                </div>
+              </div>
+
+              {/* Center Game Details & Lore */}
+              <div className="relative z-10 my-auto space-y-4 max-w-2xl pt-4 sm:pt-6">
+                <motion.div
+                  initial={{ scale: 0.95, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.4 }}
+                  className="space-y-3"
+                >
+                  <h3 className="text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tight leading-[1.05] bg-gradient-to-r from-white via-amber-200 to-[#FF6321] bg-clip-text text-transparent drop-shadow-[0_0_35px_rgba(255,99,33,0.6)]">
+                    {activeUpdate.title}
+                  </h3>
+
+                  <p className="text-sm sm:text-base text-gray-200 font-normal leading-relaxed drop-shadow-md bg-black/40 backdrop-blur-sm p-3 rounded-2xl border border-white/10">
+                    {activeUpdate.subtitle}
+                  </p>
+                </motion.div>
+
+                {/* Highlights pill tags */}
+                {activeUpdate.highlights && activeUpdate.highlights.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
+                    {activeUpdate.highlights.map((h, i) => (
+                      <span
+                        key={i}
+                        className="px-3 py-1 rounded-xl bg-black/75 border border-white/20 text-gray-200 text-[11px] sm:text-xs font-mono font-semibold flex items-center gap-1.5 backdrop-blur-md shadow-md"
+                      >
+                        <Sparkles className="w-3 h-3 text-[#FF6321]" /> {h}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="pt-2 flex flex-wrap items-center gap-3">
+                  {activeUpdate.primaryActionTarget ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (setActiveTab && activeUpdate.primaryActionTarget) {
+                          setActiveTab(activeUpdate.primaryActionTarget);
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }
+                      }}
+                      className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-[#FF6321] via-amber-400 to-[#FF4500] hover:from-[#FF8A50] hover:to-amber-300 text-black font-black text-xs sm:text-sm font-mono uppercase tracking-wider flex items-center gap-2 shadow-[0_0_30px_rgba(255,99,33,0.6)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                    >
+                      <Zap className="w-4 h-4 fill-black" />
+                      <span>{activeUpdate.primaryActionLabel || 'EXPLORE TITLE'}</span>
+                    </button>
+                  ) : (
+                    <div className="px-6 py-3.5 rounded-2xl bg-[#FF6321]/20 border border-[#FF6321]/60 text-amber-300 font-mono font-black text-xs uppercase tracking-widest flex items-center gap-2 backdrop-blur-md shadow-[0_0_20px_rgba(255,99,33,0.3)]">
+                      <Clock className="w-4 h-4 text-amber-400 animate-spin" />
+                      <span>{activeUpdate.primaryActionLabel || 'IN ACTIVE DEVELOPMENT'}</span>
+                    </div>
+                  )}
+
+                  {activeUpdate.secondaryActionTarget && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (setActiveTab && activeUpdate.secondaryActionTarget) {
+                          setActiveTab(activeUpdate.secondaryActionTarget);
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }
+                      }}
+                      className="px-5 py-3.5 rounded-2xl bg-black/70 hover:bg-white/10 text-white font-mono font-bold text-xs uppercase tracking-wider border border-white/20 flex items-center gap-2 transition-all cursor-pointer backdrop-blur-md"
+                    >
+                      <span>{activeUpdate.secondaryActionLabel || 'LEARN MORE'}</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Bottom Status Bar */}
+              <div className="relative z-10 w-full pt-3 border-t border-white/15 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs font-mono text-gray-300">
+                <div className="flex items-center gap-4">
+                  <span>Studio: <strong className="text-white font-bold">Apex Syndicate Studios</strong></span>
+                </div>
+                <div className="text-[11px] text-amber-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-[#FF6321] animate-ping" />
+                  <span>Next-Gen Video Game Pipeline</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* SLIDE 3: DEV UPDATE 3 — THE APEX EDITOR DEMO IS OUT NOW */}
+          {activeUpdate.type === 'announcement' && (
+            <div className="relative z-10 flex-1 flex flex-col justify-between p-6 sm:p-10 lg:p-12 text-center items-center">
+              {/* Background Art Image if available */}
+              {activeUpdate.picUrl && (
+                <div className="absolute inset-0 z-0">
+                  <img
+                    src={activeUpdate.picUrl}
+                    alt={activeUpdate.title}
+                    className="w-full h-full object-cover object-center opacity-30"
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/85 to-black/60 pointer-events-none" />
+                </div>
+              )}
+
+              {/* Top Milestone Badge */}
+              <div className="relative z-10 w-full flex items-center justify-between text-xs font-mono">
+                <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FF6321]/20 border border-[#FF6321]/60 text-[#FF6321] shadow-[0_0_20px_rgba(255,99,33,0.4)] animate-pulse backdrop-blur-md">
+                  <Flame className="w-4 h-4 text-amber-400" />
+                  <span className="font-black text-[11px] sm:text-xs uppercase tracking-widest">
+                    {activeUpdate.tag} // {activeUpdate.badge}
+                  </span>
+                </div>
+                <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-black/70 border border-[#00F0FF]/40 text-[#00F0FF] text-[11px] font-mono font-bold shadow-[0_0_15px_rgba(0,240,255,0.3)] backdrop-blur-md">
                   <Sparkles className="w-3.5 h-3.5 animate-spin" />
                   <span>IN-BROWSER WORKSTATION READY</span>
                 </div>
               </div>
 
               {/* CENTER MASSIVE VIBRANT TEXT HEADLINE COVERING MOST OF SCREEN */}
-              <div className="my-auto space-y-4 sm:space-y-6 max-w-4xl px-4">
+              <div className="relative z-10 my-auto space-y-4 sm:space-y-6 max-w-4xl px-4">
                 <motion.div
                   initial={{ scale: 0.92, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
@@ -574,7 +770,7 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
               </div>
 
               {/* Bottom Status Bar */}
-              <div className="w-full pt-3 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs font-mono text-gray-400">
+              <div className="relative z-10 w-full pt-3 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs font-mono text-gray-400">
                 <div className="flex items-center gap-4">
                   <span>Instagram: <strong className="text-white font-bold">@apexsyndicateng</strong></span>
                   <span>TikTok: <strong className="text-white font-bold">@apex.syndicateng</strong></span>

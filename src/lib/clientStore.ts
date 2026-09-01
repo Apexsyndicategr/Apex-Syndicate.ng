@@ -246,6 +246,22 @@ export function getDefaultData(): StoreData {
         recDirectX: 'TBD',
         recStorage: 'TBD',
       },
+      apexXILaunchDate: 'Coming Soon',
+      apexXIStatus: 'PC EXCLUSIVE • COMING SOON',
+      apexXISpecs: {
+        minOs: 'TBD',
+        minProcessor: 'TBD',
+        minMemory: 'TBD',
+        minGraphics: 'TBD',
+        minDirectX: 'TBD',
+        minStorage: 'TBD',
+        recOs: 'TBD',
+        recProcessor: 'TBD',
+        recMemory: 'TBD',
+        recGraphics: 'TBD',
+        recDirectX: 'TBD',
+        recStorage: 'TBD',
+      },
     },
     products: [
       {
@@ -325,6 +341,45 @@ export function getDefaultData(): StoreData {
         ],
         whatsNew: ['In active development! Official release date and specifications are To Be Determined (TBD).'],
       },
+      {
+        id: 'apex-xi-2027',
+        slug: 'apex-xi-2027',
+        name: 'Apex XI 2027',
+        category: 'Games',
+        description:
+          'Next-generation football simulation engineered exclusively for PC. Powered by Apex XI tactical pitch dynamics, hyper-realistic player physics, and deep club management.',
+        fullDescription:
+          'Apex XI 2027 is a groundbreaking PC football simulation experience in active development by Apex Syndicate. Featuring cutting-edge AI tactical pitch simulation, hyper-realistic player kinematics and ball trajectory physics, next-generation dynamic stadium lighting, deep club and squad career management, and high-framerate PC optimization with custom keyboard/mouse and gamepad mapping.',
+        version: 'v1.0.0 (Coming Soon)',
+        releaseDate: 'Coming Soon',
+        isFeatured: true,
+        isPublished: true,
+        isComingSoon: true,
+        pricingType: 'tbd',
+        fixedPrice: 0,
+        iconName: 'Trophy',
+        fileUrl: '',
+        fileSize: 'Pending Build',
+        systemRequirements: {
+          os: 'TBD',
+          processor: 'TBD',
+          memory: 'TBD',
+          storage: 'TBD',
+        },
+        features: [
+          'PC Exclusive High-Refresh Architecture',
+          'Tactical AI Pitch Decision Engine',
+          'Hyper-Realistic Ball & Kinematic Physics',
+          'Dynamic Volumetric Stadium Floodlights',
+          'Deep Club Tactics & Career Manager Mode',
+          'Keyboard, Mouse & Gamepad Precision Mapping',
+        ],
+        screenshots: [
+          'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1200&q=80',
+        ],
+        whatsNew: ['In active PC development! System specifications and release date are To Be Determined (TBD).'],
+      },
     ],
     requests: [],
     notifications: [],
@@ -348,6 +403,15 @@ export function loadClientData(): StoreData {
     }
     if (!parsed.settings.apexEditorDemoUrl || parsed.settings.apexEditorDemoUrl.trim() === '') {
       parsed.settings.apexEditorDemoUrl = 'https://apex-editor-demo.vercel.app/';
+    }
+    // Ensure Apex XI 2027 is in products catalogue
+    if (!parsed.products.some((p: Product) => p.id === 'apex-xi-2027')) {
+      const def = getDefaultData();
+      const apexXI = def.products.find((p) => p.id === 'apex-xi-2027');
+      if (apexXI) {
+        parsed.products.push(apexXI);
+        localStorage.setItem(STORE_KEY, JSON.stringify(parsed));
+      }
     }
     return parsed;
   } catch (e) {

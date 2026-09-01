@@ -352,11 +352,11 @@ function getDefaultData(): StoreData {
           'Next-generation football simulation engineered exclusively for PC. Powered by Apex XI tactical pitch dynamics, hyper-realistic player physics, and deep club management.',
         fullDescription:
           'Apex XI 2027 is a groundbreaking PC football simulation experience in active development by Apex Syndicate. Featuring cutting-edge AI tactical pitch simulation, hyper-realistic player kinematics and ball trajectory physics, next-generation dynamic stadium lighting, deep club and squad career management, and high-framerate PC optimization with custom keyboard/mouse and gamepad mapping.',
-        version: 'v1.0.0 (Coming Soon)',
-        releaseDate: 'Coming Soon',
+        version: 'v1.0.0 (TBD)',
+        releaseDate: 'TBD',
         isFeatured: true,
         isPublished: true,
-        isComingSoon: true,
+        isComingSoon: false,
         pricingType: 'tbd',
         fixedPrice: 0,
         iconName: 'Trophy',
@@ -473,11 +473,16 @@ class Store {
         const loadedSecurityAlerts: SecurityAlert[] = parsed.securityAlerts || [];
 
         let loadedProducts: Product[] = parsed.products || defaultState.products;
-        if (!loadedProducts.some((p) => p.id === 'apex-xi-2027')) {
+        const loadedApexXI = loadedProducts.find((p) => p.id === 'apex-xi-2027');
+        if (!loadedApexXI) {
           const apexXI = defaultState.products.find((p) => p.id === 'apex-xi-2027');
           if (apexXI) {
             loadedProducts.push(apexXI);
           }
+        } else {
+          loadedApexXI.releaseDate = 'TBD';
+          loadedApexXI.version = 'v1.0.0 (TBD)';
+          loadedApexXI.isComingSoon = false;
         }
 
         return {

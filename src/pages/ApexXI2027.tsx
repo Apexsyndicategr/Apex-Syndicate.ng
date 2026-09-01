@@ -40,8 +40,8 @@ export const ApexXI2027: React.FC<ApexXI2027Props> = ({
   setActiveTab,
 }) => {
   const isComingSoon = Boolean(product ? product.isComingSoon || !product.fileUrl : true);
-  const launchDate = settings?.apexXILaunchDate || 'Coming Soon';
-  const gameStatus = settings?.apexXIStatus || 'PC EXCLUSIVE • COMING SOON';
+  const launchDate = settings?.apexXILaunchDate || 'TBD';
+  const gameStatus = settings?.apexXIStatus || 'PRE-ALPHA BUILD • IN DEVELOPMENT';
 
   const specs = settings?.apexXISpecs || {
     minOs: 'TBD',
@@ -139,7 +139,7 @@ export const ApexXI2027: React.FC<ApexXI2027Props> = ({
             className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-gradient-to-r from-emerald-600/25 via-cyan-600/20 to-emerald-600/25 border border-emerald-500/50 text-emerald-400 text-xs font-mono font-black uppercase tracking-widest shadow-[0_0_20px_rgba(16,185,129,0.3)] animate-border-glow"
           >
             <Trophy className="w-4 h-4 text-emerald-400 animate-bounce" style={{ animationDuration: '2s' }} />
-            <span>PC EXCLUSIVE FOOTBALL SIMULATION • COMING SOON</span>
+            <span>PC EXCLUSIVE FOOTBALL SIMULATION • IN ACTIVE DEVELOPMENT</span>
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
           </motion.div>
 
@@ -165,11 +165,11 @@ export const ApexXI2027: React.FC<ApexXI2027Props> = ({
             transition={{ delay: 0.2, duration: 0.6 }}
             className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4"
           >
-            <div className="px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-950/60 via-cyan-950/40 to-black border border-emerald-500/50 backdrop-blur-xl text-emerald-300 font-extrabold text-xs uppercase tracking-widest shadow-[0_0_30px_rgba(16,185,129,0.25)] flex items-center justify-center gap-3">
+            <div className="px-8 py-4 rounded-2xl bg-white/[0.05] border border-emerald-500/40 backdrop-blur-xl text-emerald-300 font-extrabold text-xs uppercase tracking-widest shadow-[0_0_30px_rgba(16,185,129,0.2)] flex items-center justify-center gap-3">
               <Clock className="w-4 h-4 text-emerald-400 animate-spin" />
-              <span>COMING SOON • PC EXCLUSIVE</span>
-              <span className="px-2.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-mono border border-emerald-500/40 font-black">
-                COMING SOON
+              <span>RELEASE DATE: TBD • IN ACTIVE DEVELOPMENT</span>
+              <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-mono border border-emerald-500/40">
+                TBD
               </span>
             </div>
 
@@ -200,6 +200,127 @@ export const ApexXI2027: React.FC<ApexXI2027Props> = ({
             )}
           </motion.div>
         </div>
+      </section>
+
+      {/* ==========================================
+          TBD COUNTDOWN & LAUNCH ESTIMATION WIDGET
+         ========================================== */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 25 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="relative overflow-hidden rounded-[28px] md:rounded-[36px] bg-gradient-to-br from-white/[0.04] to-black/80 backdrop-blur-2xl border border-emerald-500/40 p-6 md:p-8 shadow-2xl space-y-6 animate-border-glow"
+        >
+          <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-600/15 rounded-full blur-3xl pointer-events-none" />
+
+          {/* Header Banner */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-6 border-b border-white/10">
+            <div className="flex items-center gap-3">
+              <div className="p-3.5 rounded-2xl bg-emerald-600/20 border border-emerald-500/40 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.4)]">
+                <Trophy className="w-6 h-6 animate-bounce" style={{ animationDuration: '2s' }} />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs uppercase tracking-widest text-emerald-400 font-bold font-mono">
+                    APEX XI 2027 LAUNCH SEQUENCE
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] uppercase font-mono font-extrabold border border-emerald-500/40">
+                    {gameStatus}
+                  </span>
+                </div>
+                <h3 className="text-xl md:text-2xl font-black text-white tracking-wide mt-1">
+                  OFFICIAL RELEASE LAUNCH WINDOW: <span className="text-cyan-400 font-mono">{launchDate}</span>
+                </h3>
+              </div>
+            </div>
+
+            {/* Current Active Price Badge */}
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              className="px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white font-black text-xl tracking-wider shadow-[0_0_25px_rgba(16,185,129,0.5)] flex items-center gap-2 btn-shimmer-sweep cursor-default"
+            >
+              <Zap className="w-5 h-5 fill-white animate-pulse" />
+              <span>PRICE: TBD</span>
+            </motion.div>
+          </div>
+
+          {/* TBD Digits Grid with Motion Hover */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {['DAYS', 'HOURS', 'MINUTES', 'SECONDS'].map((label, idx) => (
+              <motion.div
+                key={idx}
+                whileHover={{ y: -4, scale: 1.03 }}
+                className="flex flex-col items-center justify-center p-5 rounded-2xl bg-black/60 border border-emerald-500/30 backdrop-blur-md shadow-inner group hover:border-emerald-500 transition-all"
+              >
+                <span className="text-3xl md:text-5xl font-black font-mono text-emerald-400 group-hover:text-cyan-300 tracking-wider transition-colors">
+                  TBD
+                </span>
+                <span className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mt-1">
+                  {label}
+                </span>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Development Status Notice */}
+          <div className="p-4 rounded-2xl bg-emerald-950/30 border border-emerald-500/40 flex items-center justify-between flex-wrap gap-3">
+            <div className="flex items-center gap-3">
+              <Sparkles className="w-5 h-5 text-cyan-400 shrink-0 animate-spin" style={{ animationDuration: '8s' }} />
+              <span className="text-xs text-gray-300 leading-relaxed">
+                <strong>Apex Syndicate Game Studio Update:</strong> Apex XI 2027 is currently in deep active engineering exclusively for PC hardware. 22-player neural tactics, unscripted aerodynamic ball physics, and volumetric floodlight shaders are undergoing high-framerate optimization. Official release dates and commercial pricing tiers are To Be Determined (TBD).
+              </span>
+            </div>
+            <span className="text-[11px] font-mono text-emerald-400 font-bold uppercase">
+              STATUS: PRE-ALPHA BUILD
+            </span>
+          </div>
+
+          {/* Pricing Progression Timeline (All TBD) */}
+          <div className="pt-4 border-t border-white/10 space-y-3">
+            <div className="text-xs font-semibold text-gray-400 flex items-center justify-between">
+              <span className="text-emerald-400 tracking-wider uppercase font-mono">RELEASE ROADMAP & PRICING PHASES</span>
+              <span className="text-cyan-400 font-mono text-[11px]">ALL FIGURES TBD</span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {[
+                {
+                  phase: 'PHASE 1: CLOSED PITCH BETA',
+                  desc: 'Exclusive closed-group stress test for tactical 22-player neural engine and ultra-low input latency.',
+                  highlight: true,
+                },
+                {
+                  phase: 'PHASE 2: COMMUNITY STADIUM TEST',
+                  desc: 'Expanded multiplayer networking, squad management, and high-framerate stadium rendering stress tests.',
+                  highlight: false,
+                },
+                {
+                  phase: 'PHASE 3: GLOBAL PC COMMERCIAL LAUNCH',
+                  desc: 'Official public release across Windows PC and Syndicate Launcher with deep career systems.',
+                  highlight: false,
+                },
+              ].map((item, idx) => (
+                <motion.div
+                  key={idx}
+                  whileHover={{ y: -3 }}
+                  className={`p-4 rounded-xl border bg-black/50 ${
+                    item.highlight ? 'border-emerald-500/40 text-white shadow-[0_0_15px_rgba(16,185,129,0.2)]' : 'border-white/10 text-gray-300'
+                  } space-y-1`}
+                >
+                  <div className="flex items-center justify-between text-xs font-bold">
+                    <span>{item.phase}</span>
+                    <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-mono">TBD</span>
+                  </div>
+                  <div className="text-xl font-black text-cyan-300 font-mono">PRICE: TBD</div>
+                  <p className="text-[11px] text-gray-400 leading-relaxed">
+                    {item.desc}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
       </section>
 
       {/* ==========================================

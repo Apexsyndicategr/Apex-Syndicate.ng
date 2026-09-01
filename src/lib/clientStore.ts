@@ -350,11 +350,11 @@ export function getDefaultData(): StoreData {
           'Next-generation football simulation engineered exclusively for PC. Powered by Apex XI tactical pitch dynamics, hyper-realistic player physics, and deep club management.',
         fullDescription:
           'Apex XI 2027 is a groundbreaking PC football simulation experience in active development by Apex Syndicate. Featuring cutting-edge AI tactical pitch simulation, hyper-realistic player kinematics and ball trajectory physics, next-generation dynamic stadium lighting, deep club and squad career management, and high-framerate PC optimization with custom keyboard/mouse and gamepad mapping.',
-        version: 'v1.0.0 (Coming Soon)',
-        releaseDate: 'Coming Soon',
+        version: 'v1.0.0 (TBD)',
+        releaseDate: 'TBD',
         isFeatured: true,
         isPublished: true,
-        isComingSoon: true,
+        isComingSoon: false,
         pricingType: 'tbd',
         fixedPrice: 0,
         iconName: 'Trophy',
@@ -404,14 +404,20 @@ export function loadClientData(): StoreData {
     if (!parsed.settings.apexEditorDemoUrl || parsed.settings.apexEditorDemoUrl.trim() === '') {
       parsed.settings.apexEditorDemoUrl = 'https://apex-editor-demo.vercel.app/';
     }
-    // Ensure Apex XI 2027 is in products catalogue
-    if (!parsed.products.some((p: Product) => p.id === 'apex-xi-2027')) {
+    // Ensure Apex XI 2027 is in products catalogue and has releaseDate TBD
+    const existingApexXI = parsed.products.find((p: Product) => p.id === 'apex-xi-2027');
+    if (!existingApexXI) {
       const def = getDefaultData();
       const apexXI = def.products.find((p) => p.id === 'apex-xi-2027');
       if (apexXI) {
         parsed.products.push(apexXI);
         localStorage.setItem(STORE_KEY, JSON.stringify(parsed));
       }
+    } else if (existingApexXI.releaseDate !== 'TBD' || existingApexXI.isComingSoon) {
+      existingApexXI.releaseDate = 'TBD';
+      existingApexXI.version = 'v1.0.0 (TBD)';
+      existingApexXI.isComingSoon = false;
+      localStorage.setItem(STORE_KEY, JSON.stringify(parsed));
     }
     return parsed;
   } catch (e) {

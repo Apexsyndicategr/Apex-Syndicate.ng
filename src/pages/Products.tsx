@@ -192,7 +192,7 @@ export const Products: React.FC<ProductsProps> = ({
                             {getCategoryIcon(prod.category)}
                             <span>{prod.category}</span>
                           </div>
-                          {(prod.releaseDate === 'TBD' || prod.id === 'gangster-revolution') ? (
+                          {(prod.releaseDate === 'TBD' || prod.id === 'gangster-revolution' || prod.id === 'apex-xi-2027') ? (
                             <span className="px-2.5 py-0.5 rounded-full bg-red-500/20 text-red-400 border border-red-500/40 text-[10px] font-black uppercase tracking-wider font-mono">
                               TBD
                             </span>
@@ -323,7 +323,7 @@ export const Products: React.FC<ProductsProps> = ({
                           </motion.button>
                         )}
 
-                        {prod.releaseDate === 'TBD' || prod.id === 'gangster-revolution' ? (
+                        {prod.releaseDate === 'TBD' || prod.id === 'gangster-revolution' || prod.id === 'apex-xi-2027' ? (
                           <span className="px-3.5 py-2 rounded-xl bg-white/[0.04] border border-red-500/30 text-red-400 text-xs font-bold tracking-wider uppercase flex items-center gap-1.5 font-mono">
                             <Clock className="w-3.5 h-3.5 text-red-400 animate-spin" /> TBD
                           </span>
@@ -519,7 +519,7 @@ export const Products: React.FC<ProductsProps> = ({
                     </button>
                   )}
 
-                  {selectedProductDetails.releaseDate === 'TBD' || selectedProductDetails.id === 'gangster-revolution' ? (
+                  {selectedProductDetails.releaseDate === 'TBD' || selectedProductDetails.id === 'gangster-revolution' || selectedProductDetails.id === 'apex-xi-2027' ? (
                     <div className="px-6 py-3.5 rounded-xl bg-white/[0.05] border border-red-500/30 text-red-300 font-extrabold text-xs uppercase tracking-wider flex items-center gap-2 cursor-not-allowed font-mono">
                       <Clock className="w-4 h-4 text-red-400 animate-spin" /> RELEASE DATE: TBD • IN DEVELOPMENT
                     </div>

@@ -102,21 +102,6 @@ export interface GangsterSpecs {
   recStorage: string;
 }
 
-export interface ApexXISpecs {
-  minOs: string;
-  minProcessor: string;
-  minMemory: string;
-  minGraphics: string;
-  minDirectX: string;
-  minStorage: string;
-  recOs: string;
-  recProcessor: string;
-  recMemory: string;
-  recGraphics: string;
-  recDirectX: string;
-  recStorage: string;
-}
-
 export interface DevUpdatePicture {
   id: string;
   url: string;
@@ -167,10 +152,6 @@ export interface OwnerSettings {
   gangsterRevolutionLaunchDate?: string;
   gangsterRevolutionStatus?: string;
   gangsterSpecs?: Partial<GangsterSpecs>;
-  // Apex XI 2027 Configuration
-  apexXILaunchDate?: string;
-  apexXIStatus?: string;
-  apexXISpecs?: Partial<ApexXISpecs>;
   // Apex Editor Demo Configuration
   apexEditorDemoUrl?: string;
   // Visitor Analytics

@@ -17,7 +17,6 @@ import {
   Globe,
   Clock,
   Play,
-  Trophy,
 } from 'lucide-react';
 
 interface ProductsProps {
@@ -192,7 +191,7 @@ export const Products: React.FC<ProductsProps> = ({
                             {getCategoryIcon(prod.category)}
                             <span>{prod.category}</span>
                           </div>
-                          {(prod.releaseDate === 'TBD' || prod.id === 'gangster-revolution' || prod.id === 'apex-xi-2027') ? (
+                          {(prod.releaseDate === 'TBD' || prod.id === 'gangster-revolution') ? (
                             <span className="px-2.5 py-0.5 rounded-full bg-red-500/20 text-red-400 border border-red-500/40 text-[10px] font-black uppercase tracking-wider font-mono">
                               TBD
                             </span>
@@ -291,22 +290,6 @@ export const Products: React.FC<ProductsProps> = ({
                           </motion.button>
                         )}
 
-                        {prod.id === 'apex-xi-2027' && setActiveTab && (
-                          <motion.button
-                            whileHover={{ scale: 1.08, y: -2 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => {
-                              setActiveTab('apex-xi-2027');
-                              window.scrollTo({ top: 0, behavior: 'smooth' });
-                            }}
-                            className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black font-black text-xs tracking-wider uppercase shadow-[0_0_15px_rgba(16,185,129,0.4)] transition-all flex items-center gap-1.5 cursor-pointer"
-                            title="View Apex XI 2027 Game Hub"
-                          >
-                            <Trophy className="w-3.5 h-3.5" />
-                            <span>GAME HUB</span>
-                          </motion.button>
-                        )}
-
                         {prod.id === 'gangster-revolution' && setActiveTab && (
                           <motion.button
                             whileHover={{ scale: 1.08, y: -2 }}
@@ -323,7 +306,7 @@ export const Products: React.FC<ProductsProps> = ({
                           </motion.button>
                         )}
 
-                        {prod.releaseDate === 'TBD' || prod.id === 'gangster-revolution' || prod.id === 'apex-xi-2027' ? (
+                        {prod.releaseDate === 'TBD' || prod.id === 'gangster-revolution' ? (
                           <span className="px-3.5 py-2 rounded-xl bg-white/[0.04] border border-red-500/30 text-red-400 text-xs font-bold tracking-wider uppercase flex items-center gap-1.5 font-mono">
                             <Clock className="w-3.5 h-3.5 text-red-400 animate-spin" /> TBD
                           </span>
@@ -491,20 +474,6 @@ export const Products: React.FC<ProductsProps> = ({
                     </button>
                   )}
 
-                  {selectedProductDetails.id === 'apex-xi-2027' && setActiveTab && (
-                    <button
-                      onClick={() => {
-                        setSelectedProductDetails(null);
-                        setActiveTab('apex-xi-2027');
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                      }}
-                      className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black font-black text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(16,185,129,0.5)] flex items-center gap-2 cursor-pointer"
-                    >
-                      <Trophy className="w-4 h-4" />
-                      <span>VIEW APEX XI 2027 HUB</span>
-                    </button>
-                  )}
-
                   {selectedProductDetails.id === 'gangster-revolution' && setActiveTab && (
                     <button
                       onClick={() => {
@@ -519,7 +488,7 @@ export const Products: React.FC<ProductsProps> = ({
                     </button>
                   )}
 
-                  {selectedProductDetails.releaseDate === 'TBD' || selectedProductDetails.id === 'gangster-revolution' || selectedProductDetails.id === 'apex-xi-2027' ? (
+                  {selectedProductDetails.releaseDate === 'TBD' || selectedProductDetails.id === 'gangster-revolution' ? (
                     <div className="px-6 py-3.5 rounded-xl bg-white/[0.05] border border-red-500/30 text-red-300 font-extrabold text-xs uppercase tracking-wider flex items-center gap-2 cursor-not-allowed font-mono">
                       <Clock className="w-4 h-4 text-red-400 animate-spin" /> RELEASE DATE: TBD • IN DEVELOPMENT
                     </div>

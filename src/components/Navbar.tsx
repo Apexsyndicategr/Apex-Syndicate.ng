@@ -10,7 +10,6 @@ import {
   Sparkles,
   Gamepad2,
   Play,
-  Trophy,
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -38,7 +37,6 @@ export const Navbar: React.FC<NavbarProps> = ({
     highlight?: boolean;
     isDemo?: boolean;
     isGame?: boolean;
-    isApexXI?: boolean;
     isNotif?: boolean;
     isCustom?: boolean;
   }
@@ -49,7 +47,6 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'apex-editor', label: 'APEX EDITOR', highlight: true },
     { id: 'apex-editor-demo', label: 'APEX EDITOR DEMO', isDemo: true },
     { id: 'gangster-revolution', label: 'GANGSTER REVOLUTION', isGame: true },
-    { id: 'apex-xi-2027', label: 'APEX XI 2027', isApexXI: true },
     { id: 'about', label: 'ABOUT' },
     { id: 'contact', label: 'CONTACT' },
     { id: 'notifications', label: 'NOTIFICATIONS', isNotif: true },
@@ -157,28 +154,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                 );
               }
 
-              if (item.isApexXI) {
-                return (
-                  <motion.button
-                    key={item.id}
-                    whileHover={{ scale: 1.04 }}
-                    whileTap={{ scale: 0.96 }}
-                    onClick={() => handleNavClick(item.id)}
-                    className={`relative px-3 py-2 rounded-xl text-xs font-bold tracking-wider transition-all duration-300 flex items-center gap-1.5 cursor-pointer ${
-                      isActive
-                        ? 'bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white shadow-[0_0_25px_rgba(16,185,129,0.6)] border border-emerald-500/50'
-                        : 'bg-emerald-950/20 text-emerald-400 hover:bg-emerald-950/40 hover:text-emerald-300 border border-emerald-500/30'
-                    }`}
-                  >
-                    <Trophy className="w-3.5 h-3.5 text-emerald-400" />
-                    {item.label}
-                    <span className="px-1.5 py-0.5 text-[9px] bg-emerald-500/20 text-emerald-300 font-extrabold rounded border border-emerald-500/40">
-                      TBD
-                    </span>
-                  </motion.button>
-                );
-              }
-
               if (item.isNotif) {
                 return (
                   <motion.button
@@ -245,11 +220,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               {item.highlight && (
                 <span className="px-2 py-0.5 text-[10px] bg-black text-[#FF6321] font-extrabold rounded-md uppercase">
                   FLAGSHIP
-                </span>
-              )}
-              {item.isApexXI && (
-                <span className="px-2 py-0.5 text-[10px] bg-emerald-500/20 text-emerald-300 font-extrabold rounded-md uppercase border border-emerald-500/40">
-                  TBD
                 </span>
               )}
               {item.isGame && (

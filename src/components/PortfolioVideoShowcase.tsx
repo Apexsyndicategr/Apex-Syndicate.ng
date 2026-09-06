@@ -37,12 +37,10 @@ import {
   Sparkle,
   ShieldAlert,
   Activity,
-  Trophy,
 } from 'lucide-react';
 import { fetchPublicSettings } from '../lib/api';
 import { exportPortfolioVideo } from '../lib/videoExporter';
 import { DevUpdatePicture } from '../types';
-import apexXi2027CoverImg from '../assets/images/apex_xi_2027_pc_cover_ronaldo_messi_1788293335110.jpg';
 import gangsterRevImg from '../assets/images/gangster_revolution_art_1788292147475.jpg';
 import apexEditorImg from '../assets/images/apex_editor_demo_official_1787236453861.jpg';
 
@@ -78,7 +76,7 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
   const [videoMode, setVideoMode] = useState<'default' | 'custom' | 'blank'>('default');
   const [customVideoUrl, setCustomVideoUrl] = useState<string | null>(null);
 
-  // Active Dev Update Slide Index: 0 = Dev Update 1 (Apex XI 2027), 1 = Dev Update 2 (Gangster Revolution), 2 = Dev Update 3 (Apex Editor Demo)
+  // Active Dev Update Slide Index: 0 = Dev Update 1 (Gangster Revolution), 1 = Dev Update 2 (Apex Editor Demo)
   const [currentUpdateIndex, setCurrentUpdateIndex] = useState<number>(0);
 
   // Dev Updates Pictures State (from custom uploaded photos/screenshots by owner)
@@ -95,35 +93,13 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
   const lastStepRef = useRef<number>(-1);
 
   // Core Dev Updates List:
-  // 1: Apex XI 2027 (New PC football simulation game in active development)
-  // 2: Gangster Revolution (Flagship open-world crime title in active development)
-  // 3: Apex Editor Demo (Official milestone release - out now!)
+  // 1: Gangster Revolution (Flagship open-world crime title in active development)
+  // 2: Apex Editor Demo (Official milestone release - out now!)
   const baseUpdatesList: DevUpdateItem[] = [
     {
-      id: 'update-1-apex-xi-2027',
+      id: 'update-1-gangster-revolution',
       type: 'game-reveal',
       tag: 'DEV UPDATE 1',
-      badge: 'NEW PC GAME IN ACTIVE DEVELOPMENT',
-      title: 'APEX XI 2027',
-      subtitle:
-        'A groundbreaking new football simulation game engineered exclusively for PC, currently in active development by Apex Syndicate. Featuring advanced AI pitch dynamics, hyper-realistic ball and player physics, intelligent tactical maneuvering, dynamic stadium floodlights, and next-gen club management.',
-      date: 'In Active PC Development',
-      picUrl: apexXi2027CoverImg,
-      highlights: [
-        'PC Exclusive Architecture',
-        'Tactical AI Pitch Engine',
-        'Hyper-Realistic Ball Kinematics',
-        'High Refresh Rate & Ultrawide Support',
-      ],
-      primaryActionLabel: 'VIEW APEX XI 2027 HUB',
-      primaryActionTarget: 'apex-xi-2027',
-      secondaryActionLabel: 'PC GAME DETAILS',
-      secondaryActionTarget: 'apex-xi-2027',
-    },
-    {
-      id: 'update-2-gangster-revolution',
-      type: 'game-reveal',
-      tag: 'DEV UPDATE 2',
       badge: 'IN ACTIVE MULTI-PHASE DEVELOPMENT',
       title: 'GANGSTER REVOLUTION',
       subtitle:
@@ -141,9 +117,9 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
       secondaryActionLabel: 'IN DEVELOPMENT',
     },
     {
-      id: 'update-3-apex-editor-demo',
+      id: 'update-2-apex-editor-demo',
       type: 'announcement',
-      tag: 'DEV UPDATE 3',
+      tag: 'DEV UPDATE 2',
       badge: 'OFFICIAL MILESTONE RELEASE',
       title: 'THE APEX EDITOR DEMO IS OUT NOW!',
       subtitle:
@@ -162,7 +138,7 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
     },
   ];
 
-  // Strictly 3 Dev Updates (1: Apex XI 2027, 2: Gangster Revolution, 3: Apex Editor Demo)
+  // Strictly 2 Dev Updates (1: Gangster Revolution, 2: Apex Editor Demo)
   const updatesList: DevUpdateItem[] = baseUpdatesList;
 
   const totalUpdates = updatesList.length;
@@ -560,7 +536,7 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
             </>
           )}
 
-          {/* SLIDE TYPE: GAME-REVEAL (FOR APEX XI 2027 & GANGSTER REVOLUTION) */}
+          {/* SLIDE TYPE: GAME-REVEAL (FOR GANGSTER REVOLUTION) */}
           {activeUpdate.type === 'game-reveal' && (
             <div className="relative z-10 flex-1 flex flex-col justify-between p-5 sm:p-8 lg:p-10 text-left overflow-hidden">
               {/* Background Art Image with Cinematic Contrast Scrim */}

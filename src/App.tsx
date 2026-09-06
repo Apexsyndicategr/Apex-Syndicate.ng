@@ -9,7 +9,6 @@ import { Products } from './pages/Products';
 import { ApexEditor } from './pages/ApexEditor';
 import { ApexEditorDemo } from './pages/ApexEditorDemo';
 import { GangsterRevolution } from './pages/GangsterRevolution';
-import { ApexXI2027 } from './pages/ApexXI2027';
 import { About } from './pages/About';
 import { Contact } from './pages/Contact';
 import { CustomerNotifications } from './components/CustomerNotifications';
@@ -173,7 +172,6 @@ export default function App() {
 
   const apexEditorProduct = products.find((p) => p.id === 'apex-editor') || products[0] || null;
   const gangsterRevolutionProduct = products.find((p) => p.id === 'gangster-revolution') || null;
-  const apexXIProduct = products.find((p) => p.id === 'apex-xi-2027') || null;
 
   // Selected Custom Tab Content
   const selectedCustomTabId = activeTab.startsWith('custom-')
@@ -258,15 +256,6 @@ export default function App() {
                 product={gangsterRevolutionProduct}
                 settings={ownerSettings || undefined}
                 openDownloadModal={handleOpenDownloadModal}
-              />
-            )}
-
-            {activeTab === 'apex-xi-2027' && (
-              <ApexXI2027
-                product={apexXIProduct}
-                settings={ownerSettings || undefined}
-                openDownloadModal={handleOpenDownloadModal}
-                setActiveTab={setActiveTab}
               />
             )}
 

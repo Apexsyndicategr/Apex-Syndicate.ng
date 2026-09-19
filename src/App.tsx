@@ -17,6 +17,7 @@ import { AdminLoginModal } from './pages/AdminLoginModal';
 import { DownloadModal } from './components/DownloadModal';
 import { IntroCinematic } from './components/IntroCinematic';
 import { AnimatedBackground } from './components/AnimatedBackground';
+import { ApexEditorFullscreenLauncher } from './components/ApexEditorFullscreenLauncher';
 import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles, FileText } from 'lucide-react';
 
@@ -25,6 +26,13 @@ export default function App() {
   const [products, setProducts] = useState<Product[]>([]);
   const [launchPricing, setLaunchPricing] = useState<LaunchPricingInfo | null>(null);
   const [ownerSettings, setOwnerSettings] = useState<OwnerSettings | null>(null);
+
+  // Check if URL requests standalone fullscreen demo player (?demo=fullscreen or /demo)
+  const [isFullscreenDemoMode, setIsFullscreenDemoMode] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    const params = new URLSearchParams(window.location.search);
+    return params.get('demo') === 'fullscreen' || window.location.pathname === '/demo';
+  });
   const [paymentSettings, setPaymentSettings] = useState<{
     bankName: string;
     accountName: string;
@@ -180,6 +188,24 @@ export default function App() {
   const currentCustomTab = ownerSettings?.customTabs?.find(
     (t) => t.id === selectedCustomTabId
   );
+
+  // Standalone Fullscreen Demo Player View (for auto-fullscreen new tab experience)
+  if (isFullscreenDemoMode) {
+    return (
+      <ApexEditorFullscreenLauncher
+        demoUrl={ownerSettings?.apexEditorDemoUrl || 'https://apex-editor-demo.vercel.app/'}
+        onExit={() => {
+          setIsFullscreenDemoMode(false);
+          const url = new URL(window.location.href);
+          url.searchParams.delete('demo');
+          const cleanPath = url.pathname === '/demo' ? '/' : url.pathname;
+          const cleanQuery = url.searchParams.toString() ? `?${url.searchParams.toString()}` : '';
+          window.history.replaceState({}, '', cleanPath + cleanQuery);
+          setActiveTab('apex-editor-demo');
+        }}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#050505] text-white flex flex-col font-sans selection:bg-[#FF6321] selection:text-black relative overflow-x-hidden">

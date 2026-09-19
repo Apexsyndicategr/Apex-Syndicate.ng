@@ -202,6 +202,16 @@ function getDefaultData(): StoreData {
       portfolioVideoUrl: '',
       devUpdates: [
         {
+          id: 'update-apex-editor-paused',
+          title: 'Official Status: Development Temporarily Paused',
+          category: 'Apex Editor',
+          date: '2026-09-19',
+          description:
+            'Active development on both Apex Editor and Gangster Revolution is currently paused. However, the interactive Apex Editor Web Demo is still 100% available, online, and free to explore directly in your browser!',
+          images: ['/images/apex_editor_demo_screenshot.jpg'],
+          statusTag: 'DEV PAUSED',
+        },
+        {
           id: 'update-demo-out-now',
           title: 'THE APEX EDITOR DEMO IS OUT NOW!',
           category: 'Apex Editor',

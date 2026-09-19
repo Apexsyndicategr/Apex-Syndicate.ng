@@ -50,7 +50,7 @@ export interface PortfolioVideoShowcaseProps {
 
 interface DevUpdateItem {
   id: string;
-  type: 'announcement' | 'game-reveal' | 'video' | 'picture';
+  type: 'announcement' | 'game-reveal' | 'video' | 'picture' | 'status-pause';
   tag: string;
   badge: string;
   title: string;
@@ -76,7 +76,7 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
   const [videoMode, setVideoMode] = useState<'default' | 'custom' | 'blank'>('default');
   const [customVideoUrl, setCustomVideoUrl] = useState<string | null>(null);
 
-  // Active Dev Update Slide Index: 0 = Dev Update 1 (Gangster Revolution), 1 = Dev Update 2 (Apex Editor Demo)
+  // Active Dev Update Slide Index: 0 = Dev Update 1 (Apex Editor Demo), 1 = Dev Update 2 (Gangster Revolution), 2 = Dev Update 3 (Apex Editor Paused)
   const [currentUpdateIndex, setCurrentUpdateIndex] = useState<number>(0);
 
   // Dev Updates Pictures State (from custom uploaded photos/screenshots by owner)
@@ -93,13 +93,35 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
   const lastStepRef = useRef<number>(-1);
 
   // Core Dev Updates List:
-  // 1: Gangster Revolution (Flagship open-world crime title in active development)
-  // 2: Apex Editor Demo (Official milestone release - out now!)
+  // 1: Apex Editor Demo (Official milestone release - out now!)
+  // 2: Gangster Revolution (Flagship open-world crime title in active development)
+  // 3: Apex Editor Development Paused (Studio status notice)
   const baseUpdatesList: DevUpdateItem[] = [
     {
-      id: 'update-1-gangster-revolution',
-      type: 'game-reveal',
+      id: 'update-1-apex-editor-demo',
+      type: 'announcement',
       tag: 'DEV UPDATE 1',
+      badge: 'OFFICIAL MILESTONE RELEASE',
+      title: 'THE APEX EDITOR DEMO IS OUT NOW!',
+      subtitle:
+        'Official milestone release! Experience the full interactive Apex Editor in your browser right now — featuring real-time AI media generation, 60FPS canvas timeline, Topaz neural engine, and zero-latency Rust core.',
+      date: 'Live Demo Available',
+      picUrl: apexEditorImg,
+      highlights: [
+        '60FPS Canvas Timeline',
+        'Topaz Neural Upscaler',
+        'Rust AST Kernel',
+        'Real-Time AI Media',
+      ],
+      primaryActionLabel: 'TRY APEX EDITOR DEMO NOW',
+      primaryActionTarget: 'apex-editor-demo',
+      secondaryActionLabel: 'VIEW PRODUCT SPECS',
+      secondaryActionTarget: 'apex-editor',
+    },
+    {
+      id: 'update-2-gangster-revolution',
+      type: 'game-reveal',
+      tag: 'DEV UPDATE 2',
       badge: 'IN ACTIVE MULTI-PHASE DEVELOPMENT',
       title: 'GANGSTER REVOLUTION',
       subtitle:
@@ -117,28 +139,29 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
       secondaryActionLabel: 'IN DEVELOPMENT',
     },
     {
-      id: 'update-2-apex-editor-demo',
-      type: 'announcement',
-      tag: 'DEV UPDATE 2',
-      badge: 'OFFICIAL MILESTONE RELEASE',
-      title: 'THE APEX EDITOR DEMO IS OUT NOW!',
+      id: 'update-3-development-paused',
+      type: 'status-pause',
+      tag: 'DEV UPDATE 3',
+      badge: 'STUDIO BULLETIN • DEV PAUSED',
+      title: 'DEVELOPMENT TEMPORARILY PAUSED',
       subtitle:
-        'Official milestone release! Experience the full interactive Apex Editor in your browser right now — featuring real-time AI media generation, 60FPS canvas timeline, Topaz neural engine, and zero-latency Rust core.',
-      date: 'Live Demo Available',
+        'Active development on both Apex Editor and Gangster Revolution is currently paused. However, the interactive Apex Editor Web Demo is still 100% available, online, and free to explore directly in your browser!',
+      date: 'Status: Both Devs Paused',
       picUrl: apexEditorImg,
       highlights: [
-        '60FPS Canvas Timeline',
-        'Topaz Neural Upscaler',
-        'Rust AST Kernel',
+        'Apex Editor Dev Paused',
+        'Gangster Revolution Dev Paused',
+        'Apex Editor Web Demo Still Available',
+        'Interactive Workstation Live 24/7',
       ],
       primaryActionLabel: 'TRY APEX EDITOR DEMO NOW',
       primaryActionTarget: 'apex-editor-demo',
-      secondaryActionLabel: 'VIEW PRODUCT SPECS',
-      secondaryActionTarget: 'apex-editor',
+      secondaryActionLabel: 'VIEW ALL PRODUCTS',
+      secondaryActionTarget: 'products',
     },
   ];
 
-  // Strictly 2 Dev Updates (1: Gangster Revolution, 2: Apex Editor Demo)
+  // Strictly 3 Dev Updates (1: Apex Editor Demo, 2: Gangster Revolution, 3: Both Devs Paused)
   const updatesList: DevUpdateItem[] = baseUpdatesList;
 
   const totalUpdates = updatesList.length;
@@ -501,7 +524,9 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
           ref={containerRef}
           id="portfolio-dev-update-frame"
           className={`relative w-full aspect-video min-h-[380px] sm:min-h-[460px] rounded-3xl transition-all duration-300 border-2 overflow-hidden flex flex-col justify-between select-none shadow-[0_25px_80px_rgba(0,0,0,0.8)] ${
-            activeUpdate.type === 'announcement'
+            activeUpdate.type === 'status-pause'
+              ? 'bg-gradient-to-br from-[#120a02] via-[#080705] to-[#030304] border-amber-500/80 shadow-[0_0_80px_rgba(245,158,11,0.35)]'
+              : activeUpdate.type === 'announcement'
               ? 'bg-gradient-to-br from-[#0e0907] via-[#08080c] to-[#040508] border-[#FF6321] shadow-[0_0_80px_rgba(255,99,33,0.35)]'
               : isDarkMode
               ? 'bg-[#030306] border-[#FF6321]/60 text-white shadow-[0_25px_70px_rgba(255,99,33,0.35)]'
@@ -690,26 +715,27 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
                   className="space-y-3"
                 >
                   <h3 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-tight leading-[1.05] bg-gradient-to-r from-[#FF6321] via-amber-300 via-yellow-200 to-[#00F0FF] bg-clip-text text-transparent drop-shadow-[0_0_45px_rgba(255,99,33,0.9)] animate-shimmer-text">
-                    THE APEX EDITOR DEMO IS OUT NOW!
+                    {activeUpdate.title}
                   </h3>
 
                   <p className="text-sm sm:text-base md:text-lg text-gray-200 font-light max-w-3xl mx-auto leading-relaxed drop-shadow-md">
-                    Experience our flagship video creation suite live in your browser right now — featuring real-time AI media generation, 60FPS canvas timeline, Topaz neural upscaler, and zero-latency Rust core.
+                    {activeUpdate.subtitle}
                   </p>
                 </motion.div>
 
                 {/* Feature highlights pill strip */}
-                <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 pt-1">
-                  <span className="px-3.5 py-1.5 rounded-xl bg-white/[0.06] border border-white/15 text-gray-200 text-xs font-mono font-semibold flex items-center gap-1.5 backdrop-blur-md">
-                    <Zap className="w-3.5 h-3.5 text-[#FF6321]" /> 60FPS Canvas Timeline
-                  </span>
-                  <span className="px-3.5 py-1.5 rounded-xl bg-white/[0.06] border border-white/15 text-gray-200 text-xs font-mono font-semibold flex items-center gap-1.5 backdrop-blur-md">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Topaz Neural Upscaler
-                  </span>
-                  <span className="px-3.5 py-1.5 rounded-xl bg-white/[0.06] border border-white/15 text-gray-200 text-xs font-mono font-semibold flex items-center gap-1.5 backdrop-blur-md">
-                    <Cpu className="w-3.5 h-3.5 text-cyan-400" /> Rust AST Kernel
-                  </span>
-                </div>
+                {activeUpdate.highlights && activeUpdate.highlights.length > 0 && (
+                  <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 pt-1">
+                    {activeUpdate.highlights.map((h, i) => (
+                      <span
+                        key={i}
+                        className="px-3.5 py-1.5 rounded-xl bg-white/[0.06] border border-white/15 text-gray-200 text-xs font-mono font-semibold flex items-center gap-1.5 backdrop-blur-md"
+                      >
+                        <Zap className="w-3.5 h-3.5 text-[#FF6321]" /> {h}
+                      </span>
+                    ))}
+                  </div>
+                )}
 
                 {/* PROMINENT INTERACTIVE LAUNCH ACTION BUTTONS */}
                 <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3.5">
@@ -720,7 +746,7 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
                         setActiveTab('apex-editor-demo');
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                       } else {
-                        window.open('https://apex-editor-demo.vercel.app/', '_blank');
+                        window.open('/?demo=fullscreen', '_blank');
                       }
                     }}
                     className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-[#FF6321] via-amber-400 to-[#FF4500] hover:from-[#FF8A50] hover:to-amber-300 text-black font-black text-sm sm:text-base font-mono uppercase tracking-wider flex items-center justify-center gap-3 shadow-[0_0_40px_rgba(255,99,33,0.8)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
@@ -754,6 +780,121 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
                 <div className="text-[11px] text-[#FF6321] font-bold uppercase tracking-wider flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
                   <span>Interactive Cloud Workstation Active</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* SLIDE TYPE: STATUS-PAUSE (DEV UPDATE 3 — APEX EDITOR DEVELOPMENT PAUSED) */}
+          {activeUpdate.type === 'status-pause' && (
+            <div className="relative z-10 flex-1 flex flex-col justify-between p-6 sm:p-10 lg:p-12 text-center items-center overflow-hidden">
+              {/* Subtle background art with amber/charcoal vignette */}
+              {activeUpdate.picUrl && (
+                <div className="absolute inset-0 z-0">
+                  <img
+                    src={activeUpdate.picUrl}
+                    alt={activeUpdate.title}
+                    className="w-full h-full object-cover object-center opacity-25 filter grayscale contrast-125"
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/90 to-black/75 pointer-events-none" />
+                  <div className="absolute inset-0 bg-[radial-gradient(#f59e0b_1px,transparent_1px)] [background-size:24px_24px] opacity-20 pointer-events-none" />
+                </div>
+              )}
+
+              {/* Top Milestone & Status Badge */}
+              <div className="relative z-10 w-full flex items-center justify-between text-xs font-mono">
+                <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/20 border border-amber-500/60 text-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.35)] backdrop-blur-md">
+                  <Pause className="w-3.5 h-3.5 fill-current text-amber-400" />
+                  <span className="font-black text-[11px] sm:text-xs uppercase tracking-widest">
+                    {activeUpdate.tag} // {activeUpdate.badge}
+                  </span>
+                </div>
+                <div className="hidden sm:flex items-center gap-2 px-3.5 py-1 rounded-full bg-black/80 border border-amber-500/40 text-amber-300 text-[11px] font-mono font-bold shadow-[0_0_15px_rgba(245,158,11,0.25)] backdrop-blur-md">
+                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                  <span>{activeUpdate.date}</span>
+                </div>
+              </div>
+
+              {/* Center Headline & Context Announcement */}
+              <div className="relative z-10 my-auto space-y-4 sm:space-y-6 max-w-4xl px-4">
+                <motion.div
+                  initial={{ scale: 0.94, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.4 }}
+                  className="space-y-3"
+                >
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-950/50 border border-amber-500/40 text-amber-300 text-xs font-mono font-bold tracking-wider">
+                    <ShieldAlert className="w-4 h-4 text-amber-400" />
+                    <span>STUDIO ENGINEERING UPDATE</span>
+                  </div>
+
+                  <h3 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-tight leading-[1.05] bg-gradient-to-r from-amber-300 via-yellow-200 to-orange-500 bg-clip-text text-transparent drop-shadow-[0_0_40px_rgba(245,158,11,0.7)]">
+                    {activeUpdate.title}
+                  </h3>
+
+                  <p className="text-sm sm:text-base md:text-lg text-gray-200 font-light max-w-3xl mx-auto leading-relaxed drop-shadow-md bg-black/50 backdrop-blur-md p-4 rounded-2xl border border-amber-500/20">
+                    {activeUpdate.subtitle}
+                  </p>
+                </motion.div>
+
+                {/* Status pill strip */}
+                {activeUpdate.highlights && activeUpdate.highlights.length > 0 && (
+                  <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 pt-1">
+                    {activeUpdate.highlights.map((h, i) => (
+                      <span
+                        key={i}
+                        className="px-3.5 py-1.5 rounded-xl bg-black/70 border border-amber-500/30 text-gray-200 text-xs font-mono font-semibold flex items-center gap-1.5 backdrop-blur-md shadow-md"
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400" /> {h}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Interactive Action Buttons */}
+                <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (setActiveTab && activeUpdate.primaryActionTarget) {
+                        setActiveTab(activeUpdate.primaryActionTarget);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      } else {
+                        window.open('/?demo=fullscreen', '_blank');
+                      }
+                    }}
+                    className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-400 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-black text-sm sm:text-base font-mono uppercase tracking-wider flex items-center justify-center gap-3 shadow-[0_0_35px_rgba(245,158,11,0.6)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                  >
+                    <Zap className="w-5 h-5 fill-black" />
+                    <span>{activeUpdate.primaryActionLabel || 'TRY LIVE DEMO ANYWAY'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (setActiveTab && activeUpdate.secondaryActionTarget) {
+                        setActiveTab(activeUpdate.secondaryActionTarget);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }
+                    }}
+                    className="w-full sm:w-auto px-6 py-4 rounded-2xl bg-black/80 hover:bg-white/10 text-white font-mono font-black text-xs sm:text-sm uppercase tracking-wider border border-white/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  >
+                    <Layers className="w-4 h-4 text-amber-400" />
+                    <span>{activeUpdate.secondaryActionLabel || 'VIEW ALL PRODUCTS'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Bottom Status Bar */}
+              <div className="relative z-10 w-full pt-3 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs font-mono text-gray-400">
+                <div className="flex items-center gap-4">
+                  <span>Studio: <strong className="text-white font-bold">Apex Syndicate Studios</strong></span>
+                  <span className="hidden sm:inline">Status: <strong className="text-amber-400 font-bold">Both Developments Paused</strong></span>
+                </div>
+                <div className="text-[11px] text-amber-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+                  <span>Apex Editor Web Demo Still Available</span>
                 </div>
               </div>
             </div>

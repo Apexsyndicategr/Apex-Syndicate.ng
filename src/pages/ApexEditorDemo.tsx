@@ -22,6 +22,7 @@ import {
   Check,
   X,
   ChevronRight,
+  Maximize2,
 } from 'lucide-react';
 
 interface ApexEditorDemoProps {
@@ -119,15 +120,16 @@ export const ApexEditorDemo: React.FC<ApexEditorDemoProps> = ({
       return;
     }
 
-    // On PC/Laptop: Proceed with opening demo
+    // On PC/Laptop: Proceed with opening demo in auto-fullscreen mode to prevent cutoffs
     setShowConfirmModal(false);
+    const fullscreenDemoUrl = `${window.location.origin}/?demo=fullscreen`;
     try {
-      const newTab = window.open(formattedUrl, '_blank', 'noopener,noreferrer');
+      const newTab = window.open(fullscreenDemoUrl, '_blank', 'noopener,noreferrer');
       if (!newTab || newTab.closed || typeof newTab.closed === 'undefined') {
-        window.location.href = formattedUrl;
+        window.location.href = fullscreenDemoUrl;
       }
     } catch (err) {
-      window.location.href = formattedUrl;
+      window.location.href = fullscreenDemoUrl;
     }
   };
 
@@ -466,6 +468,20 @@ export const ApexEditorDemo: React.FC<ApexEditorDemoProps> = ({
                 </p>
               </div>
 
+              {/* AUTO-FULLSCREEN BEHAVIOR NOTICE */}
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-black/60 border border-amber-500/40 text-left space-y-1.5 font-mono text-xs">
+                <div className="flex items-center gap-2 text-amber-400 font-bold uppercase tracking-wider">
+                  <Maximize2 className="w-4 h-4 text-amber-400 shrink-0" />
+                  <span>AUTOMATIC FULLSCREEN DISPLAY</span>
+                </div>
+                <p className="text-gray-300 text-[11px] leading-relaxed">
+                  The demo opens in a new tab in <strong className="text-white">Fullscreen Mode</strong> so the video canvas, timeline tracks, and toolbar controls are not cut off.
+                </p>
+                <div className="pt-1 text-[11px] text-amber-300 flex items-center gap-1.5 font-sans">
+                  <span>To exit fullscreen anytime: press and hold <kbd className="px-1.5 py-0.5 rounded bg-white/15 text-white font-mono font-bold">ESC</kbd> or press <kbd className="px-1.5 py-0.5 rounded bg-white/15 text-white font-mono font-bold">F11</kbd>.</span>
+                </div>
+              </div>
+
               {/* CONFIRMATION QUESTION */}
               <div className="text-center py-1">
                 <p className="text-base sm:text-lg font-black text-white uppercase tracking-wide">
@@ -492,16 +508,15 @@ export const ApexEditorDemo: React.FC<ApexEditorDemoProps> = ({
                   onClick={handleProceedClick}
                   className="w-full py-4 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-[#FF6321] to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-black text-xs uppercase tracking-wider shadow-[0_0_25px_rgba(255,99,33,0.4)] transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer text-center select-none"
                 >
-                  <CheckCircle2 className="w-4 h-4 text-black" />
-                  <span>YES, PROCEED</span>
-                  <ExternalLink className="w-3.5 h-3.5 text-black" />
+                  <Maximize2 className="w-4 h-4 text-black fill-current" />
+                  <span>YES, LAUNCH FULLSCREEN</span>
                 </button>
               </div>
 
               {/* DIRECT FALLBACK LINK */}
-              <div className="pt-2 text-center border-t border-white/5">
+              <div className="pt-2 text-center border-t border-white/5 space-y-1">
                 <p className="text-[11px] text-gray-400">
-                  Target Destination:{' '}
+                  Direct Link:{' '}
                   <a
                     href={formattedUrl}
                     target="_blank"

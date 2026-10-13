@@ -419,6 +419,21 @@ export const Home: React.FC<HomeProps> = ({
                     </motion.button>
                   )}
 
+                  {prod.id === 'naija-life' && (
+                    <motion.button
+                      whileHover={{ scale: 1.08, y: -2 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => {
+                        setActiveTab('naija-life');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-[11px] tracking-wider uppercase shadow-[0_0_15px_rgba(16,185,129,0.5)] transition-all flex items-center gap-1.5 cursor-pointer"
+                      title="Explore Naija Life Page"
+                    >
+                      <span>GAME HUB</span>
+                    </motion.button>
+                  )}
+
                   {prod.releaseDate === 'TBD' || prod.id === 'gangster-revolution' ? (
                     <span className="px-3.5 py-2 rounded-xl bg-white/[0.04] border border-red-500/30 text-red-400 text-xs font-bold tracking-wider uppercase flex items-center gap-1.5 font-mono">
                       <Clock className="w-3.5 h-3.5 text-red-400 animate-spin" /> TBD

@@ -9,7 +9,6 @@ import {
   Clock,
   Sparkles,
   ShieldCheck,
-  CheckCircle2,
   AlertTriangle,
   Car,
   Building2,
@@ -18,13 +17,11 @@ import {
   Laptop,
   Flame,
   ChevronRight,
-  Send,
   Lock,
   Tag,
   Radio,
   Share2,
   Layers,
-  Heart,
   FileText,
 } from 'lucide-react';
 
@@ -42,10 +39,6 @@ export const NaijaLife: React.FC<NaijaLifeProps> = ({
   setActiveTab,
 }) => {
   const [selectedZone, setSelectedZone] = useState<string>('ALL');
-  const [wishlistEmail, setWishlistEmail] = useState<string>('');
-  const [wishlistName, setWishlistName] = useState<string>('');
-  const [wishlistRegistered, setWishlistRegistered] = useState<boolean>(false);
-  const [isRegistering, setIsRegistering] = useState<boolean>(false);
 
   // Nigerian Geopolitical Zones and Key States Teaser
   const stateRegions = [
@@ -134,17 +127,6 @@ export const NaijaLife: React.FC<NaijaLifeProps> = ({
       ? stateRegions
       : stateRegions.filter((r) => r.zone.includes(selectedZone));
 
-  const handleWishlistSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!wishlistEmail || !wishlistEmail.includes('@')) return;
-
-    setIsRegistering(true);
-    setTimeout(() => {
-      setIsRegistering(false);
-      setWishlistRegistered(true);
-    }, 800);
-  };
-
   return (
     <div className="relative min-h-screen text-white select-none overflow-hidden pb-24">
       {/* Dynamic Background Nigerian Ambient Glow & Cyber Grid */}
@@ -213,19 +195,19 @@ export const NaijaLife: React.FC<NaijaLifeProps> = ({
         {/* Call to Action Grid */}
         <div className="mt-8 sm:mt-10 flex flex-wrap items-center justify-center gap-4">
           <a
-            href="#wishlist-section"
+            href="#states-map-section"
             className="px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-600 hover:from-emerald-400 hover:to-teal-300 text-black font-black text-sm sm:text-base font-mono uppercase tracking-wider shadow-[0_0_35px_rgba(16,185,129,0.6)] hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center gap-2.5"
           >
-            <Sparkles className="w-5 h-5 fill-black" />
-            <span>PRE-REGISTER WISHLIST (COMING SOON)</span>
+            <MapPin className="w-5 h-5 text-black" />
+            <span>EXPLORE 36 STATES & JAPA HUB</span>
           </a>
 
           <a
-            href="#states-map-section"
+            href="#specs-section"
             className="px-7 py-4 rounded-2xl bg-black/80 hover:bg-white/10 text-white border border-emerald-500/40 font-mono font-bold text-sm sm:text-base uppercase tracking-wider flex items-center gap-2.5 backdrop-blur-md transition-all cursor-pointer"
           >
-            <MapPin className="w-5 h-5 text-emerald-400" />
-            <span>EXPLORE 36 STATES & JAPA HUB</span>
+            <Laptop className="w-5 h-5 text-emerald-400" />
+            <span>PLATFORM SPECS (PC • MOBILE • WEB)</span>
           </a>
 
           {setActiveTab && (
@@ -438,7 +420,7 @@ export const NaijaLife: React.FC<NaijaLifeProps> = ({
       {/* ========================================================
           SPECIFICATIONS & "EVERYTHING COMING SOON" HUB
          ======================================================== */}
-      <section className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20 border-t border-white/10">
+      <section id="specs-section" className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20 border-t border-white/10">
         <div className="text-center space-y-4 mb-12">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 font-mono text-xs font-bold uppercase tracking-widest">
             <Clock className="w-3.5 h-3.5" />
@@ -459,7 +441,7 @@ export const NaijaLife: React.FC<NaijaLifeProps> = ({
               TARGET PLATFORMS
             </div>
             <p className="text-lg font-black text-white uppercase">
-              PC • CONSOLES • MOBILE
+              PC • MOBILE • WEB (PLAYED ON THE WEB)
             </p>
             <div className="pt-2 text-xs font-mono text-emerald-400 font-bold uppercase">
               STATUS: COMING SOON
@@ -471,7 +453,7 @@ export const NaijaLife: React.FC<NaijaLifeProps> = ({
               GRAPHICS ENGINE
             </div>
             <p className="text-lg font-black text-white uppercase">
-              UNREAL ENGINE 5 CORE
+              TBD
             </p>
             <div className="pt-2 text-xs font-mono text-teal-400 font-bold uppercase">
               STATUS: COMING SOON
@@ -506,6 +488,14 @@ export const NaijaLife: React.FC<NaijaLifeProps> = ({
         {/* Detailed Spec List */}
         <div className="mt-8 p-6 sm:p-8 rounded-3xl bg-white/[0.03] border border-white/10 space-y-4 font-mono text-xs sm:text-sm">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-white/10 gap-2">
+            <span className="text-gray-400">Target Platforms:</span>
+            <span className="font-bold text-emerald-400">PC, Mobile & Web (Played directly in the web browser)</span>
+          </div>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-white/10 gap-2">
+            <span className="text-gray-400">Graphics Engine:</span>
+            <span className="font-bold text-teal-400">TBD</span>
+          </div>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-white/10 gap-2">
             <span className="text-gray-400">Release Date:</span>
             <span className="font-bold text-amber-300">COMING SOON (In Active Pre-Production)</span>
           </div>
@@ -519,89 +509,61 @@ export const NaijaLife: React.FC<NaijaLifeProps> = ({
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-white/10 gap-2">
             <span className="text-gray-400">Playable Alpha / Beta Access:</span>
-            <span className="font-bold text-emerald-400">COMING SOON (Pre-registration Open Below)</span>
+            <span className="font-bold text-emerald-400">COMING SOON / TBD</span>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <span className="text-gray-400">Official Game Download File:</span>
-            <span className="font-bold text-gray-400">COMING SOON (Build Pending Studio Release)</span>
+            <span className="text-gray-400">Official Game Access & Downloads:</span>
+            <span className="font-bold text-gray-400">COMING SOON (Web & Client Builds Pending Studio Release)</span>
           </div>
         </div>
       </section>
 
       {/* ========================================================
-          WISHLIST & PRE-REGISTRATION NOTIFICATION FORM
+          STUDIO ANNOUNCEMENT & ROLLOUT BANNER
          ======================================================== */}
-      <section id="wishlist-section" className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-        <div className="p-8 sm:p-12 rounded-3xl bg-gradient-to-br from-emerald-950/60 via-black to-[#06120b] border-2 border-emerald-500/60 shadow-[0_0_80px_rgba(16,185,129,0.35)] text-center space-y-6">
+      <section className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 text-center">
+        <div className="p-8 sm:p-12 rounded-3xl bg-gradient-to-br from-emerald-950/60 via-black to-[#06120b] border-2 border-emerald-500/50 shadow-[0_0_80px_rgba(16,185,129,0.3)] space-y-6">
           <div className="mx-auto w-16 h-16 rounded-2xl bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center text-emerald-400 shadow-[0_0_30px_rgba(16,185,129,0.4)]">
             <Gamepad2 className="w-8 h-8" />
           </div>
 
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-mono text-xs font-bold uppercase tracking-wider border border-emerald-500/40">
+          <div className="space-y-3">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-mono text-xs font-bold uppercase tracking-wider border border-emerald-500/40">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>PRE-REGISTRATION WISHLIST</span>
+              <span>APEX SYNDICATE OFFICIAL ANNOUNCEMENT</span>
             </div>
             <h3 className="text-2xl sm:text-4xl font-black text-white uppercase tracking-tight">
-              BE THE FIRST TO PLAY NAIJA LIFE
+              NAIJA LIFE • EVERYTHING COMING SOON
             </h3>
-            <p className="text-sm sm:text-base text-gray-300 font-light max-w-lg mx-auto leading-relaxed">
-              Sign up to receive early closed pre-alpha access, behind-the-scenes dev logs, and official release date notifications as soon as they drop. Everything is Coming Soon!
+            <p className="text-sm sm:text-base text-gray-300 font-light max-w-xl mx-auto leading-relaxed">
+              Targeted for PC, Mobile, and played directly on the web. Graphics engine is currently TBD. Stay tuned to the Apex Syndicate official portal for upcoming dev logs, roadmap milestones, and playable web builds.
             </p>
           </div>
 
-          {wishlistRegistered ? (
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="p-6 rounded-2xl bg-emerald-900/40 border border-emerald-500/60 text-emerald-300 space-y-2 font-mono text-sm"
-            >
-              <CheckCircle2 className="w-8 h-8 text-emerald-400 mx-auto" />
-              <p className="text-base font-bold text-white uppercase">
-                PRE-REGISTRATION CONFIRMED!
-              </p>
-              <p className="text-xs text-gray-300">
-                You're on the official VIP priority list. We will send an email alert as soon as the first playable build is ready.
-              </p>
-            </motion.div>
-          ) : (
-            <form onSubmit={handleWishlistSubmit} className="max-w-md mx-auto space-y-3">
-              <div className="space-y-2">
-                <input
-                  type="text"
-                  placeholder="Your Name / Gamer Tag"
-                  value={wishlistName}
-                  onChange={(e) => setWishlistName(e.target.value)}
-                  className="w-full px-4 py-3.5 rounded-xl bg-black/60 border border-white/15 focus:border-emerald-500 text-white text-xs sm:text-sm font-mono focus:outline-none placeholder-gray-500"
-                />
-                <input
-                  type="email"
-                  required
-                  placeholder="Enter your email address"
-                  value={wishlistEmail}
-                  onChange={(e) => setWishlistEmail(e.target.value)}
-                  className="w-full px-4 py-3.5 rounded-xl bg-black/60 border border-white/15 focus:border-emerald-500 text-white text-xs sm:text-sm font-mono focus:outline-none placeholder-gray-500"
-                />
-              </div>
-
+          <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
+            {setActiveTab && (
               <button
-                type="submit"
-                disabled={isRegistering}
-                className="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-600 hover:from-emerald-400 hover:to-teal-300 text-black font-black text-xs sm:text-sm font-mono uppercase tracking-wider shadow-[0_0_30px_rgba(16,185,129,0.5)] transition-all transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2"
+                onClick={() => {
+                  setActiveTab('home');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-mono text-xs sm:text-sm font-bold uppercase tracking-wider border border-white/20 transition-all cursor-pointer"
               >
-                {isRegistering ? (
-                  <Clock className="w-4 h-4 animate-spin text-black" />
-                ) : (
-                  <Send className="w-4 h-4 text-black" />
-                )}
-                <span>PRE-REGISTER NOW (COMING SOON)</span>
+                RETURN TO LATEST UPDATES
               </button>
-
-              <p className="text-[11px] text-gray-500 font-mono">
-                No spam ever. Unsubscribe anytime with 1 click.
-              </p>
-            </form>
-          )}
+            )}
+            {setActiveTab && (
+              <button
+                onClick={() => {
+                  setActiveTab('products');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-black font-mono text-xs sm:text-sm font-black uppercase tracking-wider shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-all cursor-pointer"
+              >
+                BROWSE ALL PRODUCTS
+              </button>
+            )}
+          </div>
         </div>
       </section>
     </div>

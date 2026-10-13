@@ -1,6 +1,6 @@
 {
   "name": "Apex Syndicate",
-  "description": "Software built to create, edit and innovate. Commercial software marketplace and official distribution platform for Apex Syndicate products.",
+  "description": "Apex Syndicate is the official development studio and software distribution platform for Apex Editor, Gangster Revolution, and Naija Life.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

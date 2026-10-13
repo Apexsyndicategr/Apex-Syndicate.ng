@@ -311,10 +311,10 @@ export function getDefaultData(): StoreData {
         fileUrl: '',
         fileSize: 'Coming Soon',
         systemRequirements: {
-          os: 'Coming Soon (PC / Console / Mobile)',
-          processor: 'Coming Soon',
-          memory: 'Coming Soon',
-          storage: 'Coming Soon',
+          os: 'PC, Mobile & Web (Played on the web)',
+          processor: 'TBD',
+          memory: 'TBD',
+          storage: 'TBD',
         },
         features: [
           'All 36 Nigerian States + FCT Abuja Fully Explorable',
@@ -322,7 +322,7 @@ export function getDefaultData(): StoreData {
           'Authentic Street Hustles, Danfo Traffic & Corporate Careers',
           'Dynamic Nigerian Economy, Banking Alerts & Real Estate Empires',
           'Cultural Realism: Pidgin English Voiceovers, Street Food & Owambe Events',
-          'Coming Soon Across PC, Modern Consoles & Mobile Workstations',
+          'Playable Across PC, Mobile, and Directly on the Web',
         ],
         screenshots: [
           '/images/naija_life_hero.jpg',
@@ -433,11 +433,17 @@ export function loadClientData(): StoreData {
     if (!parsed.settings.apexEditorDemoUrl || parsed.settings.apexEditorDemoUrl.trim() === '') {
       parsed.settings.apexEditorDemoUrl = 'https://apex-editor-demo.vercel.app/';
     }
-    // Ensure Naija Life is present in products
+    // Ensure Naija Life is present in products and has up-to-date specs
     const defaultData = getDefaultData();
     const naijaProduct = defaultData.products.find((p) => p.id === 'naija-life');
-    if (naijaProduct && !parsed.products.some((p: Product) => p.id === 'naija-life')) {
-      parsed.products.unshift(naijaProduct);
+    if (naijaProduct) {
+      const existingIdx = parsed.products.findIndex((p: Product) => p.id === 'naija-life');
+      if (existingIdx === -1) {
+        parsed.products.unshift(naijaProduct);
+      } else {
+        parsed.products[existingIdx].systemRequirements = naijaProduct.systemRequirements;
+        parsed.products[existingIdx].features = naijaProduct.features;
+      }
       localStorage.setItem(STORE_KEY, JSON.stringify(parsed));
     }
     // Ensure Naija Life announcement is at top of devUpdates

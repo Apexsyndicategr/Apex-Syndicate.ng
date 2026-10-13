@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Canonical Sitemap for Apex Syndicate
+Sitemap: https://ais-pre-y75ypfotwhnubounyebrey-674546953128.europe-west2.run.app/sitemap.xml

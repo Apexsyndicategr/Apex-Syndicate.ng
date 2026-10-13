@@ -93,14 +93,36 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
   const lastStepRef = useRef<number>(-1);
 
   // Core Dev Updates List:
-  // 1: Apex Editor Demo (Official milestone release - out now!)
-  // 2: Gangster Revolution (Flagship open-world crime title in active development)
-  // 3: Apex Editor Development Paused (Studio status notice)
+  // 1: Naija Life (New game reveal: all 36 states + international travel, everything coming soon)
+  // 2: Apex Editor Demo (Official milestone release - out now!)
+  // 3: Gangster Revolution (Flagship open-world crime title in active development)
+  // 4: Development Temporarily Paused (Both Apex Editor and Gangster Revolution paused, demo still available)
   const baseUpdatesList: DevUpdateItem[] = [
     {
-      id: 'update-1-apex-editor-demo',
-      type: 'announcement',
+      id: 'update-1-naija-life',
+      type: 'game-reveal',
       tag: 'DEV UPDATE 1',
+      badge: 'NEW GAME ANNOUNCEMENT • COMING SOON',
+      title: 'NAIJA LIFE',
+      subtitle:
+        'Inspired by the viral Lagos Life game, scaled across all 36 Nigerian states plus international travel to the UK, Canada, US, and UAE! Hustle from Danfo streets to billionaire status in an expansive, living recreation of Nigeria. Everything is currently Coming Soon.',
+      date: 'Coming Soon • In Development',
+      picUrl: '/images/naija_life_hero.jpg',
+      highlights: [
+        'All 36 States + FCT Abuja',
+        'International Travel & Japa System',
+        'Viral Lagos Life Evolution',
+        'Everything Coming Soon',
+      ],
+      primaryActionLabel: 'EXPLORE NAIJA LIFE (COMING SOON)',
+      primaryActionTarget: 'naija-life',
+      secondaryActionLabel: 'VIEW ALL PRODUCTS',
+      secondaryActionTarget: 'products',
+    },
+    {
+      id: 'update-2-apex-editor-demo',
+      type: 'announcement',
+      tag: 'DEV UPDATE 2',
       badge: 'OFFICIAL MILESTONE RELEASE',
       title: 'THE APEX EDITOR DEMO IS OUT NOW!',
       subtitle:
@@ -119,9 +141,9 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
       secondaryActionTarget: 'apex-editor',
     },
     {
-      id: 'update-2-gangster-revolution',
+      id: 'update-3-gangster-revolution',
       type: 'game-reveal',
-      tag: 'DEV UPDATE 2',
+      tag: 'DEV UPDATE 3',
       badge: 'IN ACTIVE MULTI-PHASE DEVELOPMENT',
       title: 'GANGSTER REVOLUTION',
       subtitle:
@@ -139,9 +161,9 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
       secondaryActionLabel: 'IN DEVELOPMENT',
     },
     {
-      id: 'update-3-development-paused',
+      id: 'update-4-development-paused',
       type: 'status-pause',
-      tag: 'DEV UPDATE 3',
+      tag: 'DEV UPDATE 4',
       badge: 'STUDIO BULLETIN • DEV PAUSED',
       title: 'DEVELOPMENT TEMPORARILY PAUSED',
       subtitle:
@@ -161,7 +183,7 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
     },
   ];
 
-  // Strictly 3 Dev Updates (1: Apex Editor Demo, 2: Gangster Revolution, 3: Both Devs Paused)
+  // Dev Updates (1: Naija Life, 2: Apex Editor Demo, 3: Gangster Revolution, 4: Both Devs Paused)
   const updatesList: DevUpdateItem[] = baseUpdatesList;
 
   const totalUpdates = updatesList.length;

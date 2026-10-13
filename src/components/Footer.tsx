@@ -55,6 +55,19 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab, openAdminModal }) 
               <li>
                 <button
                   onClick={() => {
+                    setActiveTab('naija-life');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="hover:text-emerald-400 hover:translate-x-1 transition-all flex items-center gap-1.5 group"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 group-hover:scale-125 transition-transform"></span>
+                  <span>Naija Life</span>
+                  <span className="text-[10px] text-emerald-400 font-mono">(Coming Soon)</span>
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => {
                     setActiveTab('gangster-revolution');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}

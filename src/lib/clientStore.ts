@@ -135,6 +135,19 @@ export function getDefaultData(): StoreData {
       portfolioVideoUrl: '',
       devUpdates: [
         {
+          id: 'update-naija-life-announce',
+          title: 'NAIJA LIFE: OPEN-WORLD NIGERIA SIMULATOR',
+          category: 'Naija Life',
+          date: '2026-10-13',
+          description:
+            'Apex Syndicate officially announces NAIJA LIFE — our massive open-world life simulator inspired by the viral Lagos Life game, scaled across all 36 Nigerian states plus international travel to the UK, Canada, US, and UAE! Experience authentic street hustles, Danfo traffic, corporate titan empires, and cross-border flights. Everything is currently Coming Soon.',
+          images: [
+            '/images/naija_life_hero.jpg',
+            '/images/naija_travel_hub.jpg',
+          ],
+          statusTag: 'COMING SOON',
+        },
+        {
           id: 'update-apex-editor-paused',
           title: 'Official Status: Development Temporarily Paused',
           category: 'Apex Editor',
@@ -195,6 +208,24 @@ export function getDefaultData(): StoreData {
         },
       ],
       devUpdatePictures: [
+        {
+          id: 'pic-naija-life-hero',
+          url: '/images/naija_life_hero.jpg',
+          title: 'NAIJA LIFE: OPEN-WORLD NIGERIA SIMULATOR',
+          caption:
+            'Official Announcement: Inspired by the viral Lagos Life game, scaled across all 36 Nigerian states and international travel destinations. Everything is Coming Soon.',
+          category: 'Naija Life',
+          createdAt: 'Coming Soon',
+        },
+        {
+          id: 'pic-naija-travel-hub',
+          url: '/images/naija_travel_hub.jpg',
+          title: 'International Travel & 36 States Map Hub',
+          caption:
+            'Japa flight departure gates for London, Toronto, Dubai, and New York alongside real-time inter-state transit routes across Nigeria.',
+          category: 'Naija Life',
+          createdAt: 'Coming Soon',
+        },
         {
           id: 'pic-demo-out-now',
           url: '/images/apex_editor_demo_screenshot.jpg',
@@ -260,6 +291,47 @@ export function getDefaultData(): StoreData {
       },
     },
     products: [
+      {
+        id: 'naija-life',
+        slug: 'naija-life',
+        name: 'Naija Life',
+        category: 'Games',
+        description:
+          'Open-world life simulation inspired by the viral Lagos Life game, featuring all 36 Nigerian states and international travel.',
+        fullDescription:
+          'Naija Life is the definitive open-world Nigeria life simulator and cultural roleplaying game developed by Apex Syndicate. Inspired by the viral Lagos Life game, Naija Life expands far beyond Lagos to encompass all 36 States of the Federation plus FCT Abuja, alongside an authentic international travel system ("Japa") to the UK, Canada, US, and UAE. From navigating Danfo buses and roadside street hustles to leading corporate empires, oil conglomerates, and Nollywood stardom, experience the full grit, rhythm, humor, and ambition of modern Nigerian life. Everything is Coming Soon.',
+        version: 'v1.0.0 (Coming Soon)',
+        releaseDate: 'Coming Soon',
+        isFeatured: true,
+        isPublished: true,
+        isComingSoon: true,
+        pricingType: 'tbd',
+        fixedPrice: 0,
+        iconName: 'Gamepad',
+        fileUrl: '',
+        fileSize: 'Coming Soon',
+        systemRequirements: {
+          os: 'Coming Soon (PC / Console / Mobile)',
+          processor: 'Coming Soon',
+          memory: 'Coming Soon',
+          storage: 'Coming Soon',
+        },
+        features: [
+          'All 36 Nigerian States + FCT Abuja Fully Explorable',
+          'International Travel & "Japa" System (UK, US, Canada, UAE, Ghana)',
+          'Authentic Street Hustles, Danfo Traffic & Corporate Careers',
+          'Dynamic Nigerian Economy, Banking Alerts & Real Estate Empires',
+          'Cultural Realism: Pidgin English Voiceovers, Street Food & Owambe Events',
+          'Coming Soon Across PC, Modern Consoles & Mobile Workstations',
+        ],
+        screenshots: [
+          '/images/naija_life_hero.jpg',
+          '/images/naija_travel_hub.jpg',
+        ],
+        whatsNew: [
+          'Official Announcement: In active pre-production! All features, platforms, and release dates are Coming Soon.',
+        ],
+      },
       {
         id: 'apex-editor',
         slug: 'apex-editor',
@@ -360,6 +432,21 @@ export function loadClientData(): StoreData {
     }
     if (!parsed.settings.apexEditorDemoUrl || parsed.settings.apexEditorDemoUrl.trim() === '') {
       parsed.settings.apexEditorDemoUrl = 'https://apex-editor-demo.vercel.app/';
+    }
+    // Ensure Naija Life is present in products
+    const defaultData = getDefaultData();
+    const naijaProduct = defaultData.products.find((p) => p.id === 'naija-life');
+    if (naijaProduct && !parsed.products.some((p: Product) => p.id === 'naija-life')) {
+      parsed.products.unshift(naijaProduct);
+      localStorage.setItem(STORE_KEY, JSON.stringify(parsed));
+    }
+    // Ensure Naija Life announcement is at top of devUpdates
+    if (
+      parsed.settings.devUpdates &&
+      !parsed.settings.devUpdates.some((u: any) => u.id === 'update-naija-life-announce')
+    ) {
+      parsed.settings.devUpdates.unshift(defaultData.settings.devUpdates![0]);
+      localStorage.setItem(STORE_KEY, JSON.stringify(parsed));
     }
     // Ensure Apex XI 2027 is purged if present in localStorage
     if (parsed.products.some((p: Product) => p.id === 'apex-xi-2027')) {

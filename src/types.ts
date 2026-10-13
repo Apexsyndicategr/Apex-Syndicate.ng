@@ -107,14 +107,14 @@ export interface DevUpdatePicture {
   url: string;
   title: string;
   caption?: string;
-  category?: 'Apex Editor' | 'Gangster Revolution' | 'Syndicate Studio' | 'General';
+  category?: 'Naija Life' | 'Apex Editor' | 'Gangster Revolution' | 'Syndicate Studio' | 'General';
   createdAt?: string;
 }
 
 export interface DevUpdateItem {
   id: string;
   title: string;
-  category: 'Apex Editor' | 'Gangster Revolution' | 'Syndicate Studio' | 'General';
+  category: 'Naija Life' | 'Apex Editor' | 'Gangster Revolution' | 'Syndicate Studio' | 'General';
   date: string;
   description: string;
   images?: string[];

@@ -37,6 +37,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     highlight?: boolean;
     isDemo?: boolean;
     isGame?: boolean;
+    isNaijaLife?: boolean;
     isNotif?: boolean;
     isCustom?: boolean;
   }
@@ -44,6 +45,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const baseNavItems: NavItem[] = [
     { id: 'home', label: 'HOME' },
     { id: 'products', label: 'PRODUCTS' },
+    { id: 'naija-life', label: 'NAIJA LIFE', isNaijaLife: true },
     { id: 'apex-editor', label: 'APEX EDITOR', highlight: true },
     { id: 'apex-editor-demo', label: 'APEX EDITOR DEMO', isDemo: true },
     { id: 'gangster-revolution', label: 'GANGSTER REVOLUTION', isGame: true },
@@ -87,6 +89,28 @@ export const Navbar: React.FC<NavbarProps> = ({
           <nav className="hidden xl:flex items-center space-x-1">
             {navItems.map((item) => {
               const isActive = activeTab === item.id;
+              if (item.isNaijaLife) {
+                return (
+                  <motion.button
+                    key={item.id}
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.96 }}
+                    onClick={() => handleNavClick(item.id)}
+                    className={`relative px-3 py-2 rounded-xl text-xs font-bold tracking-wider transition-all duration-300 flex items-center gap-1.5 cursor-pointer ${
+                      isActive
+                        ? 'bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 text-white shadow-[0_0_25px_rgba(16,185,129,0.7)] font-black border border-emerald-400/50'
+                        : 'bg-emerald-950/30 text-emerald-400 hover:bg-emerald-900/40 hover:text-emerald-300 border border-emerald-500/30'
+                    }`}
+                  >
+                    <Gamepad2 className="w-3.5 h-3.5 text-emerald-400" />
+                    {item.label}
+                    <span className="px-1.5 py-0.5 text-[9px] bg-emerald-500/20 text-emerald-300 font-extrabold rounded border border-emerald-500/40">
+                      SOON
+                    </span>
+                  </motion.button>
+                );
+              }
+
               if (item.highlight) {
                 return (
                   <motion.button
@@ -220,6 +244,11 @@ export const Navbar: React.FC<NavbarProps> = ({
               {item.highlight && (
                 <span className="px-2 py-0.5 text-[10px] bg-black text-[#FF6321] font-extrabold rounded-md uppercase">
                   FLAGSHIP
+                </span>
+              )}
+              {item.isNaijaLife && (
+                <span className="px-2 py-0.5 text-[10px] bg-emerald-500/20 text-emerald-300 font-extrabold rounded-md uppercase border border-emerald-500/40">
+                  SOON
                 </span>
               )}
               {item.isGame && (

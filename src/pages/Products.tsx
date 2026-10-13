@@ -290,6 +290,22 @@ export const Products: React.FC<ProductsProps> = ({
                           </motion.button>
                         )}
 
+                        {prod.id === 'naija-life' && setActiveTab && (
+                          <motion.button
+                            whileHover={{ scale: 1.08, y: -2 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => {
+                              setActiveTab('naija-life');
+                              window.scrollTo({ top: 0, behavior: 'smooth' });
+                            }}
+                            className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs tracking-wider uppercase shadow-[0_0_15px_rgba(16,185,129,0.5)] transition-all flex items-center gap-1.5 cursor-pointer"
+                            title="Explore Naija Life Game Page"
+                          >
+                            <Gamepad className="w-3.5 h-3.5" />
+                            <span>GAME HUB</span>
+                          </motion.button>
+                        )}
+
                         {prod.id === 'gangster-revolution' && setActiveTab && (
                           <motion.button
                             whileHover={{ scale: 1.08, y: -2 }}
@@ -471,6 +487,20 @@ export const Products: React.FC<ProductsProps> = ({
                     >
                       <Play className="w-4 h-4 fill-black" />
                       <span>TRY DEMO</span>
+                    </button>
+                  )}
+
+                  {selectedProductDetails.id === 'naija-life' && setActiveTab && (
+                    <button
+                      onClick={() => {
+                        setSelectedProductDetails(null);
+                        setActiveTab('naija-life');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(16,185,129,0.5)] flex items-center gap-2 cursor-pointer"
+                    >
+                      <Gamepad className="w-4 h-4" />
+                      <span>EXPLORE NAIJA LIFE PAGE</span>
                     </button>
                   )}
 

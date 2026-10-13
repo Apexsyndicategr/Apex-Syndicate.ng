@@ -9,6 +9,7 @@ import { Products } from './pages/Products';
 import { ApexEditor } from './pages/ApexEditor';
 import { ApexEditorDemo } from './pages/ApexEditorDemo';
 import { GangsterRevolution } from './pages/GangsterRevolution';
+import { NaijaLife } from './pages/NaijaLife';
 import { About } from './pages/About';
 import { Contact } from './pages/Contact';
 import { CustomerNotifications } from './components/CustomerNotifications';
@@ -180,6 +181,7 @@ export default function App() {
 
   const apexEditorProduct = products.find((p) => p.id === 'apex-editor') || products[0] || null;
   const gangsterRevolutionProduct = products.find((p) => p.id === 'gangster-revolution') || null;
+  const naijaLifeProduct = products.find((p) => p.id === 'naija-life') || null;
 
   // Selected Custom Tab Content
   const selectedCustomTabId = activeTab.startsWith('custom-')
@@ -282,6 +284,15 @@ export default function App() {
                 product={gangsterRevolutionProduct}
                 settings={ownerSettings || undefined}
                 openDownloadModal={handleOpenDownloadModal}
+              />
+            )}
+
+            {activeTab === 'naija-life' && (
+              <NaijaLife
+                product={naijaLifeProduct}
+                settings={ownerSettings || undefined}
+                openDownloadModal={handleOpenDownloadModal}
+                setActiveTab={setActiveTab}
               />
             )}
 

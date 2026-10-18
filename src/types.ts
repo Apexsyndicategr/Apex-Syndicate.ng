@@ -154,6 +154,8 @@ export interface OwnerSettings {
   gangsterSpecs?: Partial<GangsterSpecs>;
   // Apex Editor Demo Configuration
   apexEditorDemoUrl?: string;
+  // Naija Life Game Web URL Configuration
+  naijaLifeGameUrl?: string;
   // Visitor Analytics
   visitorCount?: number;
   demoVisitorCount?: number;

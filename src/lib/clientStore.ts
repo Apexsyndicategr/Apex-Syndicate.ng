@@ -273,6 +273,7 @@ export function getDefaultData(): StoreData {
       visitorCount: 28,
       demoVisitorCount: 0,
       apexEditorDemoUrl: 'https://apex-editor-demo.vercel.app/',
+      naijaLifeGameUrl: 'https://naijalife.ai.studio/',
       gangsterRevolutionLaunchDate: 'TBD',
       gangsterRevolutionStatus: 'PRE-ALPHA BUILD • IN DEVELOPMENT',
       gangsterSpecs: {
@@ -310,6 +311,7 @@ export function getDefaultData(): StoreData {
         iconName: 'Gamepad',
         fileUrl: '',
         fileSize: 'Coming Soon',
+        externalUrl: 'https://naijalife.ai.studio/',
         systemRequirements: {
           os: 'PC, Mobile & Web (Played on the web)',
           processor: 'TBD',
@@ -433,6 +435,9 @@ export function loadClientData(): StoreData {
     if (!parsed.settings.apexEditorDemoUrl || parsed.settings.apexEditorDemoUrl.trim() === '') {
       parsed.settings.apexEditorDemoUrl = 'https://apex-editor-demo.vercel.app/';
     }
+    if (!parsed.settings.naijaLifeGameUrl || parsed.settings.naijaLifeGameUrl.trim() === '') {
+      parsed.settings.naijaLifeGameUrl = 'https://naijalife.ai.studio/';
+    }
     // Ensure Naija Life is present in products and has up-to-date specs
     const defaultData = getDefaultData();
     const naijaProduct = defaultData.products.find((p) => p.id === 'naija-life');
@@ -443,6 +448,7 @@ export function loadClientData(): StoreData {
       } else {
         parsed.products[existingIdx].systemRequirements = naijaProduct.systemRequirements;
         parsed.products[existingIdx].features = naijaProduct.features;
+        parsed.products[existingIdx].externalUrl = naijaProduct.externalUrl || 'https://naijalife.ai.studio/';
       }
       localStorage.setItem(STORE_KEY, JSON.stringify(parsed));
     }

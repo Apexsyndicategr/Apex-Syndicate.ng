@@ -196,6 +196,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   // Live Visitor Counter & Apex Demo & Gangster Revolution Settings
   const [visitorCount, setVisitorCount] = useState<number>(0);
   const [apexEditorDemoUrl, setApexEditorDemoUrl] = useState<string>('');
+  const [naijaLifeGameUrl, setNaijaLifeGameUrl] = useState<string>('https://naijalife.ai.studio/');
   const [gangsterRevolutionLaunchDate, setGangsterRevolutionLaunchDate] = useState<string>('TBD');
   const [gangsterRevolutionStatus, setGangsterRevolutionStatus] = useState<string>('PRE-ALPHA BUILD • IN DEVELOPMENT');
   const [gangsterSpecs, setGangsterSpecs] = useState<GangsterSpecs>({
@@ -713,6 +714,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         setSettings(data.settings);
         setVisitorCount(data.stats?.totalVisitors ?? data.settings?.visitorCount ?? 0);
         setApexEditorDemoUrl(data.settings.apexEditorDemoUrl || '');
+        setNaijaLifeGameUrl(data.settings.naijaLifeGameUrl || 'https://naijalife.ai.studio/');
         setGangsterRevolutionLaunchDate(data.settings.gangsterRevolutionLaunchDate || 'TBD');
         setGangsterRevolutionStatus(data.settings.gangsterRevolutionStatus || 'PRE-ALPHA BUILD • IN DEVELOPMENT');
         if (data.settings.gangsterSpecs) {
@@ -1124,6 +1126,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       showAnnouncement,
       customTabs: customTabsList,
       apexEditorDemoUrl,
+      naijaLifeGameUrl,
       gangsterRevolutionLaunchDate,
       gangsterRevolutionStatus,
       gangsterSpecs,
@@ -3094,6 +3097,35 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           target="_blank"
                           rel="noopener noreferrer"
                           className="px-4 py-3 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold uppercase flex items-center gap-1.5"
+                        >
+                          TEST
+                        </a>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* NAIJA LIFE WEB GAME URL */}
+                  <div className="space-y-2 pt-4 border-t border-white/10">
+                    <label className="block text-gray-300 font-bold uppercase text-xs">
+                      Naija Life Playable Web Game URL
+                    </label>
+                    <p className="text-[11px] text-gray-400">
+                      Destination URL launched when visitors click "Play Early Access (Web Build)" after viewing the early access disclaimer.
+                    </p>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={naijaLifeGameUrl}
+                        onChange={(e) => setNaijaLifeGameUrl(e.target.value)}
+                        placeholder="https://naijalife.ai.studio/"
+                        className="flex-1 px-4 py-3 rounded-xl bg-black/60 border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-emerald-400"
+                      />
+                      {naijaLifeGameUrl && (
+                        <a
+                          href={naijaLifeGameUrl.startsWith('http') ? naijaLifeGameUrl : `https://${naijaLifeGameUrl}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-4 py-3 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-bold uppercase flex items-center gap-1.5"
                         >
                           TEST
                         </a>

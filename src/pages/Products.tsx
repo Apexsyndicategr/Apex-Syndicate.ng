@@ -18,6 +18,7 @@ import {
   Clock,
   Play,
 } from 'lucide-react';
+import { NaijaLifeWarningModal } from '../components/NaijaLifeWarningModal';
 
 interface ProductsProps {
   products: Product[];
@@ -35,6 +36,7 @@ export const Products: React.FC<ProductsProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProductDetails, setSelectedProductDetails] = useState<Product | null>(null);
+  const [showNaijaLifeWarning, setShowNaijaLifeWarning] = useState<boolean>(false);
 
   const categories = ['ALL', 'Editor', 'Tools', 'Utilities', 'Plugins', 'Games'];
 
@@ -290,20 +292,35 @@ export const Products: React.FC<ProductsProps> = ({
                           </motion.button>
                         )}
 
-                        {prod.id === 'naija-life' && setActiveTab && (
-                          <motion.button
-                            whileHover={{ scale: 1.08, y: -2 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => {
-                              setActiveTab('naija-life');
-                              window.scrollTo({ top: 0, behavior: 'smooth' });
-                            }}
-                            className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs tracking-wider uppercase shadow-[0_0_15px_rgba(16,185,129,0.5)] transition-all flex items-center gap-1.5 cursor-pointer"
-                            title="Explore Naija Life Game Page"
-                          >
-                            <Gamepad className="w-3.5 h-3.5" />
-                            <span>GAME HUB</span>
-                          </motion.button>
+                        {prod.id === 'naija-life' && (
+                          <>
+                            <motion.button
+                              whileHover={{ scale: 1.08, y: -2 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => setShowNaijaLifeWarning(true)}
+                              className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-400 via-emerald-400 to-teal-300 hover:from-amber-300 hover:to-emerald-300 text-black font-black text-xs tracking-wider uppercase shadow-[0_0_15px_rgba(16,185,129,0.5)] transition-all flex items-center gap-1.5 cursor-pointer btn-shimmer-sweep"
+                              title="Play Naija Life Early Access (Web)"
+                            >
+                              <Play className="w-3.5 h-3.5 fill-black" />
+                              <span>PLAY DEMO</span>
+                            </motion.button>
+
+                            {setActiveTab && (
+                              <motion.button
+                                whileHover={{ scale: 1.08, y: -2 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => {
+                                  setActiveTab('naija-life');
+                                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                                }}
+                                className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs tracking-wider uppercase shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all flex items-center gap-1.5 cursor-pointer"
+                                title="Explore Naija Life Game Page"
+                              >
+                                <Gamepad className="w-3.5 h-3.5" />
+                                <span>GAME HUB</span>
+                              </motion.button>
+                            )}
+                          </>
                         )}
 
                         {prod.id === 'gangster-revolution' && setActiveTab && (
@@ -490,6 +507,17 @@ export const Products: React.FC<ProductsProps> = ({
                     </button>
                   )}
 
+                  {selectedProductDetails.id === 'naija-life' && (
+                    <button
+                      type="button"
+                      onClick={() => setShowNaijaLifeWarning(true)}
+                      className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-amber-400 via-emerald-400 to-teal-300 hover:from-amber-300 hover:to-emerald-300 text-black font-black text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(16,185,129,0.5)] flex items-center gap-2 cursor-pointer btn-shimmer-sweep"
+                    >
+                      <Play className="w-4 h-4 fill-black" />
+                      <span>PLAY DEMO</span>
+                    </button>
+                  )}
+
                   {selectedProductDetails.id === 'naija-life' && setActiveTab && (
                     <button
                       onClick={() => {
@@ -544,6 +572,12 @@ export const Products: React.FC<ProductsProps> = ({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Naija Life Early Access Warning & Game Launcher Modal */}
+      <NaijaLifeWarningModal
+        isOpen={showNaijaLifeWarning}
+        onClose={() => setShowNaijaLifeWarning(false)}
+      />
     </div>
   );
 };

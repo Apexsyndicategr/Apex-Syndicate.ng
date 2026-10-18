@@ -23,7 +23,9 @@ import {
   Share2,
   Layers,
   FileText,
+  Play,
 } from 'lucide-react';
+import { NaijaLifeWarningModal } from '../components/NaijaLifeWarningModal';
 
 interface NaijaLifeProps {
   product?: Product | null;
@@ -39,6 +41,7 @@ export const NaijaLife: React.FC<NaijaLifeProps> = ({
   setActiveTab,
 }) => {
   const [selectedZone, setSelectedZone] = useState<string>('ALL');
+  const [showPlayWarningModal, setShowPlayWarningModal] = useState<boolean>(false);
 
   // Nigerian Geopolitical Zones and Key States Teaser
   const stateRegions = [
@@ -185,18 +188,40 @@ export const NaijaLife: React.FC<NaijaLifeProps> = ({
               </p>
             </div>
 
-            <div className="px-5 py-2.5 rounded-2xl bg-black/80 border border-amber-500/60 text-amber-300 font-mono font-black text-xs sm:text-sm uppercase tracking-wider backdrop-blur-xl shadow-xl flex items-center gap-2">
-              <Clock className="w-4 h-4 text-amber-400 animate-spin" />
-              <span>STATUS: COMING SOON</span>
+            <div className="flex flex-wrap items-center gap-3 pointer-events-auto">
+              <button
+                type="button"
+                onClick={() => setShowPlayWarningModal(true)}
+                className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-amber-400 via-emerald-400 to-teal-300 hover:from-amber-300 hover:to-emerald-300 text-black font-mono font-black text-xs sm:text-sm uppercase tracking-wider shadow-[0_0_25px_rgba(16,185,129,0.7)] flex items-center gap-2 transition-transform hover:scale-105 active:scale-95 cursor-pointer btn-shimmer-sweep"
+                title="Play Early Access Web Build"
+              >
+                <Play className="w-3.5 h-3.5 fill-black" />
+                <span>PLAY WEB BUILD</span>
+              </button>
+              <div className="px-4 py-2.5 rounded-2xl bg-black/80 border border-amber-500/60 text-amber-300 font-mono font-black text-xs uppercase tracking-wider backdrop-blur-xl shadow-xl flex items-center gap-2">
+                <Clock className="w-4 h-4 text-amber-400 animate-spin" />
+                <span>STATUS: COMING SOON</span>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Call to Action Grid */}
         <div className="mt-8 sm:mt-10 flex flex-wrap items-center justify-center gap-4">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setShowPlayWarningModal(true)}
+            className="px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-400 via-emerald-400 to-teal-300 hover:from-amber-300 hover:to-emerald-300 text-black font-black text-sm sm:text-base font-mono uppercase tracking-wider shadow-[0_0_35px_rgba(16,185,129,0.7)] flex items-center gap-2.5 cursor-pointer btn-shimmer-sweep"
+            title="Launch Naija Life Early Access Game"
+          >
+            <Play className="w-5 h-5 fill-black" />
+            <span>PLAY EARLY ACCESS (WEB BUILD)</span>
+          </motion.button>
+
           <a
             href="#states-map-section"
-            className="px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-600 hover:from-emerald-400 hover:to-teal-300 text-black font-black text-sm sm:text-base font-mono uppercase tracking-wider shadow-[0_0_35px_rgba(16,185,129,0.6)] hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center gap-2.5"
+            className="px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-600 hover:from-emerald-400 hover:to-teal-300 text-black font-black text-sm sm:text-base font-mono uppercase tracking-wider shadow-[0_0_25px_rgba(16,185,129,0.5)] hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center gap-2.5"
           >
             <MapPin className="w-5 h-5 text-black" />
             <span>EXPLORE 36 STATES & JAPA HUB</span>
@@ -541,6 +566,14 @@ export const NaijaLife: React.FC<NaijaLifeProps> = ({
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
+            <button
+              type="button"
+              onClick={() => setShowPlayWarningModal(true)}
+              className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-amber-400 via-emerald-400 to-teal-300 hover:from-amber-300 hover:to-emerald-300 text-black font-mono text-xs sm:text-sm font-black uppercase tracking-wider shadow-[0_0_25px_rgba(16,185,129,0.7)] transition-all cursor-pointer flex items-center gap-2 btn-shimmer-sweep"
+            >
+              <Play className="w-4 h-4 fill-black" />
+              <span>PLAY EARLY ACCESS (WEB BUILD)</span>
+            </button>
             {setActiveTab && (
               <button
                 onClick={() => {
@@ -566,6 +599,13 @@ export const NaijaLife: React.FC<NaijaLifeProps> = ({
           </div>
         </div>
       </section>
+
+      {/* Early Access Disclaimers & Game Launcher Modal */}
+      <NaijaLifeWarningModal
+        isOpen={showPlayWarningModal}
+        onClose={() => setShowPlayWarningModal(false)}
+        gameUrl={settings?.naijaLifeGameUrl || product?.externalUrl || 'https://naijalife.ai.studio/'}
+      />
     </div>
   );
 };

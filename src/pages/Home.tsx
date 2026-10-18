@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Product, LaunchPricingInfo } from '../types';
 import { CountdownTimer } from '../components/CountdownTimer';
 import { PortfolioVideoShowcase } from '../components/PortfolioVideoShowcase';
+import { NaijaLifeWarningModal } from '../components/NaijaLifeWarningModal';
 import { motion } from 'motion/react';
 import {
   Terminal,
@@ -34,6 +35,7 @@ export const Home: React.FC<HomeProps> = ({
   launchPricing,
   products,
 }) => {
+  const [showNaijaLifeWarning, setShowNaijaLifeWarning] = useState<boolean>(false);
   const apexEditor = products.find((p) => p.id === 'apex-editor') || products[0];
 
   const containerVariants = {
@@ -420,18 +422,31 @@ export const Home: React.FC<HomeProps> = ({
                   )}
 
                   {prod.id === 'naija-life' && (
-                    <motion.button
-                      whileHover={{ scale: 1.08, y: -2 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => {
-                        setActiveTab('naija-life');
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                      }}
-                      className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-[11px] tracking-wider uppercase shadow-[0_0_15px_rgba(16,185,129,0.5)] transition-all flex items-center gap-1.5 cursor-pointer"
-                      title="Explore Naija Life Page"
-                    >
-                      <span>GAME HUB</span>
-                    </motion.button>
+                    <>
+                      <motion.button
+                        whileHover={{ scale: 1.08, y: -2 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => setShowNaijaLifeWarning(true)}
+                        className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-400 via-emerald-400 to-teal-300 hover:from-amber-300 hover:to-emerald-300 text-black font-black text-[11px] tracking-wider uppercase shadow-[0_0_15px_rgba(16,185,129,0.5)] transition-all flex items-center gap-1.5 cursor-pointer btn-shimmer-sweep"
+                        title="Play Naija Life Early Access (Web)"
+                      >
+                        <Play className="w-3.5 h-3.5 fill-black" />
+                        <span>PLAY DEMO</span>
+                      </motion.button>
+
+                      <motion.button
+                        whileHover={{ scale: 1.08, y: -2 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => {
+                          setActiveTab('naija-life');
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
+                        className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-[11px] tracking-wider uppercase shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all flex items-center gap-1.5 cursor-pointer"
+                        title="Explore Naija Life Page"
+                      >
+                        <span>GAME HUB</span>
+                      </motion.button>
+                    </>
                   )}
 
                   {prod.releaseDate === 'TBD' || prod.id === 'gangster-revolution' ? (
@@ -514,6 +529,12 @@ export const Home: React.FC<HomeProps> = ({
           </div>
         </div>
       </motion.section>
+
+      {/* Naija Life Early Access Warning & Game Launcher Modal */}
+      <NaijaLifeWarningModal
+        isOpen={showNaijaLifeWarning}
+        onClose={() => setShowNaijaLifeWarning(false)}
+      />
     </div>
   );
 };

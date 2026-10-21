@@ -142,13 +142,13 @@ export const NaijaLife: React.FC<NaijaLifeProps> = ({
          ======================================================== */}
       <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-16 pb-12 sm:pb-20 text-center">
         {/* Top Status Capsule */}
-        <div className="inline-flex items-center gap-2.5 px-4 sm:px-5 py-2 rounded-full bg-emerald-950/60 border border-emerald-500/60 text-emerald-300 font-mono text-xs sm:text-sm font-bold shadow-[0_0_30px_rgba(16,185,129,0.35)] backdrop-blur-xl mb-6 animate-pulse">
+        <div className="inline-flex items-center gap-2.5 px-4 sm:px-5 py-2 rounded-full bg-emerald-950/60 border border-emerald-500/60 text-emerald-300 font-mono text-xs sm:text-sm font-bold shadow-[0_0_30px_rgba(16,185,129,0.35)] backdrop-blur-xl mb-4 sm:mb-6 animate-pulse">
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
           <span>OFFICIAL ANNOUNCEMENT • EVERYTHING COMING SOON</span>
         </div>
 
         {/* Massive Glowing Title */}
-        <div className="space-y-4 max-w-5xl mx-auto">
+        <div className="space-y-3 sm:space-y-4 max-w-5xl mx-auto">
           <h1 className="text-4xl sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-tight uppercase leading-[0.95] bg-gradient-to-r from-emerald-400 via-teal-200 via-amber-300 to-emerald-400 bg-clip-text text-transparent drop-shadow-[0_0_50px_rgba(16,185,129,0.5)]">
             NAIJA LIFE
           </h1>
@@ -157,12 +157,36 @@ export const NaijaLife: React.FC<NaijaLifeProps> = ({
             THE OPEN-WORLD NIGERIA SIMULATOR & JAPA RPG
           </p>
 
-          <p className="text-sm sm:text-lg text-gray-300 max-w-3xl mx-auto font-normal leading-relaxed pt-2">
+          <p className="text-sm sm:text-lg text-gray-300 max-w-3xl mx-auto font-normal leading-relaxed pt-1 sm:pt-2">
             Inspired by the viral <strong className="text-white font-bold">Lagos Life</strong> phenomenon, 
             <strong className="text-emerald-400 font-bold"> Naija Life</strong> breaks past city borders to encompass all 
             <strong className="text-amber-300 font-bold"> 36 Nigerian States + FCT Abuja</strong>, plus complete 
             <strong className="text-white font-bold"> International Travel ("Japa")</strong> to the UK, Canada, US, and UAE.
           </p>
+
+          {/* Above-the-fold Instant Early Access Play Button — No Scrolling Needed */}
+          <div className="pt-3 sm:pt-5 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <motion.button
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowPlayWarningModal(true)}
+              className="w-full sm:w-auto px-8 sm:px-10 py-3.5 sm:py-4 rounded-2xl bg-gradient-to-r from-amber-400 via-emerald-400 to-teal-300 hover:from-amber-300 hover:to-teal-200 text-black font-black text-sm sm:text-base font-mono uppercase tracking-wider shadow-[0_0_40px_rgba(16,185,129,0.85)] flex items-center justify-center gap-3 transition-all cursor-pointer btn-shimmer-sweep border border-white/20"
+              title="Launch Naija Life Early Access Game"
+            >
+              <div className="w-7 h-7 rounded-full bg-black flex items-center justify-center shrink-0 shadow-md">
+                <Play className="w-3.5 h-3.5 fill-emerald-400 text-emerald-400 translate-x-0.5" />
+              </div>
+              <span>PLAY EARLY ACCESS</span>
+              <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-black/80 text-amber-300 border border-amber-400/50 uppercase tracking-widest hidden sm:inline-block">
+                ALPHA DEMO
+              </span>
+            </motion.button>
+
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-black/60 border border-emerald-500/30 text-xs font-mono text-gray-300 backdrop-blur-md">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+              <span>Instant Web Launch • PC Recommended</span>
+            </div>
+          </div>
         </div>
 
         {/* Hero Visual Preview Image */}

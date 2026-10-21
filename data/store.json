@@ -1,6 +1,46 @@
 {
   "products": [
     {
+      "id": "naija-life",
+      "slug": "naija-life",
+      "name": "Naija Life",
+      "category": "Games",
+      "description": "Open-world life simulation inspired by the viral Lagos Life game, featuring all 36 Nigerian states and international travel.",
+      "fullDescription": "Naija Life is the definitive open-world Nigeria life simulator and cultural roleplaying game developed by Apex Syndicate. Inspired by the viral Lagos Life game, Naija Life expands far beyond Lagos to encompass all 36 States of the Federation plus FCT Abuja, alongside an authentic international travel system (\"Japa\") to the UK, Canada, US, and UAE. From navigating Danfo buses and roadside street hustles to leading corporate empires, oil conglomerates, and Nollywood stardom, experience the full grit, rhythm, humor, and ambition of modern Nigerian life. Everything is Coming Soon.",
+      "version": "v1.0.0 (Early Access Alpha)",
+      "releaseDate": "Coming Soon",
+      "isFeatured": true,
+      "isPublished": true,
+      "isComingSoon": true,
+      "pricingType": "tbd",
+      "fixedPrice": 0,
+      "iconName": "Gamepad",
+      "fileUrl": "",
+      "fileSize": "Coming Soon",
+      "externalUrl": "https://naijalife.ai.studio/",
+      "systemRequirements": {
+        "os": "PC, Mobile & Web (Played on the web)",
+        "processor": "TBD",
+        "memory": "TBD",
+        "storage": "TBD"
+      },
+      "features": [
+        "All 36 Nigerian States + FCT Abuja Fully Explorable",
+        "International Travel & \"Japa\" System (UK, US, Canada, UAE, Ghana)",
+        "Authentic Street Hustles, Danfo Traffic & Corporate Careers",
+        "Dynamic Nigerian Economy, Banking Alerts & Real Estate Empires",
+        "Cultural Realism: Pidgin English Voiceovers, Street Food & Owambe Events",
+        "Playable Across PC, Mobile, and Directly on the Web"
+      ],
+      "screenshots": [
+        "/images/naija_life_hero.jpg",
+        "/images/naija_travel_hub.jpg"
+      ],
+      "whatsNew": [
+        "Official Announcement: Playable early access web demo is live! Full production release coming soon."
+      ]
+    },
+    {
       "id": "apex-editor",
       "slug": "apex-editor",
       "name": "Apex Editor",
@@ -93,6 +133,18 @@
     "portfolioVideoUrl": "",
     "devUpdates": [
       {
+        "id": "update-naija-life-demo-out",
+        "title": "NAIJA LIFE: EARLY ACCESS DEMO IS OUT!",
+        "category": "Naija Life",
+        "date": "2026-10-21",
+        "description": "Play the early access alpha build of Naija Life directly in your web browser! Experience the open-world Nigeria simulation across all 36 states and international travel (\"Japa\"). Important note: Mobile version is still in active development and will experience heavy lag, but runs smoothly on PC. Map design and urban grid systems are getting a complete full-production rework.",
+        "images": [
+          "/images/naija_life_hero.jpg",
+          "/images/naija_travel_hub.jpg"
+        ],
+        "statusTag": "EARLY ACCESS DEMO LIVE"
+      },
+      {
         "id": "update-demo-out-now",
         "title": "THE APEX EDITOR DEMO IS OUT NOW!",
         "category": "Apex Editor",
@@ -105,6 +157,14 @@
       }
     ],
     "devUpdatePictures": [
+      {
+        "id": "pic-naija-life-demo",
+        "url": "/images/naija_life_hero.jpg",
+        "title": "NAIJA LIFE: EARLY ACCESS DEMO IS OUT!",
+        "caption": "Playable early access alpha web build is live now at naijalife.ai.studio! PC recommended for best performance.",
+        "category": "Naija Life",
+        "createdAt": "Live Now"
+      },
       {
         "id": "pic-demo-out-now",
         "url": "/images/apex_editor_demo_screenshot.jpg",
@@ -119,6 +179,7 @@
     "visitorCount": 28,
     "demoVisitorCount": 0,
     "apexEditorDemoUrl": "https://apex-editor-demo.vercel.app/",
+    "naijaLifeGameUrl": "https://naijalife.ai.studio/",
     "gangsterRevolutionLaunchDate": "TBD",
     "gangsterRevolutionStatus": "PRE-ALPHA BUILD • IN DEVELOPMENT",
     "gangsterSpecs": {

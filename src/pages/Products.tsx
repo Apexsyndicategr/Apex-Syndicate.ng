@@ -252,7 +252,7 @@ export const Products: React.FC<ProductsProps> = ({
                       </div>
 
                       <div className="flex items-center gap-2 flex-wrap">
-                        {prod.externalUrl && (
+                        {prod.externalUrl && prod.id !== 'naija-life' && (
                           <motion.a
                             whileHover={{ scale: 1.08 }}
                             whileTap={{ scale: 0.95 }}

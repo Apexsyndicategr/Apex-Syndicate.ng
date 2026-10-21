@@ -391,7 +391,7 @@ export const Home: React.FC<HomeProps> = ({
                 </div>
 
                 <div className="flex items-center gap-2">
-                  {prod.externalUrl && (
+                  {prod.externalUrl && prod.id !== 'naija-life' && (
                     <motion.a
                       whileHover={{ scale: 1.08 }}
                       whileTap={{ scale: 0.95 }}

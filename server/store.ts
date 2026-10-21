@@ -269,6 +269,7 @@ function getDefaultData(): StoreData {
       visitorCount: 28,
       demoVisitorCount: 0,
       apexEditorDemoUrl: 'https://apex-editor-demo.vercel.app/',
+      naijaLifeGameUrl: 'https://naijalife.ai.studio/',
       gangsterRevolutionLaunchDate: 'TBD',
       gangsterRevolutionStatus: 'PRE-ALPHA BUILD • IN DEVELOPMENT',
       gangsterSpecs: {
@@ -296,7 +297,7 @@ function getDefaultData(): StoreData {
           'Open-world life simulation inspired by the viral Lagos Life game, featuring all 36 Nigerian states and international travel.',
         fullDescription:
           'Naija Life is the definitive open-world Nigeria life simulator and cultural roleplaying game developed by Apex Syndicate. Inspired by the viral Lagos Life game, Naija Life expands far beyond Lagos to encompass all 36 States of the Federation plus FCT Abuja, alongside an authentic international travel system ("Japa") to the UK, Canada, US, and UAE. From navigating Danfo buses and roadside street hustles to leading corporate empires, oil conglomerates, and Nollywood stardom, experience the full grit, rhythm, humor, and ambition of modern Nigerian life. Everything is Coming Soon.',
-        version: 'v1.0.0 (Coming Soon)',
+        version: 'v1.0.0 (Early Access Alpha)',
         releaseDate: 'Coming Soon',
         isFeatured: true,
         isPublished: true,
@@ -306,11 +307,12 @@ function getDefaultData(): StoreData {
         iconName: 'Gamepad',
         fileUrl: '',
         fileSize: 'Coming Soon',
+        externalUrl: 'https://naijalife.ai.studio/',
         systemRequirements: {
-          os: 'Coming Soon (PC / Console / Mobile)',
-          processor: 'Coming Soon',
-          memory: 'Coming Soon',
-          storage: 'Coming Soon',
+          os: 'PC, Mobile & Web (Played on the web)',
+          processor: 'TBD',
+          memory: 'TBD',
+          storage: 'TBD',
         },
         features: [
           'All 36 Nigerian States + FCT Abuja Fully Explorable',
@@ -318,14 +320,14 @@ function getDefaultData(): StoreData {
           'Authentic Street Hustles, Danfo Traffic & Corporate Careers',
           'Dynamic Nigerian Economy, Banking Alerts & Real Estate Empires',
           'Cultural Realism: Pidgin English Voiceovers, Street Food & Owambe Events',
-          'Coming Soon Across PC, Modern Consoles & Mobile Workstations',
+          'Playable Across PC, Mobile, and Directly on the Web',
         ],
         screenshots: [
           '/images/naija_life_hero.jpg',
           '/images/naija_travel_hub.jpg',
         ],
         whatsNew: [
-          'Official Announcement: In active pre-production! All features, platforms, and release dates are Coming Soon.',
+          'Official Announcement: Playable early access web demo is live! Full production release coming soon.',
         ],
       },
       {
@@ -465,6 +467,9 @@ class Store {
         if (!loadedSettings.apexEditorDemoUrl || loadedSettings.apexEditorDemoUrl.trim() === '') {
           loadedSettings.apexEditorDemoUrl = 'https://apex-editor-demo.vercel.app/';
         }
+        if (!loadedSettings.naijaLifeGameUrl || loadedSettings.naijaLifeGameUrl.trim() === '') {
+          loadedSettings.naijaLifeGameUrl = 'https://naijalife.ai.studio/';
+        }
 
         // Initialize users with default owner if not present
         const loadedUsers: UserRecord[] = parsed.users || [];
@@ -500,6 +505,16 @@ class Store {
         let loadedProducts: Product[] = (parsed.products || defaultState.products).filter(
           (p: Product) => p.id !== 'apex-xi-2027'
         );
+        const naijaDefault = defaultState.products.find((p) => p.id === 'naija-life');
+        if (naijaDefault && !loadedProducts.some((p) => p.id === 'naija-life')) {
+          loadedProducts.unshift(naijaDefault);
+        } else if (naijaDefault) {
+          const idx = loadedProducts.findIndex((p) => p.id === 'naija-life');
+          if (idx !== -1) {
+            loadedProducts[idx].systemRequirements = naijaDefault.systemRequirements;
+            loadedProducts[idx].externalUrl = naijaDefault.externalUrl || 'https://naijalife.ai.studio/';
+          }
+        }
 
         return {
           products: loadedProducts,

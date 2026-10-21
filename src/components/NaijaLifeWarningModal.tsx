@@ -11,8 +11,6 @@ import {
   Compass,
   Sparkles,
   Info,
-  Copy,
-  Check,
   ShieldAlert,
 } from 'lucide-react';
 
@@ -59,7 +57,6 @@ export const NaijaLifeWarningModal: React.FC<NaijaLifeWarningModalProps> = ({
   gameUrl = 'https://naijalife.ai.studio/',
 }) => {
   const [isMobile, setIsMobile] = useState<boolean>(false);
-  const [copied, setCopied] = useState<boolean>(false);
 
   useEffect(() => {
     setIsMobile(detectIsMobileOrTablet());
@@ -93,14 +90,6 @@ export const NaijaLifeWarningModal: React.FC<NaijaLifeWarningModalProps> = ({
       window.location.href = gameUrl;
     }
     onClose();
-  };
-
-  const handleCopy = () => {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(gameUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
   };
 
   if (typeof document === 'undefined') return null;
@@ -235,19 +224,14 @@ export const NaijaLifeWarningModal: React.FC<NaijaLifeWarningModalProps> = ({
                 </div>
               </div>
 
-              {/* Destination URL Display */}
+              {/* Destination URL Display (Direct & Clean, no copy button) */}
               <div className="p-3.5 rounded-xl bg-black/60 border border-emerald-500/30 flex items-center justify-between gap-2 text-xs font-mono">
                 <span className="text-gray-400 truncate">
                   Target Destination: <span className="text-emerald-400 font-bold">{gameUrl}</span>
                 </span>
-                <button
-                  onClick={handleCopy}
-                  className="px-2.5 py-1 rounded bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white flex items-center gap-1 shrink-0 transition-colors cursor-pointer"
-                  title="Copy direct link"
-                >
-                  {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{copied ? 'Copied' : 'Copy'}</span>
-                </button>
+                <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase shrink-0">
+                  Direct Web Launch
+                </span>
               </div>
             </div>
 

@@ -41,6 +41,7 @@ import {
 import { fetchPublicSettings } from '../lib/api';
 import { exportPortfolioVideo } from '../lib/videoExporter';
 import { DevUpdatePicture } from '../types';
+import { NaijaLifeWarningModal } from './NaijaLifeWarningModal';
 import gangsterRevImg from '../assets/images/gangster_revolution_art_1788292147475.jpg';
 import apexEditorImg from '../assets/images/apex_editor_demo_official_1787236453861.jpg';
 
@@ -82,6 +83,9 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
   // Dev Updates Pictures State (from custom uploaded photos/screenshots by owner)
   const [devPictures, setDevPictures] = useState<DevUpdatePicture[]>([]);
 
+  // Naija Life Warning Modal State
+  const [showNaijaLifeWarning, setShowNaijaLifeWarning] = useState<boolean>(false);
+
   // Video Export Progress state
   const [isExportingVideo, setIsExportingVideo] = useState(false);
   const [exportProgress, setExportProgress] = useState(0);
@@ -93,7 +97,7 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
   const lastStepRef = useRef<number>(-1);
 
   // Core Dev Updates List:
-  // 1: Naija Life (New game reveal: all 36 states + international travel, everything coming soon)
+  // 1: Naija Life (Early Access Demo Out Now • Playable Alpha Web Build)
   // 2: Apex Editor Demo (Official milestone release - out now!)
   // 3: Gangster Revolution (Flagship open-world crime title in active development)
   // 4: Development Temporarily Paused (Both Apex Editor and Gangster Revolution paused, demo still available)
@@ -102,22 +106,22 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
       id: 'update-1-naija-life',
       type: 'game-reveal',
       tag: 'DEV UPDATE 1',
-      badge: 'NEW GAME ANNOUNCEMENT • COMING SOON',
-      title: 'NAIJA LIFE',
+      badge: 'EARLY ACCESS DEMO IS OUT • PLAY NOW',
+      title: 'NAIJA LIFE: EARLY ACCESS DEMO IS OUT!',
       subtitle:
-        'Inspired by the viral Lagos Life game, scaled across all 36 Nigerian states plus international travel to the UK, Canada, US, and UAE! Hustle from Danfo streets to billionaire status in an expansive, living recreation of Nigeria. Everything is currently Coming Soon.',
-      date: 'Coming Soon • In Development',
+        'Play the early access alpha build of Naija Life directly in your web browser! Experience the open-world Nigeria simulation across all 36 states and international travel ("Japa"). Important note: Mobile version is still in active development and will experience heavy lag, but runs smoothly on PC. Map design and urban grid systems are getting a complete full-production rework.',
+      date: 'Early Access Alpha • Play Now',
       picUrl: '/images/naija_life_hero.jpg',
       highlights: [
-        'All 36 States + FCT Abuja',
-        'International Travel & Japa System',
-        'Viral Lagos Life Evolution',
-        'Everything Coming Soon',
+        'Playable Web Alpha Demo',
+        'PC Recommended • Mobile In Work',
+        '36 States + Japa Hub',
+        'Map Design Rework Incoming',
       ],
-      primaryActionLabel: 'EXPLORE NAIJA LIFE (COMING SOON)',
-      primaryActionTarget: 'naija-life',
-      secondaryActionLabel: 'VIEW ALL PRODUCTS',
-      secondaryActionTarget: 'products',
+      primaryActionLabel: 'PLAY EARLY ACCESS DEMO',
+      primaryActionTarget: 'naija-life-warning',
+      secondaryActionLabel: 'EXPLORE NAIJA LIFE HUB',
+      secondaryActionTarget: 'naija-life',
     },
     {
       id: 'update-2-apex-editor-demo',
@@ -651,14 +655,24 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
                     <button
                       type="button"
                       onClick={() => {
-                        if (setActiveTab && activeUpdate.primaryActionTarget) {
+                        if (activeUpdate.primaryActionTarget === 'naija-life-warning') {
+                          setShowNaijaLifeWarning(true);
+                        } else if (setActiveTab && activeUpdate.primaryActionTarget) {
                           setActiveTab(activeUpdate.primaryActionTarget);
                           window.scrollTo({ top: 0, behavior: 'smooth' });
                         }
                       }}
-                      className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-[#FF6321] via-amber-400 to-[#FF4500] hover:from-[#FF8A50] hover:to-amber-300 text-black font-black text-xs sm:text-sm font-mono uppercase tracking-wider flex items-center gap-2 shadow-[0_0_30px_rgba(255,99,33,0.6)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                      className={`px-6 py-3.5 rounded-2xl text-black font-black text-xs sm:text-sm font-mono uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer ${
+                        activeUpdate.id === 'update-1-naija-life'
+                          ? 'bg-gradient-to-r from-amber-400 via-emerald-400 to-teal-300 hover:from-amber-300 hover:to-teal-200 shadow-[0_0_30px_rgba(16,185,129,0.7)] btn-shimmer-sweep'
+                          : 'bg-gradient-to-r from-[#FF6321] via-amber-400 to-[#FF4500] hover:from-[#FF8A50] hover:to-amber-300 shadow-[0_0_30px_rgba(255,99,33,0.6)]'
+                      } hover:scale-105 active:scale-95`}
                     >
-                      <Zap className="w-4 h-4 fill-black" />
+                      {activeUpdate.id === 'update-1-naija-life' ? (
+                        <Play className="w-4 h-4 fill-black text-black" />
+                      ) : (
+                        <Zap className="w-4 h-4 fill-black" />
+                      )}
                       <span>{activeUpdate.primaryActionLabel || 'EXPLORE TITLE'}</span>
                     </button>
                   ) : (
@@ -1232,6 +1246,12 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
           </div>
         </div>
       )}
+
+      {/* Naija Life Early Access Warning Modal */}
+      <NaijaLifeWarningModal
+        isOpen={showNaijaLifeWarning}
+        onClose={() => setShowNaijaLifeWarning(false)}
+      />
     </div>
   );
 };

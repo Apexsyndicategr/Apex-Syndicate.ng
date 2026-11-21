@@ -9,9 +9,6 @@ import {
   ExternalLink,
   X,
   Compass,
-  Sparkles,
-  Info,
-  ShieldAlert,
 } from 'lucide-react';
 
 interface NaijaLifeWarningModalProps {
@@ -20,7 +17,6 @@ interface NaijaLifeWarningModalProps {
   gameUrl?: string;
 }
 
-// Mobile and Tablet device detector
 function detectIsMobileOrTablet(): boolean {
   if (typeof window === 'undefined' || typeof navigator === 'undefined') return false;
 
@@ -54,7 +50,7 @@ function detectIsMobileOrTablet(): boolean {
 export const NaijaLifeWarningModal: React.FC<NaijaLifeWarningModalProps> = ({
   isOpen,
   onClose,
-  gameUrl = 'https://naijalife.ai.studio/',
+  gameUrl = 'https://naijalife-rpg.vercel.app',
 }) => {
   const [isMobile, setIsMobile] = useState<boolean>(false);
 
@@ -62,7 +58,6 @@ export const NaijaLifeWarningModal: React.FC<NaijaLifeWarningModalProps> = ({
     setIsMobile(detectIsMobileOrTablet());
   }, [isOpen]);
 
-  // Lock body scroll and listen for ESC key
   useEffect(() => {
     if (!isOpen) return;
 
@@ -97,162 +92,140 @@ export const NaijaLifeWarningModal: React.FC<NaijaLifeWarningModalProps> = ({
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
-          {/* Backdrop */}
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/85 backdrop-blur-xl transition-opacity"
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm"
           />
 
-          {/* Modal Container */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.94, y: 16 }}
+            initial={{ opacity: 0, scale: 0.96, y: 12 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.94, y: 16 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 320 }}
-            className="relative z-10 w-full max-w-2xl bg-[#090d0b] border-2 border-emerald-500/50 rounded-3xl shadow-[0_0_80px_rgba(16,185,129,0.35)] overflow-hidden my-auto"
+            exit={{ opacity: 0, scale: 0.96, y: 12 }}
+            transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+            className="relative z-10 w-full max-w-xl bg-[#111114] border border-white/[0.12] rounded-2xl shadow-2xl overflow-hidden my-auto"
           >
-            {/* Top Glowing Ambient Accents */}
-            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-500 via-amber-400 to-teal-400" />
-            <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-32 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none" />
-
-            {/* Modal Header */}
-            <div className="relative p-6 sm:p-8 pb-4 border-b border-white/10 flex items-start justify-between gap-4">
-              <div className="space-y-2">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-300 font-mono text-xs font-bold uppercase tracking-wider">
-                  <ShieldAlert className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
-                  <span>EARLY ACCESS ALPHA BUILD • IMPORTANT NOTICE</span>
+            {/* Header */}
+            <div className="p-6 pb-5 border-b border-white/[0.08] flex items-start justify-between gap-4">
+              <div className="space-y-1.5">
+                <div className="text-xs font-mono text-[#FF5500] font-medium">
+                  Early Access Notice · Web Alpha Build
                 </div>
-                <h3 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight flex items-center gap-2.5">
-                  <span>PLAY NAIJA LIFE</span>
-                  <span className="text-xs sm:text-sm font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                    WEB BUILD
-                  </span>
+                <h3 className="text-2xl font-bold text-white tracking-tight">
+                  Play Naija Life
                 </h3>
-                <p className="text-xs sm:text-sm text-gray-300">
-                  Please review the early access build disclaimers below before launching the web game.
+                <p className="text-sm text-zinc-400">
+                  Review these early-access notes before opening the game.
                 </p>
               </div>
 
               <button
+                type="button"
                 onClick={onClose}
-                className="p-2 rounded-xl bg-white/5 hover:bg-white/15 text-gray-400 hover:text-white transition-all cursor-pointer"
-                title="Close Warning"
+                className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-zinc-400 hover:text-white transition-colors cursor-pointer"
+                aria-label="Close Warning"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Modal Body / Warning List */}
-            <div className="p-6 sm:p-8 space-y-4 max-h-[62vh] overflow-y-auto">
-              {/* Dynamic Device Detection Highlight */}
+            {/* Body */}
+            <div className="p-6 space-y-4 max-h-[62vh] overflow-y-auto">
+              {/* Device Detection Callout */}
               {isMobile ? (
-                <div className="p-4 rounded-2xl bg-red-950/40 border border-red-500/50 flex items-start gap-3.5 shadow-lg">
-                  <div className="p-2 rounded-xl bg-red-500/20 text-red-400 shrink-0 mt-0.5">
-                    <Smartphone className="w-5 h-5" />
-                  </div>
+                <div className="p-4 rounded-xl bg-red-950/35 border border-red-500/40 flex items-start gap-3">
+                  <Smartphone className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
                   <div className="space-y-1">
-                    <p className="text-sm font-bold text-red-300 uppercase tracking-wide font-mono">
-                      Mobile Device Detected: Heavy Lag Expected!
+                    <p className="text-sm font-semibold text-red-300">
+                      Mobile Device Detected — Heavy Lag Expected
                     </p>
-                    <p className="text-xs sm:text-sm text-gray-200 leading-relaxed">
-                      You are currently browsing from a mobile or tablet device. The mobile version is still in active development and is <strong>not yet optimized</strong>. You will likely experience significant frame lag, slow asset loading, and touch control stutter. For a smooth experience, please launch on a <strong>PC or Laptop</strong>.
+                    <p className="text-xs text-zinc-300 leading-relaxed">
+                      The mobile version is still in active development and is not yet optimized. Playing on a phone or tablet will lag heavily. Switch to a PC or laptop browser for smooth performance.
                     </p>
                   </div>
                 </div>
               ) : (
-                <div className="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-500/50 flex items-start gap-3.5 shadow-lg">
-                  <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400 shrink-0 mt-0.5">
-                    <Monitor className="w-5 h-5" />
-                  </div>
+                <div className="p-4 rounded-xl bg-[#FF5500]/10 border border-[#FF5500]/30 flex items-start gap-3">
+                  <Monitor className="w-5 h-5 text-[#FF5500] shrink-0 mt-0.5" />
                   <div className="space-y-1">
-                    <p className="text-sm font-bold text-emerald-300 uppercase tracking-wide font-mono">
-                      PC / Desktop Detected: Recommended Setup
+                    <p className="text-sm font-semibold text-white">
+                      Desktop Browser Detected — Recommended Setup
                     </p>
-                    <p className="text-xs sm:text-sm text-gray-200 leading-relaxed">
-                      You are on a desktop/laptop browser! The web build runs smoothly on PC with keyboard/mouse navigation and hardware acceleration.
+                    <p className="text-xs text-zinc-300 leading-relaxed">
+                      The web build is tuned for desktop browsers and runs well on PC with keyboard and mouse.
                     </p>
                   </div>
                 </div>
               )}
 
-              {/* Warning Item 1: Incomplete Early Access */}
-              <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 flex items-start gap-3.5">
-                <div className="p-2 rounded-xl bg-amber-500/20 text-amber-400 shrink-0 mt-0.5">
-                  <AlertTriangle className="w-5 h-5" />
+              <div className="divide-y divide-white/[0.06] border border-white/[0.08] rounded-xl bg-[#09090b]">
+                <div className="p-4 flex items-start gap-3">
+                  <AlertTriangle className="w-4 h-4 text-[#FF5500] shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <h4 className="text-sm font-semibold text-white">
+                      1. Incomplete Early Access Build
+                    </h4>
+                    <p className="text-xs text-zinc-400 leading-relaxed">
+                      This is an early preview and the game is still incomplete. Expect missing areas, placeholder assets, and bugs as development continues.
+                    </p>
+                  </div>
                 </div>
-                <div className="space-y-1 text-left">
-                  <h4 className="text-sm font-bold text-white uppercase tracking-wide">
-                    1. Early Access & Incomplete Game State
-                  </h4>
-                  <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
-                    This is an early preview build and the game is <strong>still incomplete</strong>. You may encounter gameplay bugs, placeholder textures, unvoiced dialogues, or missing state systems while our development team actively iterates.
-                  </p>
+
+                <div className="p-4 flex items-start gap-3">
+                  <Monitor className="w-4 h-4 text-[#FF5500] shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <h4 className="text-sm font-semibold text-white">
+                      2. PC Works Well · Mobile Still In Progress
+                    </h4>
+                    <p className="text-xs text-zinc-400 leading-relaxed">
+                      Performance is solid on PC browsers, while mobile optimization is still underway and will lag significantly on phones.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-4 flex items-start gap-3">
+                  <Compass className="w-4 h-4 text-[#FF5500] shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <h4 className="text-sm font-semibold text-white">
+                      3. Full Production Map Rework Planned
+                    </h4>
+                    <p className="text-xs text-zinc-400 leading-relaxed">
+                      Core systems will evolve for full release—most notably, the map design is getting a complete rework with richer Nigerian districts and regional scale.
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              {/* Warning Item 2: Mobile vs PC Performance */}
-              <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 flex items-start gap-3.5">
-                <div className="p-2 rounded-xl bg-teal-500/20 text-teal-400 shrink-0 mt-0.5">
-                  <Monitor className="w-5 h-5" />
-                </div>
-                <div className="space-y-1 text-left">
-                  <h4 className="text-sm font-bold text-white uppercase tracking-wide">
-                    2. Platform Performance: PC Works Well, Mobile Still in Work
-                  </h4>
-                  <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
-                    The web engine is tuned for desktop browsers where <strong>it works well and performs smoothly</strong>. However, because the mobile version is still in active development, it <strong>will lag a lot if you play on mobile phones or tablets</strong>.
-                  </p>
-                </div>
-              </div>
-
-              {/* Warning Item 3: Upcoming Full Production Changes & Map Design Rework */}
-              <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 flex items-start gap-3.5">
-                <div className="p-2 rounded-xl bg-purple-500/20 text-purple-400 shrink-0 mt-0.5">
-                  <Compass className="w-5 h-5" />
-                </div>
-                <div className="space-y-1 text-left">
-                  <h4 className="text-sm font-bold text-white uppercase tracking-wide">
-                    3. Major Changes Ahead: Map Design Rework Coming
-                  </h4>
-                  <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
-                    Several core elements will change once the game is fully produced. Most notably, the <strong>map design is definitely getting a complete rework</strong> to encompass realistic regional scale, richer landmarks, and higher-density Nigerian urban grids.
-                  </p>
-                </div>
-              </div>
-
-              {/* Destination URL Display (Direct & Clean, no copy button) */}
-              <div className="p-3.5 rounded-xl bg-black/60 border border-emerald-500/30 flex items-center justify-between gap-2 text-xs font-mono">
-                <span className="text-gray-400 truncate">
-                  Target Destination: <span className="text-emerald-400 font-bold">{gameUrl}</span>
+              {/* Destination URL */}
+              <div className="px-4 py-3 rounded-xl bg-[#09090b] border border-white/[0.06] flex items-center justify-between gap-2 text-xs font-mono">
+                <span className="text-zinc-400 truncate">
+                  Destination: <span className="text-[#FF5500] font-medium">{gameUrl}</span>
                 </span>
-                <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase shrink-0">
-                  Direct Web Launch
-                </span>
+                <span className="text-zinc-500 shrink-0">Web Launch</span>
               </div>
             </div>
 
-            {/* Modal Footer / Action Buttons */}
-            <div className="p-6 sm:p-8 pt-4 border-t border-white/10 bg-black/40 flex flex-col sm:flex-row items-center justify-end gap-3">
+            {/* Footer */}
+            <div className="p-6 pt-4 border-t border-white/[0.08] bg-[#0c0c0f] flex flex-col sm:flex-row items-center justify-end gap-3">
               <button
                 type="button"
                 onClick={onClose}
-                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white font-mono text-xs uppercase tracking-wider transition-all cursor-pointer border border-white/10 text-center"
+                className="w-full sm:w-auto px-5 py-2.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-zinc-300 hover:text-white text-xs font-medium transition-colors cursor-pointer"
               >
-                Go Back / Cancel
+                Cancel
               </button>
 
               <button
                 type="button"
                 onClick={handleLaunch}
-                className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-400 to-amber-400 hover:from-emerald-400 hover:to-amber-300 text-black font-black font-mono text-sm uppercase tracking-wider shadow-[0_0_25px_rgba(16,185,129,0.6)] flex items-center justify-center gap-2.5 transition-all hover:scale-105 active:scale-95 cursor-pointer btn-shimmer-sweep"
+                className="w-full sm:w-auto px-6 py-2.5 rounded-lg bg-[#FF5500] hover:bg-[#FF6E26] text-black font-semibold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
-                <Play className="w-4 h-4 fill-black" />
-                <span>I Understand • Proceed to Play</span>
-                <ExternalLink className="w-4 h-4" />
+                <Play className="w-3.5 h-3.5 fill-black" />
+                <span>Continue to Game</span>
+                <ExternalLink className="w-3.5 h-3.5" />
               </button>
             </div>
           </motion.div>

@@ -1,29 +1,16 @@
 import React, { useState } from 'react';
 import { Product, OwnerSettings } from '../types';
-import { motion, AnimatePresence } from 'motion/react';
 import {
-  Gamepad2,
   Globe,
   Plane,
   MapPin,
-  Clock,
-  Sparkles,
-  ShieldCheck,
-  AlertTriangle,
-  Car,
+  Flame,
   Building2,
   Users,
-  Compass,
   Laptop,
-  Flame,
-  ChevronRight,
-  Lock,
-  Tag,
-  Radio,
-  Share2,
-  Layers,
-  FileText,
   Play,
+  ArrowRight,
+  Check,
 } from 'lucide-react';
 import { NaijaLifeWarningModal } from '../components/NaijaLifeWarningModal';
 
@@ -37,13 +24,11 @@ interface NaijaLifeProps {
 export const NaijaLife: React.FC<NaijaLifeProps> = ({
   product,
   settings,
-  openDownloadModal,
   setActiveTab,
 }) => {
   const [selectedZone, setSelectedZone] = useState<string>('ALL');
   const [showPlayWarningModal, setShowPlayWarningModal] = useState<boolean>(false);
 
-  // Nigerian Geopolitical Zones and Key States Teaser
   const stateRegions = [
     {
       zone: 'SOUTH-WEST',
@@ -130,252 +115,217 @@ export const NaijaLife: React.FC<NaijaLifeProps> = ({
       ? stateRegions
       : stateRegions.filter((r) => r.zone.includes(selectedZone));
 
+  const resolvedGameUrl =
+    settings?.naijaLifeGameUrl || product?.externalUrl || 'https://naijalife-rpg.vercel.app';
+
   return (
-    <div className="relative min-h-screen text-white select-none overflow-hidden pb-24">
-      {/* Dynamic Background Nigerian Ambient Glow & Cyber Grid */}
-      <div className="absolute inset-0 pointer-events-none opacity-25 bg-[radial-gradient(#10B981_1px,transparent_1px)] [background-size:32px_32px]" />
-      <div className="absolute -top-40 left-1/3 w-[550px] h-[550px] bg-emerald-600/20 rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute top-1/2 right-10 w-[450px] h-[450px] bg-amber-500/15 rounded-full blur-[130px] pointer-events-none" />
-
+    <div className="space-y-20 pb-24">
       {/* ========================================================
-          HERO BANNER & TITLE SECTION
+          HERO BANNER & ABOVE-THE-FOLD PLAY EARLY ACCESS CTA
          ======================================================== */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-16 pb-12 sm:pb-20 text-center">
-        {/* Top Status Capsule */}
-        <div className="inline-flex items-center gap-2.5 px-4 sm:px-5 py-2 rounded-full bg-emerald-950/60 border border-emerald-500/60 text-emerald-300 font-mono text-xs sm:text-sm font-bold shadow-[0_0_30px_rgba(16,185,129,0.35)] backdrop-blur-xl mb-4 sm:mb-6 animate-pulse">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-          <span>OFFICIAL ANNOUNCEMENT • EVERYTHING COMING SOON</span>
-        </div>
-
-        {/* Massive Glowing Title */}
-        <div className="space-y-3 sm:space-y-4 max-w-5xl mx-auto">
-          <h1 className="text-4xl sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-tight uppercase leading-[0.95] bg-gradient-to-r from-emerald-400 via-teal-200 via-amber-300 to-emerald-400 bg-clip-text text-transparent drop-shadow-[0_0_50px_rgba(16,185,129,0.5)]">
-            NAIJA LIFE
-          </h1>
-
-          <p className="text-lg sm:text-2xl md:text-3xl font-extrabold text-amber-300 tracking-wide uppercase font-mono">
-            THE OPEN-WORLD NIGERIA SIMULATOR & JAPA RPG
-          </p>
-
-          <p className="text-sm sm:text-lg text-gray-300 max-w-3xl mx-auto font-normal leading-relaxed pt-1 sm:pt-2">
-            Inspired by the viral <strong className="text-white font-bold">Lagos Life</strong> phenomenon, 
-            <strong className="text-emerald-400 font-bold"> Naija Life</strong> breaks past city borders to encompass all 
-            <strong className="text-amber-300 font-bold"> 36 Nigerian States + FCT Abuja</strong>, plus complete 
-            <strong className="text-white font-bold"> International Travel ("Japa")</strong> to the UK, Canada, US, and UAE.
-          </p>
-
-          {/* Above-the-fold Instant Early Access Play Button — No Scrolling Needed */}
-          <div className="pt-3 sm:pt-5 flex flex-col sm:flex-row items-center justify-center gap-3">
-            <motion.button
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setShowPlayWarningModal(true)}
-              className="w-full sm:w-auto px-8 sm:px-10 py-3.5 sm:py-4 rounded-2xl bg-gradient-to-r from-amber-400 via-emerald-400 to-teal-300 hover:from-amber-300 hover:to-teal-200 text-black font-black text-sm sm:text-base font-mono uppercase tracking-wider shadow-[0_0_40px_rgba(16,185,129,0.85)] flex items-center justify-center gap-3 transition-all cursor-pointer btn-shimmer-sweep border border-white/20"
-              title="Launch Naija Life Early Access Game"
-            >
-              <div className="w-7 h-7 rounded-full bg-black flex items-center justify-center shrink-0 shadow-md">
-                <Play className="w-3.5 h-3.5 fill-emerald-400 text-emerald-400 translate-x-0.5" />
-              </div>
-              <span>PLAY EARLY ACCESS</span>
-              <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-black/80 text-amber-300 border border-amber-400/50 uppercase tracking-widest hidden sm:inline-block">
-                ALPHA DEMO
-              </span>
-            </motion.button>
-
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-black/60 border border-emerald-500/30 text-xs font-mono text-gray-300 backdrop-blur-md">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-              <span>Instant Web Launch • PC Recommended</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Hero Visual Preview Image */}
-        <div className="mt-10 sm:mt-14 relative max-w-5xl mx-auto rounded-3xl overflow-hidden border-2 border-emerald-500/60 shadow-[0_20px_90px_rgba(16,185,129,0.3)] group">
-          <img
-            src="/images/naija_life_hero.jpg"
-            alt="Naija Life Open World Game Art"
-            className="w-full h-auto aspect-video object-cover transform scale-100 group-hover:scale-102 transition-transform duration-700 ease-out"
-          />
-
-          {/* Scrim Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent pointer-events-none" />
-
-          {/* Floating Hero Badges */}
-          <div className="absolute bottom-4 sm:bottom-8 left-4 sm:left-8 right-4 sm:right-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pointer-events-none">
-            <div className="text-left space-y-1">
-              <div className="flex items-center gap-2 text-emerald-400 font-mono text-xs sm:text-sm font-black uppercase">
-                <Globe className="w-4 h-4" />
-                <span>NATIONWIDE SCALE • 36 STATES + GLOBAL DIASPORA</span>
-              </div>
-              <p className="text-white font-extrabold text-base sm:text-2xl drop-shadow-md">
-                From Danfo Hustle to High-Tower Corporate Titans
-              </p>
+      <section className="pt-12 sm:pt-16 pb-12 border-b border-white/[0.08]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+          <div className="max-w-3xl mx-auto text-center space-y-5">
+            <div className="text-xs font-mono text-zinc-400 flex items-center justify-center gap-2">
+              <span className="text-[#FF5500] font-semibold">Apex Syndicate Games</span>
+              <span aria-hidden="true">·</span>
+              <span>Early Access Web Demo</span>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3 pointer-events-auto">
+            <h1 className="text-5xl sm:text-7xl lg:text-8xl font-extrabold text-white tracking-tight leading-[1.02]">
+              NAIJA <span className="text-[#FF5500]">LIFE</span>
+            </h1>
+
+            <p className="text-base sm:text-xl font-semibold text-zinc-200 tracking-wide uppercase font-mono">
+              The Open-World Nigeria Simulator &amp; Japa RPG
+            </p>
+
+            <p className="text-sm sm:text-base text-zinc-400 max-w-2xl mx-auto leading-relaxed">
+              Inspired by the viral <strong className="text-white font-semibold">Lagos Life</strong> phenomenon,{' '}
+              <strong className="text-[#FF5500] font-semibold">Naija Life</strong> breaks past city borders to encompass all{' '}
+              <strong className="text-white font-semibold">36 Nigerian States + FCT Abuja</strong>, plus complete{' '}
+              <strong className="text-white font-semibold">International Travel (&ldquo;Japa&rdquo;)</strong> to the UK,
+              Canada, US, and UAE.
+            </p>
+
+            {/* Above-the-Fold Play Early Access Button — Directly under intro copy */}
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
               <button
                 type="button"
                 onClick={() => setShowPlayWarningModal(true)}
-                className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-amber-400 via-emerald-400 to-teal-300 hover:from-amber-300 hover:to-emerald-300 text-black font-mono font-black text-xs sm:text-sm uppercase tracking-wider shadow-[0_0_25px_rgba(16,185,129,0.7)] flex items-center gap-2 transition-transform hover:scale-105 active:scale-95 cursor-pointer btn-shimmer-sweep"
-                title="Play Early Access Web Build"
+                className="w-full sm:w-auto px-8 py-4 rounded-xl bg-[#FF5500] hover:bg-[#FF6E26] text-black font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2.5 transition-colors cursor-pointer"
+                title="Launch Naija Life Early Access Game"
               >
-                <Play className="w-3.5 h-3.5 fill-black" />
-                <span>PLAY WEB BUILD</span>
+                <Play className="w-4 h-4 fill-black" />
+                <span>Play Early Access</span>
               </button>
-              <div className="px-4 py-2.5 rounded-2xl bg-black/80 border border-amber-500/60 text-amber-300 font-mono font-black text-xs uppercase tracking-wider backdrop-blur-xl shadow-xl flex items-center gap-2">
-                <Clock className="w-4 h-4 text-amber-400 animate-spin" />
-                <span>STATUS: COMING SOON</span>
-              </div>
+
+              <a
+                href="#states-map-section"
+                className="w-full sm:w-auto px-6 py-4 rounded-xl bg-[#111114] hover:bg-[#17171c] text-zinc-200 font-semibold text-sm border border-white/[0.1] flex items-center justify-center gap-2 transition-colors"
+              >
+                <MapPin className="w-4 h-4 text-[#FF5500]" />
+                <span>Explore 36 States</span>
+              </a>
+            </div>
+
+            <div className="text-xs font-mono text-zinc-500">
+              Web Browser Alpha Build · PC Recommended · Mobile In Optimization
             </div>
           </div>
-        </div>
 
-        {/* Call to Action Grid */}
-        <div className="mt-8 sm:mt-10 flex flex-wrap items-center justify-center gap-4">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setShowPlayWarningModal(true)}
-            className="px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-400 via-emerald-400 to-teal-300 hover:from-amber-300 hover:to-emerald-300 text-black font-black text-sm sm:text-base font-mono uppercase tracking-wider shadow-[0_0_35px_rgba(16,185,129,0.7)] flex items-center gap-2.5 cursor-pointer btn-shimmer-sweep"
-            title="Launch Naija Life Early Access Game"
-          >
-            <Play className="w-5 h-5 fill-black" />
-            <span>PLAY EARLY ACCESS (WEB BUILD)</span>
-          </motion.button>
+          {/* Hero Visual Preview Frame */}
+          <div className="max-w-5xl mx-auto rounded-2xl overflow-hidden bg-[#111114] border border-white/[0.08] relative group">
+            <img
+              src="/images/naija_life_hero.jpg"
+              alt="Naija Life Open World Game Art"
+              className="w-full h-auto aspect-video object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#09090b] via-[#09090b]/45 to-transparent pointer-events-none" />
 
-          <a
-            href="#states-map-section"
-            className="px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-600 hover:from-emerald-400 hover:to-teal-300 text-black font-black text-sm sm:text-base font-mono uppercase tracking-wider shadow-[0_0_25px_rgba(16,185,129,0.5)] hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center gap-2.5"
-          >
-            <MapPin className="w-5 h-5 text-black" />
-            <span>EXPLORE 36 STATES & JAPA HUB</span>
-          </a>
+            <div className="absolute bottom-5 left-5 right-5 sm:bottom-8 sm:left-8 sm:right-8 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-[#FF5500] font-mono text-xs font-semibold uppercase tracking-wider">
+                  <Globe className="w-4 h-4" />
+                  <span>Nationwide Scale · 36 States + Global Diaspora</span>
+                </div>
+                <p className="text-white font-bold text-lg sm:text-2xl">
+                  From Danfo Hustle to High-Tower Corporate Titans
+                </p>
+              </div>
 
-          <a
-            href="#specs-section"
-            className="px-7 py-4 rounded-2xl bg-black/80 hover:bg-white/10 text-white border border-emerald-500/40 font-mono font-bold text-sm sm:text-base uppercase tracking-wider flex items-center gap-2.5 backdrop-blur-md transition-all cursor-pointer"
-          >
-            <Laptop className="w-5 h-5 text-emerald-400" />
-            <span>PLATFORM SPECS (PC • MOBILE • WEB)</span>
-          </a>
+              <button
+                type="button"
+                onClick={() => setShowPlayWarningModal(true)}
+                className="px-5 py-2.5 rounded-lg bg-[#FF5500] hover:bg-[#FF6E26] text-black font-semibold text-xs uppercase tracking-wider flex items-center gap-2 transition-colors cursor-pointer shrink-0"
+              >
+                <Play className="w-3.5 h-3.5 fill-black" />
+                <span>Play Web Build</span>
+              </button>
+            </div>
+          </div>
 
-          {setActiveTab && (
-            <button
-              onClick={() => {
-                setActiveTab('products');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              className="px-6 py-4 rounded-2xl bg-white/5 hover:bg-white/15 text-gray-300 font-mono text-sm uppercase tracking-wider border border-white/10 flex items-center gap-2 transition-all cursor-pointer"
+          {/* Quick Jump Strip */}
+          <div className="flex flex-wrap items-center justify-center gap-4 text-xs font-mono text-zinc-400">
+            <a
+              href="#specs-section"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#111114] border border-white/[0.08] hover:border-[#FF5500]/40 text-zinc-300 hover:text-white transition-colors"
             >
-              <span>VIEW ALL PRODUCTS</span>
-            </button>
-          )}
+              <Laptop className="w-3.5 h-3.5 text-[#FF5500]" />
+              <span>Platform Specs (PC · Mobile · Web)</span>
+            </a>
+            {setActiveTab && (
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab('products');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#111114] border border-white/[0.08] hover:border-white/20 text-zinc-300 hover:text-white transition-colors cursor-pointer"
+              >
+                <span>View All Products</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
         </div>
       </section>
 
       {/* ========================================================
-          LONG DEFINITION & ABOUT SECTION
+          GAME DEFINITION & NARRATIVE PILLARS
          ======================================================== */}
-      <section className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20 border-t border-white/10">
-        <div className="text-center space-y-4 mb-12 sm:mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 font-mono text-xs font-bold uppercase tracking-widest">
-            <FileText className="w-3.5 h-3.5" />
-            <span>THE DEFINITIVE GAME DEFINITION & ABOUT</span>
-          </div>
-          <h2 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-white">
-            WHAT IS NAIJA LIFE?
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+        <div className="max-w-2xl space-y-2">
+          <div className="text-xs font-mono text-[#FF5500] font-medium">Game Overview</div>
+          <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
+            What Is Naija Life?
           </h2>
-          <p className="text-sm sm:text-base text-gray-300 max-w-2xl mx-auto font-light leading-relaxed">
-            A comprehensive overview of the upcoming open-world simulator built to capture the unfiltered soul, hustle, and ambition of Nigeria.
+          <p className="text-sm sm:text-base text-zinc-400 leading-relaxed">
+            An open-world simulator built to capture the unfiltered pace, street economy, and ambition of modern Nigeria.
           </p>
         </div>
 
-        {/* Narrative Feature Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-          {/* Card 1: The Evolution from Lagos Life */}
-          <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-white/[0.04] to-black/80 border border-emerald-500/40 backdrop-blur-xl space-y-4 shadow-xl">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
-              <Flame className="w-6 h-6" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="p-6 sm:p-8 rounded-2xl bg-[#111114] border border-white/[0.08] space-y-4">
+            <div className="w-10 h-10 rounded-lg bg-[#FF5500]/10 border border-[#FF5500]/25 flex items-center justify-center text-[#FF5500]">
+              <Flame className="w-5 h-5" />
             </div>
-            <h3 className="text-xl sm:text-2xl font-black text-white uppercase tracking-wide">
-              FROM VIRAL "LAGOS LIFE" TO NATIONWIDE SCALE
+            <h3 className="text-lg sm:text-xl font-bold text-white">
+              From Viral &ldquo;Lagos Life&rdquo; to Nationwide Scale
             </h3>
-            <p className="text-sm sm:text-base text-gray-300 leading-relaxed font-light">
-              When the viral <strong>Lagos Life</strong> game took the internet by storm, millions of players fell in love with its raw street realism: yellow Danfo minibuses yelling "Oshodi Underbridge!", dodging agberos at toll gates, and scrambling for fuel during grid power cuts.
+            <p className="text-sm text-zinc-300 leading-relaxed">
+              When the viral <strong>Lagos Life</strong> concept caught fire online, players connected with its street realism: yellow Danfo minibuses, toll-gate hustle, and surviving unexpected grid outages.
             </p>
-            <p className="text-sm text-gray-400 leading-relaxed font-light">
-              <strong>Naija Life</strong> is the official evolution. We took that beloved concept and broke open the map. Instead of remaining locked inside Lagos, players now have the freedom to travel, trade, build political dynasties, or escape across all <strong>36 Nigerian States</strong> and the <strong>Federal Capital Territory (Abuja)</strong>.
+            <p className="text-sm text-zinc-400 leading-relaxed">
+              <strong>Naija Life</strong> expands that world nationwide. Instead of remaining locked inside a single city, you can travel, trade, invest, and build across all <strong>36 Nigerian States</strong> and <strong>FCT Abuja</strong>.
             </p>
           </div>
 
-          {/* Card 2: The "Japa" International Travel System */}
-          <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-white/[0.04] to-black/80 border border-teal-500/40 backdrop-blur-xl space-y-4 shadow-xl">
-            <div className="w-12 h-12 rounded-2xl bg-teal-500/20 border border-teal-500/40 flex items-center justify-center text-teal-400">
-              <Plane className="w-6 h-6" />
+          <div className="p-6 sm:p-8 rounded-2xl bg-[#111114] border border-white/[0.08] space-y-4">
+            <div className="w-10 h-10 rounded-lg bg-[#FF5500]/10 border border-[#FF5500]/25 flex items-center justify-center text-[#FF5500]">
+              <Plane className="w-5 h-5" />
             </div>
-            <h3 className="text-xl sm:text-2xl font-black text-white uppercase tracking-wide">
-              THE "JAPA" INTERNATIONAL TRAVEL SYSTEM
+            <h3 className="text-lg sm:text-xl font-bold text-white">
+              The &ldquo;Japa&rdquo; International Travel System
             </h3>
-            <p className="text-sm sm:text-base text-gray-300 leading-relaxed font-light">
-              Leaving Nigeria or returning as a wealthy international investor is a cornerstone of modern culture. In <strong>Naija Life</strong>, international airports (Murtala Muhammed Lagos, Nnamdi Azikiwe Abuja, Akanu Ibiam Enugu, and Aminu Kano) are fully functional hubs.
+            <p className="text-sm text-zinc-300 leading-relaxed">
+              International airports across Lagos, Abuja, Enugu, and Kano operate as connected travel hubs. Navigate embassy interviews, secure work or study permits, and board flights to <strong>London, Toronto, Dubai, Houston, Atlanta, and Accra</strong>.
             </p>
-            <p className="text-sm text-gray-400 leading-relaxed font-light">
-              Navigate visa embassy appointments, secure work/student permits, board international flights to <strong>London, Toronto, Dubai, Houston, Atlanta, and Accra</strong>. Earn in Foreign Exchange (FX), handle black market Bureau de Change (BDC) rates, send remittances home, or build multi-national trade conglomerates.
+            <p className="text-sm text-zinc-400 leading-relaxed">
+              Earn in FX, track live exchange rates, send remittances back home, or return as a multinational investor.
             </p>
           </div>
 
-          {/* Card 3: Dynamic Street Hustle & Career Paths */}
-          <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-white/[0.04] to-black/80 border border-amber-500/40 backdrop-blur-xl space-y-4 shadow-xl">
-            <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
-              <Building2 className="w-6 h-6" />
+          <div className="p-6 sm:p-8 rounded-2xl bg-[#111114] border border-white/[0.08] space-y-4">
+            <div className="w-10 h-10 rounded-lg bg-[#FF5500]/10 border border-[#FF5500]/25 flex items-center justify-center text-[#FF5500]">
+              <Building2 className="w-5 h-5" />
             </div>
-            <h3 className="text-xl sm:text-2xl font-black text-white uppercase tracking-wide">
-              AUTHENTIC NIGERIAN CAREERS & SOCIAL LADDERS
+            <h3 className="text-lg sm:text-xl font-bold text-white">
+              Authentic Careers &amp; Social Ladders
             </h3>
-            <p className="text-sm sm:text-base text-gray-300 leading-relaxed font-light">
-              Start from the ground up: hawk cold water in traffic, drive a Keke Napep or commercial Danfo, code remotely as a Yaba/Lekki tech bro, act in Nollywood blockbusters, become an Afrobeat music sensation, or rise to become a State Governor or Federal Senator with police convoys.
+            <p className="text-sm text-zinc-300 leading-relaxed">
+              Start from the ground up: drive a Keke Napep or commercial Danfo, ship software from Yaba, act in Nollywood productions, produce Afrobeats records, or campaign for public office.
             </p>
-            <p className="text-sm text-gray-400 leading-relaxed font-light">
-              Experience the real-time bank alert economy: mobile transfers, POS operators, real estate speculation in Eko Atlantic and Maitama, and managing family expectations when your bank balance grows.
+            <p className="text-sm text-zinc-400 leading-relaxed">
+              Manage mobile bank alerts, POS liquidity, real estate across Eko Atlantic and Maitama, and rising family expectations.
             </p>
           </div>
 
-          {/* Card 4: Living Culture, Music & Humor */}
-          <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-white/[0.04] to-black/80 border border-orange-500/40 backdrop-blur-xl space-y-4 shadow-xl">
-            <div className="w-12 h-12 rounded-2xl bg-orange-500/20 border border-orange-500/40 flex items-center justify-center text-orange-400">
-              <Users className="w-6 h-6" />
+          <div className="p-6 sm:p-8 rounded-2xl bg-[#111114] border border-white/[0.08] space-y-4">
+            <div className="w-10 h-10 rounded-lg bg-[#FF5500]/10 border border-[#FF5500]/25 flex items-center justify-center text-[#FF5500]">
+              <Users className="w-5 h-5" />
             </div>
-            <h3 className="text-xl sm:text-2xl font-black text-white uppercase tracking-wide">
-              CULTURAL FIDELITY, DIALECTS & STREET HUMOR
+            <h3 className="text-lg sm:text-xl font-bold text-white">
+              Cultural Fidelity, Dialects &amp; Street Humor
             </h3>
-            <p className="text-sm sm:text-base text-gray-300 leading-relaxed font-light">
-              Every city pulses with authentic life: the roar of "I pass my neighbor" generators during national power outages, midnight Suya spots, Owambe Saturday parties with live Fuji and Juju music, street food joints (Amala, Boli, Asun), and hilarious banter in Nigerian Pidgin, Yoruba, Igbo, and Hausa.
+            <p className="text-sm text-zinc-300 leading-relaxed">
+              Cities react with authentic detail: backyard generators humming during outages, late-night suya spots, Owambe weekend celebrations, and dialogue across Nigerian Pidgin, Yoruba, Igbo, and Hausa.
             </p>
-            <p className="text-sm text-gray-400 leading-relaxed font-light">
-              No generic western game tropes—this is a handcrafted, unapologetic tribute to Nigerian resilience, humor, fashion, and hustle, powered by cutting-edge next-gen rendering.
+            <p className="text-sm text-zinc-400 leading-relaxed">
+              No recycled western sandbox tropes—crafted directly around Nigerian resilience, humor, and ambition.
             </p>
           </div>
         </div>
 
-        {/* Travel Hub Showcase Photo Card */}
-        <div className="mt-10 sm:mt-12 rounded-3xl overflow-hidden border border-emerald-500/40 relative shadow-2xl">
+        {/* Travel Hub Concept Frame */}
+        <div className="rounded-2xl overflow-hidden bg-[#111114] border border-white/[0.08] relative">
           <img
             src="/images/naija_travel_hub.jpg"
             alt="Naija Life International Departure Lounge & 36 States Map"
             className="w-full h-auto aspect-video object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent pointer-events-none" />
-          <div className="absolute bottom-6 left-6 right-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-left">
+          <div className="absolute inset-0 bg-gradient-to-t from-[#09090b] via-[#09090b]/45 to-transparent pointer-events-none" />
+          <div className="absolute bottom-5 left-5 right-5 sm:bottom-7 sm:left-7 sm:right-7 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-3">
             <div>
-              <p className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">
-                IN-GAME CONCEPT ART • INTERNATIONAL DEPARTURE TERMINAL
+              <p className="text-xs font-mono font-semibold text-[#FF5500] uppercase tracking-wider">
+                In-Game Concept · International Departure Terminal
               </p>
-              <h4 className="text-lg sm:text-2xl font-black text-white uppercase">
-                International Japa Flight Departure Gates & State Highways
+              <h4 className="text-lg sm:text-2xl font-bold text-white">
+                International Japa Flight Departure Gates &amp; Interstate Highways
               </h4>
             </div>
-            <span className="px-3.5 py-1.5 rounded-xl bg-black/80 border border-white/20 text-white font-mono text-xs font-bold uppercase backdrop-blur-md">
-              COMING SOON
+            <span className="text-xs font-mono text-zinc-300 shrink-0">
+              Map Rework Planned for Full Release
             </span>
           </div>
         </div>
@@ -384,78 +334,71 @@ export const NaijaLife: React.FC<NaijaLifeProps> = ({
       {/* ========================================================
           INTERACTIVE 36 STATES & JAPA HUB EXPLORER
          ======================================================== */}
-      <section id="states-map-section" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20 border-t border-white/10">
-        <div className="text-center space-y-4 mb-10 sm:mb-14">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-mono text-xs font-bold uppercase tracking-widest">
-            <Compass className="w-3.5 h-3.5" />
-            <span>TERRITORY & GEOGRAPHY PREVIEW</span>
+      <section
+        id="states-map-section"
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 border-t border-white/[0.08] space-y-10"
+      >
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+          <div className="space-y-2 max-w-2xl">
+            <div className="text-xs font-mono text-[#FF5500] font-medium">
+              Territory Preview
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
+              All 36 States + Global Destinations
+            </h2>
+            <p className="text-sm sm:text-base text-zinc-400 leading-relaxed">
+              Each region features distinct economic sectors, transit links, cultural voice lines, and local opportunities.
+            </p>
           </div>
-          <h2 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-white">
-            ALL 36 STATES + GLOBAL DESTINATIONS
-          </h2>
-          <p className="text-sm sm:text-base text-gray-300 max-w-2xl mx-auto font-light leading-relaxed">
-            Every region in Nigeria features distinct geography, economic activities, cultural voice lines, and unique challenges.
-          </p>
 
-          {/* Region Filter Chips */}
-          <div className="flex flex-wrap items-center justify-center gap-2 pt-4">
+          <div className="flex flex-wrap items-center gap-1.5 bg-[#111114] p-1 rounded-xl border border-white/[0.08]">
             {['ALL', 'SOUTH-WEST', 'SOUTH-EAST', 'SOUTH-SOUTH', 'NORTH-CENTRAL', 'NORTH-WEST', 'NORTH-EAST', 'JAPA'].map((z) => (
               <button
                 key={z}
+                type="button"
                 onClick={() => setSelectedZone(z)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-mono font-semibold uppercase tracking-wide transition-colors cursor-pointer ${
                   selectedZone === z
-                    ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-black font-black shadow-[0_0_20px_rgba(16,185,129,0.5)]'
-                    : 'bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10'
+                    ? 'bg-[#FF5500] text-black'
+                    : 'text-zinc-400 hover:text-white'
                 }`}
               >
-                {z === 'JAPA' ? '✈️ INTERNATIONAL' : z}
+                {z === 'JAPA' ? 'International' : z}
               </button>
             ))}
           </div>
         </div>
 
-        {/* States Display Grid */}
         <div className="space-y-10">
           {filteredRegions.map((region, rIdx) => (
             <div key={rIdx} className="space-y-4">
-              <div className="flex items-center gap-3 border-b border-white/10 pb-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
-                <h3 className="text-base sm:text-lg font-black font-mono text-amber-300 uppercase tracking-widest">
-                  {region.zone} REGION
+              <div className="flex items-center justify-between border-b border-white/[0.08] pb-2.5">
+                <h3 className="text-sm font-mono font-bold text-[#FF5500] uppercase tracking-wider">
+                  {region.zone}
                 </h3>
-                <span className="text-xs font-mono text-gray-400">
-                  ({region.states.length} Locations)
+                <span className="text-xs font-mono text-zinc-500">
+                  {region.states.length} Locations
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 {region.states.map((st, sIdx) => (
                   <div
                     key={sIdx}
-                    className="p-5 sm:p-6 rounded-2xl bg-black/60 border border-white/10 hover:border-emerald-500/50 transition-all space-y-3 relative overflow-hidden group shadow-lg"
+                    className="p-5 rounded-xl bg-[#111114] border border-white/[0.08] hover:border-[#FF5500]/40 transition-colors space-y-2.5"
                   >
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <h4 className="text-lg font-black text-white uppercase group-hover:text-emerald-300 transition-colors">
-                          {st.name}
-                        </h4>
-                        <p className="text-xs font-mono text-emerald-400 font-semibold">
-                          Capital: {st.capital}
-                        </p>
-                      </div>
-
-                      <div className="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-mono font-bold uppercase flex items-center gap-1">
-                        <Lock className="w-2.5 h-2.5" />
-                        <span>SOON</span>
-                      </div>
+                    <div className="flex items-baseline justify-between gap-2">
+                      <h4 className="text-base font-bold text-white">{st.name}</h4>
+                      <span className="text-[11px] font-mono text-zinc-500 shrink-0">
+                        {st.capital}
+                      </span>
                     </div>
 
-                    <div className="px-2.5 py-1 rounded-lg bg-white/5 text-[11px] font-mono text-gray-300 font-medium inline-block">
-                      "{st.tag}"
+                    <div className="text-xs font-mono text-[#FF5500] font-medium">
+                      {st.tag}
                     </div>
 
-                    <p className="text-xs text-gray-400 leading-relaxed font-light">
+                    <p className="text-xs text-zinc-400 leading-relaxed">
                       {st.lore}
                     </p>
                   </div>
@@ -467,157 +410,115 @@ export const NaijaLife: React.FC<NaijaLifeProps> = ({
       </section>
 
       {/* ========================================================
-          SPECIFICATIONS & "EVERYTHING COMING SOON" HUB
+          PLATFORM SPECIFICATIONS
          ======================================================== */}
-      <section id="specs-section" className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20 border-t border-white/10">
-        <div className="text-center space-y-4 mb-12">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 font-mono text-xs font-bold uppercase tracking-widest">
-            <Clock className="w-3.5 h-3.5" />
-            <span>PLATFORM SPECIFICATIONS & ROLLOUT</span>
+      <section
+        id="specs-section"
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 border-t border-white/[0.08] space-y-8"
+      >
+        <div className="max-w-2xl space-y-2">
+          <div className="text-xs font-mono text-[#FF5500] font-medium">
+            Technical Profile
           </div>
-          <h2 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-white">
-            SPECIFICATIONS & LAUNCH SCHEDULE
+          <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
+            Specifications &amp; Rollout
           </h2>
-          <p className="text-sm sm:text-base text-gray-300 max-w-xl mx-auto font-light leading-relaxed">
-            All release dates, hardware specifications, and commercial pricing are in pre-production. Everything is currently Coming Soon.
+          <p className="text-sm sm:text-base text-zinc-400 leading-relaxed">
+            Playable today as an early-access web demo while full-production systems, map rework, and mobile optimizations remain underway.
           </p>
         </div>
 
-        {/* Specs Table Matrix */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          <div className="p-6 rounded-2xl bg-black/60 border border-emerald-500/30 text-center space-y-2 backdrop-blur-md">
-            <div className="text-xs font-mono text-gray-400 uppercase tracking-wider font-semibold">
-              TARGET PLATFORMS
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {[
+            { label: 'Target Platforms', value: 'PC, Mobile & Web (Played on the web)' },
+            { label: 'Graphics Engine', value: 'TBD' },
+            { label: 'Multiplayer & RP', value: 'Naija RP Server Network' },
+            { label: 'Commercial Pricing', value: 'TBD' },
+          ].map((item) => (
+            <div
+              key={item.label}
+              className="p-5 rounded-xl bg-[#111114] border border-white/[0.08] space-y-1.5"
+            >
+              <div className="text-xs font-mono text-zinc-500 uppercase tracking-wider">
+                {item.label}
+              </div>
+              <div className="text-base font-bold text-white">{item.value}</div>
             </div>
-            <p className="text-lg font-black text-white uppercase">
-              PC • MOBILE • WEB (PLAYED ON THE WEB)
-            </p>
-            <div className="pt-2 text-xs font-mono text-emerald-400 font-bold uppercase">
-              STATUS: COMING SOON
-            </div>
-          </div>
-
-          <div className="p-6 rounded-2xl bg-black/60 border border-teal-500/30 text-center space-y-2 backdrop-blur-md">
-            <div className="text-xs font-mono text-gray-400 uppercase tracking-wider font-semibold">
-              GRAPHICS ENGINE
-            </div>
-            <p className="text-lg font-black text-white uppercase">
-              TBD
-            </p>
-            <div className="pt-2 text-xs font-mono text-teal-400 font-bold uppercase">
-              STATUS: COMING SOON
-            </div>
-          </div>
-
-          <div className="p-6 rounded-2xl bg-black/60 border border-amber-500/30 text-center space-y-2 backdrop-blur-md">
-            <div className="text-xs font-mono text-gray-400 uppercase tracking-wider font-semibold">
-              MULTIPLAYER & RP
-            </div>
-            <p className="text-lg font-black text-white uppercase">
-              NAIJA RP SERVER NETWORK
-            </p>
-            <div className="pt-2 text-xs font-mono text-amber-400 font-bold uppercase">
-              STATUS: COMING SOON
-            </div>
-          </div>
-
-          <div className="p-6 rounded-2xl bg-black/60 border border-red-500/30 text-center space-y-2 backdrop-blur-md">
-            <div className="text-xs font-mono text-gray-400 uppercase tracking-wider font-semibold">
-              COMMERCIAL PRICING
-            </div>
-            <p className="text-lg font-black text-white uppercase">
-              TBD (TO BE ANNOUNCED)
-            </p>
-            <div className="pt-2 text-xs font-mono text-red-400 font-bold uppercase">
-              STATUS: COMING SOON
-            </div>
-          </div>
+          ))}
         </div>
 
-        {/* Detailed Spec List */}
-        <div className="mt-8 p-6 sm:p-8 rounded-3xl bg-white/[0.03] border border-white/10 space-y-4 font-mono text-xs sm:text-sm">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-white/10 gap-2">
-            <span className="text-gray-400">Target Platforms:</span>
-            <span className="font-bold text-emerald-400">PC, Mobile & Web (Played directly in the web browser)</span>
+        <div className="rounded-2xl bg-[#111114] border border-white/[0.08] divide-y divide-white/[0.06] font-mono text-xs sm:text-sm">
+          <div className="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+            <span className="text-zinc-400">Target Platforms</span>
+            <span className="font-semibold text-[#FF5500]">
+              PC, Mobile &amp; Web (Played directly in the web browser)
+            </span>
           </div>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-white/10 gap-2">
-            <span className="text-gray-400">Graphics Engine:</span>
-            <span className="font-bold text-teal-400">TBD</span>
+          <div className="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+            <span className="text-zinc-400">Graphics Engine</span>
+            <span className="font-semibold text-white">TBD</span>
           </div>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-white/10 gap-2">
-            <span className="text-gray-400">Release Date:</span>
-            <span className="font-bold text-amber-300">COMING SOON (In Active Pre-Production)</span>
+          <div className="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+            <span className="text-zinc-400">Current Build Status</span>
+            <span className="font-semibold text-white">
+              Early Access Web Demo Out Now (Full Release Coming Soon)
+            </span>
           </div>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-white/10 gap-2">
-            <span className="text-gray-400">Minimum System Requirements:</span>
-            <span className="font-bold text-white">COMING SOON / TBD</span>
+          <div className="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+            <span className="text-zinc-400">Minimum System Requirements</span>
+            <span className="font-semibold text-zinc-300">TBD (Desktop Browser Recommended)</span>
           </div>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-white/10 gap-2">
-            <span className="text-gray-400">Recommended System Requirements:</span>
-            <span className="font-bold text-white">COMING SOON / TBD</span>
+          <div className="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+            <span className="text-zinc-400">Recommended System Requirements</span>
+            <span className="font-semibold text-zinc-300">TBD (PC / Laptop Browser)</span>
           </div>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-white/10 gap-2">
-            <span className="text-gray-400">Playable Alpha / Beta Access:</span>
-            <span className="font-bold text-emerald-400">COMING SOON / TBD</span>
-          </div>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <span className="text-gray-400">Official Game Access & Downloads:</span>
-            <span className="font-bold text-gray-400">COMING SOON (Web & Client Builds Pending Studio Release)</span>
+          <div className="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+            <span className="text-zinc-400">Full Production Roadmap</span>
+            <span className="font-semibold text-zinc-300">
+              Complete Map Design Rework &amp; Mobile Performance Pass Planned
+            </span>
           </div>
         </div>
       </section>
 
       {/* ========================================================
-          STUDIO ANNOUNCEMENT & ROLLOUT BANNER
+          BOTTOM EARLY ACCESS LAUNCH CARD
          ======================================================== */}
-      <section className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 text-center">
-        <div className="p-8 sm:p-12 rounded-3xl bg-gradient-to-br from-emerald-950/60 via-black to-[#06120b] border-2 border-emerald-500/50 shadow-[0_0_80px_rgba(16,185,129,0.3)] space-y-6">
-          <div className="mx-auto w-16 h-16 rounded-2xl bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center text-emerald-400 shadow-[0_0_30px_rgba(16,185,129,0.4)]">
-            <Gamepad2 className="w-8 h-8" />
-          </div>
-
-          <div className="space-y-3">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-mono text-xs font-bold uppercase tracking-wider border border-emerald-500/40">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>APEX SYNDICATE OFFICIAL ANNOUNCEMENT</span>
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="rounded-2xl bg-[#111114] border border-[#FF5500]/30 p-8 sm:p-10 text-center space-y-6">
+          <div className="space-y-2 max-w-xl mx-auto">
+            <div className="text-xs font-mono text-[#FF5500] font-semibold uppercase tracking-wider">
+              Playable Browser Build
             </div>
-            <h3 className="text-2xl sm:text-4xl font-black text-white uppercase tracking-tight">
-              NAIJA LIFE • EVERYTHING COMING SOON
+            <h3 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+              Try Naija Life Early Access
             </h3>
-            <p className="text-sm sm:text-base text-gray-300 font-light max-w-xl mx-auto leading-relaxed">
-              Targeted for PC, Mobile, and played directly on the web. Graphics engine is currently TBD. Stay tuned to the Apex Syndicate official portal for upcoming dev logs, roadmap milestones, and playable web builds.
+            <p className="text-sm text-zinc-400 leading-relaxed">
+              Targeted for PC, Mobile, and played directly on the web with a TBD graphics engine. Launch the current alpha build now or explore our full studio catalogue.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
+          <div className="flex flex-wrap items-center justify-center gap-3">
             <button
               type="button"
               onClick={() => setShowPlayWarningModal(true)}
-              className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-amber-400 via-emerald-400 to-teal-300 hover:from-amber-300 hover:to-emerald-300 text-black font-mono text-xs sm:text-sm font-black uppercase tracking-wider shadow-[0_0_25px_rgba(16,185,129,0.7)] transition-all cursor-pointer flex items-center gap-2 btn-shimmer-sweep"
+              className="px-6 py-3 rounded-lg bg-[#FF5500] hover:bg-[#FF6E26] text-black font-semibold text-sm flex items-center gap-2 transition-colors cursor-pointer"
             >
               <Play className="w-4 h-4 fill-black" />
-              <span>PLAY EARLY ACCESS (WEB BUILD)</span>
+              <span>Play Early Access</span>
             </button>
+
             {setActiveTab && (
               <button
-                onClick={() => {
-                  setActiveTab('home');
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-                className="px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-mono text-xs sm:text-sm font-bold uppercase tracking-wider border border-white/20 transition-all cursor-pointer"
-              >
-                RETURN TO LATEST UPDATES
-              </button>
-            )}
-            {setActiveTab && (
-              <button
+                type="button"
                 onClick={() => {
                   setActiveTab('products');
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-black font-mono text-xs sm:text-sm font-black uppercase tracking-wider shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-all cursor-pointer"
+                className="px-6 py-3 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-zinc-200 font-medium text-sm border border-white/[0.08] transition-colors cursor-pointer flex items-center gap-1.5"
               >
-                BROWSE ALL PRODUCTS
+                <Check className="w-4 h-4 text-[#FF5500]" />
+                <span>Browse All Products</span>
               </button>
             )}
           </div>
@@ -628,7 +529,7 @@ export const NaijaLife: React.FC<NaijaLifeProps> = ({
       <NaijaLifeWarningModal
         isOpen={showPlayWarningModal}
         onClose={() => setShowPlayWarningModal(false)}
-        gameUrl={settings?.naijaLifeGameUrl || product?.externalUrl || 'https://naijalife.ai.studio/'}
+        gameUrl={resolvedGameUrl}
       />
     </div>
   );

@@ -176,7 +176,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({
                 <AlertCircle className="w-4 h-4" /> REJECTED — PAYMENT UNVERIFIED
               </span>
             ) : (
-              <span className="bg-[#FF6321]/20 text-[#FF6321] border border-[#FF6321]/40 px-3 py-1 rounded-full flex items-center gap-1.5 animate-pulse">
+              <span className="bg-[#FF5500]/15 text-[#FF5500] border border-[#FF5500]/40 px-3 py-1 rounded-lg flex items-center gap-1.5">
                 <Clock className="w-4 h-4" /> AWAITING OWNER APPROVAL
               </span>
             )}
@@ -211,7 +211,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({
                   ? 'bg-black/50 border-emerald-500/40 text-emerald-400'
                   : isRejected
                   ? 'bg-black/50 border-rose-500/40 text-rose-400'
-                  : 'bg-[#FF6321]/20 border-[#FF6321]/60 text-[#FF6321] animate-pulse'
+                  : 'bg-[#FF5500]/15 border-[#FF5500]/40 text-[#FF5500]'
               }`}
             >
               {isApproved ? (
@@ -219,7 +219,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({
               ) : isRejected ? (
                 <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
               ) : (
-                <Clock className="w-4 h-4 shrink-0 text-[#FF6321] animate-spin" />
+                <Clock className="w-4 h-4 shrink-0 text-[#FF5500]" />
               )}
               <div>
                 <div className="font-bold">3. Owner Review</div>
@@ -277,11 +277,11 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-      <div className="relative w-full max-w-2xl bg-[#08080a] border border-white/10 rounded-[32px] p-6 md:p-8 shadow-[0_0_60px_rgba(255,99,33,0.25)] max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+      <div className="relative w-full max-w-2xl bg-[#111114] border border-white/[0.1] rounded-2xl p-6 md:p-8 shadow-2xl max-h-[90vh] overflow-y-auto">
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 p-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+          className="absolute top-6 right-6 p-2 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-zinc-400 hover:text-white transition-colors cursor-pointer"
         >
           <X className="w-5 h-5" />
         </button>

@@ -1,16 +1,7 @@
 import React, { useState } from 'react';
 import { ApexLogo } from './ApexLogo';
 import { CustomTab } from '../types';
-import { motion } from 'motion/react';
-import {
-  Menu,
-  X,
-  Terminal,
-  Bell,
-  Sparkles,
-  Gamepad2,
-  Play,
-} from 'lucide-react';
+import { Menu, X, Bell } from 'lucide-react';
 
 interface NavbarProps {
   activeTab: string;
@@ -23,8 +14,6 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({
   activeTab,
   setActiveTab,
-  openAdminModal,
-  isAdminLoggedIn,
   customTabs = [],
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -34,33 +23,29 @@ export const Navbar: React.FC<NavbarProps> = ({
   interface NavItem {
     id: string;
     label: string;
-    highlight?: boolean;
-    isDemo?: boolean;
-    isGame?: boolean;
-    isNaijaLife?: boolean;
-    isNotif?: boolean;
-    isCustom?: boolean;
   }
 
-  const baseNavItems: NavItem[] = [
-    { id: 'home', label: 'HOME' },
-    { id: 'products', label: 'PRODUCTS' },
-    { id: 'naija-life', label: 'NAIJA LIFE', isNaijaLife: true },
-    { id: 'apex-editor', label: 'APEX EDITOR', highlight: true },
-    { id: 'apex-editor-demo', label: 'APEX EDITOR DEMO', isDemo: true },
-    { id: 'gangster-revolution', label: 'GANGSTER REVOLUTION', isGame: true },
-    { id: 'about', label: 'ABOUT' },
-    { id: 'contact', label: 'CONTACT' },
-    { id: 'notifications', label: 'NOTIFICATIONS', isNotif: true },
+  const primaryNavItems: NavItem[] = [
+    { id: 'home', label: 'Home' },
+    { id: 'products', label: 'Products' },
+    { id: 'naija-life', label: 'Naija Life' },
+    { id: 'apex-editor', label: 'Apex Editor' },
+    { id: 'gangster-revolution', label: 'Gangster Revolution' },
+    { id: 'about', label: 'About' },
+    { id: 'contact', label: 'Contact' },
   ];
 
   const customNavItems: NavItem[] = activeCustomTabs.map((ct) => ({
     id: `custom-${ct.id}`,
-    label: ct.label.toUpperCase(),
-    isCustom: true,
+    label: ct.label,
   }));
 
-  const navItems: NavItem[] = [...baseNavItems, ...customNavItems];
+  const desktopLinks = [...primaryNavItems, ...customNavItems];
+  const allMobileItems = [
+    ...desktopLinks,
+    { id: 'apex-editor-demo', label: 'Apex Editor Demo' },
+    { id: 'notifications', label: 'Notifications' },
+  ];
 
   const handleNavClick = (id: string) => {
     setActiveTab(id);
@@ -69,157 +54,75 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-xl bg-black/40 border-b border-white/10 shadow-2xl transition-all duration-300">
-      {/* Top glowing laser line */}
-      <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#FF6321] to-transparent opacity-80 animate-pulse" />
-
+    <header className="sticky top-0 z-50 bg-[#09090b]/90 backdrop-blur-md border-b border-white/[0.08]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
-          {/* Brand Logo with gentle hover motion */}
-          <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
+        <div className="flex items-center justify-between gap-6 h-16">
+          {/* Zone 1: Clean Single-Line Brand Wordmark */}
+          <button
+            type="button"
             onClick={() => handleNavClick('home')}
-            className="flex items-center gap-2 group focus:outline-none cursor-pointer"
+            className="flex items-center shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF5500] rounded-lg cursor-pointer"
           >
-            <ApexLogo size="md" />
-          </motion.button>
+            <ApexLogo size="sm" />
+          </button>
 
-          {/* Desktop Navigation Links */}
-          <nav className="hidden xl:flex items-center space-x-1">
-            {navItems.map((item) => {
+          {/* Zone 2: Clean Single-Line Text Navigation Links */}
+          <nav className="hidden xl:flex items-center gap-6">
+            {desktopLinks.map((item) => {
               const isActive = activeTab === item.id;
-              if (item.isNaijaLife) {
-                return (
-                  <motion.button
-                    key={item.id}
-                    whileHover={{ scale: 1.04 }}
-                    whileTap={{ scale: 0.96 }}
-                    onClick={() => handleNavClick(item.id)}
-                    className={`relative px-3 py-2 rounded-xl text-xs font-bold tracking-wider transition-all duration-300 flex items-center gap-1.5 cursor-pointer ${
-                      isActive
-                        ? 'bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 text-white shadow-[0_0_25px_rgba(16,185,129,0.7)] font-black border border-emerald-400/50'
-                        : 'bg-emerald-950/30 text-emerald-400 hover:bg-emerald-900/40 hover:text-emerald-300 border border-emerald-500/30'
-                    }`}
-                  >
-                    <Gamepad2 className="w-3.5 h-3.5 text-emerald-400" />
-                    {item.label}
-                    <span className="px-1.5 py-0.5 text-[9px] bg-emerald-500/20 text-emerald-300 font-extrabold rounded border border-emerald-500/40">
-                      SOON
-                    </span>
-                  </motion.button>
-                );
-              }
-
-              if (item.highlight) {
-                return (
-                  <motion.button
-                    key={item.id}
-                    whileHover={{ scale: 1.04 }}
-                    whileTap={{ scale: 0.96 }}
-                    onClick={() => handleNavClick(item.id)}
-                    className={`relative px-3.5 py-2 rounded-xl text-xs font-bold tracking-wider transition-all duration-300 flex items-center gap-1.5 cursor-pointer ${
-                      isActive
-                        ? 'bg-[#FF6321] text-black shadow-[0_0_25px_rgba(255,99,33,0.6)] font-black'
-                        : 'bg-[#FF6321]/10 text-[#FF6321] hover:bg-[#FF6321]/20 border border-[#FF6321]/30 hover:shadow-[0_0_15px_rgba(255,99,33,0.25)]'
-                    }`}
-                  >
-                    <Terminal className="w-3.5 h-3.5" />
-                    {item.label}
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF6321] opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF6321]"></span>
-                    </span>
-                  </motion.button>
-                );
-              }
-
-              if (item.isDemo) {
-                return (
-                  <motion.button
-                    key={item.id}
-                    whileHover={{ scale: 1.04 }}
-                    whileTap={{ scale: 0.96 }}
-                    onClick={() => handleNavClick(item.id)}
-                    className={`relative px-3 py-2 rounded-xl text-xs font-bold tracking-wider transition-all duration-300 flex items-center gap-1.5 cursor-pointer ${
-                      isActive
-                        ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-black shadow-[0_0_25px_rgba(245,158,11,0.6)] font-black'
-                        : 'bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 border border-amber-500/30'
-                    }`}
-                  >
-                    <Play className="w-3.5 h-3.5 fill-current animate-pulse" />
-                    {item.label}
-                    <span className="px-1.5 py-0.5 text-[9px] bg-amber-500/20 text-amber-300 font-extrabold rounded border border-amber-500/40">
-                      LIVE
-                    </span>
-                  </motion.button>
-                );
-              }
-
-              if (item.isGame) {
-                return (
-                  <motion.button
-                    key={item.id}
-                    whileHover={{ scale: 1.04 }}
-                    whileTap={{ scale: 0.96 }}
-                    onClick={() => handleNavClick(item.id)}
-                    className={`relative px-3 py-2 rounded-xl text-xs font-bold tracking-wider transition-all duration-300 flex items-center gap-1.5 cursor-pointer ${
-                      isActive
-                        ? 'bg-gradient-to-r from-red-600 to-amber-600 text-white shadow-[0_0_25px_rgba(220,38,38,0.6)] border border-red-500/50'
-                        : 'bg-red-950/20 text-red-400 hover:bg-red-950/40 hover:text-red-300 border border-red-500/20'
-                    }`}
-                  >
-                    <Gamepad2 className="w-3.5 h-3.5 text-red-400" />
-                    {item.label}
-                    <span className="px-1.5 py-0.5 text-[9px] bg-red-500/20 text-red-300 font-extrabold rounded border border-red-500/40">
-                      TBD
-                    </span>
-                  </motion.button>
-                );
-              }
-
-              if (item.isNotif) {
-                return (
-                  <motion.button
-                    key={item.id}
-                    whileHover={{ scale: 1.04 }}
-                    whileTap={{ scale: 0.96 }}
-                    onClick={() => handleNavClick(item.id)}
-                    className={`px-3 py-2 rounded-xl text-xs font-bold tracking-wider transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
-                      isActive
-                        ? 'text-white bg-[#FF6321]/20 border border-[#FF6321]/50 shadow-[0_0_15px_rgba(255,99,33,0.3)]'
-                        : 'text-gray-300 hover:text-white hover:bg-white/5'
-                    }`}
-                  >
-                    <Bell className="w-3.5 h-3.5 text-[#FF6321]" />
-                    {item.label}
-                  </motion.button>
-                );
-              }
-
               return (
-                <motion.button
+                <button
                   key={item.id}
-                  whileHover={{ scale: 1.04 }}
-                  whileTap={{ scale: 0.96 }}
+                  type="button"
                   onClick={() => handleNavClick(item.id)}
-                  className={`relative px-3 py-2 rounded-xl text-xs font-bold tracking-wider transition-all duration-200 cursor-pointer ${
+                  className={`relative py-1.5 text-sm font-medium whitespace-nowrap shrink-0 transition-colors cursor-pointer ${
                     isActive
-                      ? 'text-white bg-white/10 border border-white/15 shadow-[0_0_15px_rgba(255,255,255,0.08)]'
-                      : 'text-gray-400 hover:text-white hover:bg-white/5'
+                      ? 'text-white'
+                      : 'text-zinc-400 hover:text-white'
                   }`}
                 >
                   {item.label}
-                </motion.button>
+                  {isActive && (
+                    <span className="absolute left-0 right-0 -bottom-[1px] h-[2px] bg-[#FF5500] rounded-full" />
+                  )}
+                </button>
               );
             })}
           </nav>
 
-          {/* Right Action Hub: Mobile Menu Toggle (Owner Portal is hidden and unlocked via code 6872) */}
-          <div className="flex xl:hidden items-center">
+          {/* Zone 3: Primary Action & Mobile Toggle */}
+          <div className="flex items-center gap-3 shrink-0">
             <button
+              type="button"
+              onClick={() => handleNavClick('notifications')}
+              className={`hidden xl:inline-flex items-center justify-center w-9 h-9 rounded-lg border transition-colors cursor-pointer ${
+                activeTab === 'notifications'
+                  ? 'bg-[#FF5500]/15 border-[#FF5500]/50 text-[#FF5500]'
+                  : 'bg-white/[0.03] border-white/[0.08] text-zinc-400 hover:text-white hover:border-white/20'
+              }`}
+              title="Notifications"
+              aria-label="Notifications"
+            >
+              <Bell className="w-4 h-4" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleNavClick('apex-editor-demo')}
+              className={`hidden sm:inline-flex items-center px-4 py-2 rounded-lg text-xs font-semibold tracking-wide whitespace-nowrap shrink-0 transition-colors cursor-pointer ${
+                activeTab === 'apex-editor-demo'
+                  ? 'bg-white text-black'
+                  : 'bg-[#FF5500] hover:bg-[#FF6E26] text-black'
+              }`}
+            >
+              Editor Demo
+            </button>
+
+            <button
+              type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2.5 rounded-xl bg-white/5 text-gray-400 hover:text-white hover:bg-white/10 border border-white/10 focus:outline-none cursor-pointer"
+              className="xl:hidden p-2 rounded-lg bg-white/[0.04] text-zinc-300 hover:text-white border border-white/[0.08] cursor-pointer"
+              aria-label="Toggle Menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -229,38 +132,26 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="xl:hidden backdrop-blur-xl bg-black/95 border-b border-white/10 px-4 pt-3 pb-6 space-y-2 animate-fadeIn max-h-[80vh] overflow-y-auto">
-          {navItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => handleNavClick(item.id)}
-              className={`w-full text-left px-4 py-3 rounded-xl text-xs font-bold tracking-wider flex items-center justify-between transition-all cursor-pointer ${
-                activeTab === item.id
-                  ? 'bg-[#FF6321] text-black shadow-[0_0_15px_rgba(255,99,33,0.4)]'
-                  : 'text-gray-300 hover:bg-white/5'
-              }`}
-            >
-              <span>{item.label}</span>
-              {item.highlight && (
-                <span className="px-2 py-0.5 text-[10px] bg-black text-[#FF6321] font-extrabold rounded-md uppercase">
-                  FLAGSHIP
-                </span>
-              )}
-              {item.isNaijaLife && (
-                <span className="px-2 py-0.5 text-[10px] bg-emerald-500/20 text-emerald-300 font-extrabold rounded-md uppercase border border-emerald-500/40">
-                  SOON
-                </span>
-              )}
-              {item.isGame && (
-                <span className="px-2 py-0.5 text-[10px] bg-red-500/20 text-red-300 font-extrabold rounded-md uppercase border border-red-500/40">
-                  TBD
-                </span>
-              )}
-            </button>
-          ))}
+        <div className="xl:hidden bg-[#0e0e11] border-b border-white/[0.08] px-4 py-3 space-y-1 animate-fadeIn max-h-[80vh] overflow-y-auto">
+          {allMobileItems.map((item) => {
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => handleNavClick(item.id)}
+                className={`w-full text-left px-3.5 py-2.5 rounded-lg text-sm font-medium flex items-center justify-between transition-colors cursor-pointer ${
+                  isActive
+                    ? 'bg-[#FF5500] text-black font-semibold'
+                    : 'text-zinc-300 hover:bg-white/[0.05] hover:text-white'
+                }`}
+              >
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
         </div>
       )}
     </header>
   );
 };
-

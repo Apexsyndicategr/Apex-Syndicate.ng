@@ -196,7 +196,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   // Live Visitor Counter & Apex Demo & Gangster Revolution Settings
   const [visitorCount, setVisitorCount] = useState<number>(0);
   const [apexEditorDemoUrl, setApexEditorDemoUrl] = useState<string>('');
-  const [naijaLifeGameUrl, setNaijaLifeGameUrl] = useState<string>('https://naijalife.ai.studio/');
+  const [naijaLifeGameUrl, setNaijaLifeGameUrl] = useState<string>('https://naijalife-rpg.vercel.app');
   const [gangsterRevolutionLaunchDate, setGangsterRevolutionLaunchDate] = useState<string>('TBD');
   const [gangsterRevolutionStatus, setGangsterRevolutionStatus] = useState<string>('PRE-ALPHA BUILD • IN DEVELOPMENT');
   const [gangsterSpecs, setGangsterSpecs] = useState<GangsterSpecs>({
@@ -714,7 +714,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         setSettings(data.settings);
         setVisitorCount(data.stats?.totalVisitors ?? data.settings?.visitorCount ?? 0);
         setApexEditorDemoUrl(data.settings.apexEditorDemoUrl || '');
-        setNaijaLifeGameUrl(data.settings.naijaLifeGameUrl || 'https://naijalife.ai.studio/');
+        setNaijaLifeGameUrl(data.settings.naijaLifeGameUrl || 'https://naijalife-rpg.vercel.app');
         setGangsterRevolutionLaunchDate(data.settings.gangsterRevolutionLaunchDate || 'TBD');
         setGangsterRevolutionStatus(data.settings.gangsterRevolutionStatus || 'PRE-ALPHA BUILD • IN DEVELOPMENT');
         if (data.settings.gangsterSpecs) {
@@ -3117,7 +3117,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         type="text"
                         value={naijaLifeGameUrl}
                         onChange={(e) => setNaijaLifeGameUrl(e.target.value)}
-                        placeholder="https://naijalife.ai.studio/"
+                        placeholder="https://naijalife-rpg.vercel.app"
                         className="flex-1 px-4 py-3 rounded-xl bg-black/60 border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-emerald-400"
                       />
                       {naijaLifeGameUrl && (

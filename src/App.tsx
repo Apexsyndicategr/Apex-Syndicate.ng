@@ -16,11 +16,10 @@ import { CustomerNotifications } from './components/CustomerNotifications';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { AdminLoginModal } from './pages/AdminLoginModal';
 import { DownloadModal } from './components/DownloadModal';
-import { IntroCinematic } from './components/IntroCinematic';
 import { AnimatedBackground } from './components/AnimatedBackground';
 import { ApexEditorFullscreenLauncher } from './components/ApexEditorFullscreenLauncher';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, FileText } from 'lucide-react';
+import { FileText } from 'lucide-react';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<string>('home');
@@ -210,15 +209,14 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white flex flex-col font-sans selection:bg-[#FF6321] selection:text-black relative overflow-x-hidden">
-      {/* High-Performance Dynamic Animated Background Mesh, Floating Particles & Cyber Grid */}
+    <div className="min-h-screen bg-[#09090b] text-zinc-100 flex flex-col font-sans selection:bg-[#FF5500] selection:text-white relative overflow-x-hidden">
+      {/* Subtle architectural studio background */}
       <AnimatedBackground />
 
       {/* Owner Custom Announcement Banner */}
       {ownerSettings?.showAnnouncement && ownerSettings.announcementText && activeTab !== 'admin' && (
-        <div className="bg-gradient-to-r from-[#FF6321] via-amber-400 to-[#FF6321] text-black font-extrabold text-xs py-2 px-4 text-center tracking-wider uppercase flex items-center justify-center gap-2 relative z-50 animate-shimmer-text shadow-[0_4px_20px_rgba(255,99,33,0.4)]">
-          <Sparkles className="w-4 h-4 fill-black animate-spin" style={{ animationDuration: '4s' }} />
-          <span className="font-mono tracking-widest">{ownerSettings.announcementText}</span>
+        <div className="bg-[#FF5500] text-black font-semibold text-xs py-2 px-4 text-center tracking-wide flex items-center justify-center gap-2 relative z-50">
+          <span>{ownerSettings.announcementText}</span>
         </div>
       )}
 
@@ -233,15 +231,15 @@ export default function App() {
         />
       )}
 
-      {/* Main Page Content Body with Smooth Page Transitions */}
+      {/* Main Page Content Body with Crisp Page Transitions */}
       <main className="flex-1 relative z-10">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
-            initial={{ opacity: 0, y: 14, filter: 'blur(6px)' }}
-            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-            exit={{ opacity: 0, y: -14, filter: 'blur(6px)' }}
-            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
           >
             {activeTab === 'home' && (
               <Home
@@ -305,16 +303,16 @@ export default function App() {
             {/* Dynamic Custom Tab View */}
             {currentCustomTab && (
               <div className="max-w-5xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
-                <div className="p-8 md:p-12 rounded-3xl bg-white/[0.03] border border-white/10 backdrop-blur-xl shadow-2xl">
+                <div className="p-8 md:p-12 rounded-2xl bg-[#111114] border border-white/[0.08]">
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="p-3 rounded-2xl bg-[#FF6321]/10 border border-[#FF6321]/30 text-[#FF6321]">
+                    <div className="p-3 rounded-xl bg-[#FF5500]/10 border border-[#FF5500]/25 text-[#FF5500]">
                       <FileText className="w-6 h-6" />
                     </div>
-                    <h1 className="text-3xl md:text-4xl font-black text-white tracking-wide uppercase">
+                    <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight uppercase">
                       {currentCustomTab.label}
                     </h1>
                   </div>
-                  <div className="prose prose-invert max-w-none text-gray-300 whitespace-pre-line leading-relaxed text-base">
+                  <div className="prose prose-invert max-w-none text-zinc-300 whitespace-pre-line leading-relaxed text-base">
                     {currentCustomTab.content}
                   </div>
                 </div>
@@ -352,9 +350,6 @@ export default function App() {
         onClose={() => setIsAdminModalOpen(false)}
         onLoginSuccess={handleAdminLoginSuccess}
       />
-
-      {/* Fullscreen Game-Style Cinematic Intro Overlay */}
-      <IntroCinematic />
     </div>
   );
 }

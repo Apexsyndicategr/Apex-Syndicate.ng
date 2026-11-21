@@ -3,23 +3,13 @@ import { Product, LaunchPricingInfo } from '../types';
 import { CountdownTimer } from '../components/CountdownTimer';
 import { PortfolioVideoShowcase } from '../components/PortfolioVideoShowcase';
 import { NaijaLifeWarningModal } from '../components/NaijaLifeWarningModal';
-import { motion } from 'motion/react';
 import {
-  Terminal,
-  Cpu,
-  ShieldCheck,
-  Download,
   ArrowRight,
-  Sparkles,
+  Download,
   ChevronRight,
-  Globe,
-  Flame,
-  CheckCircle2,
-  Clock,
-  Zap,
-  Layers,
-  Code2,
   Play,
+  Terminal,
+  Check,
 } from 'lucide-react';
 
 interface HomeProps {
@@ -38,499 +28,352 @@ export const Home: React.FC<HomeProps> = ({
   const [showNaijaLifeWarning, setShowNaijaLifeWarning] = useState<boolean>(false);
   const apexEditor = products.find((p) => p.id === 'apex-editor') || products[0];
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.12,
-        delayChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 24 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6, ease: "easeOut" as const },
-    },
+  const navigate = (tab: string) => {
+    setActiveTab(tab);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
-    <div className="space-y-24 pb-20 overflow-hidden">
-      {/* ==========================================
-          HERO SECTION (HEAVILY ANIMATED)
-         ========================================== */}
-      <section className="relative pt-10 md:pt-16 pb-12 overflow-hidden">
-        {/* Animated Cyber Holographic Ring Backdrop */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-radial from-[#FF6321]/15 via-transparent to-transparent rounded-full blur-3xl pointer-events-none animate-pulse-glow" />
-
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-8"
-        >
-          {/* Eyebrow Badge */}
-          <motion.div variants={itemVariants} className="flex justify-center">
-            <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-gradient-to-r from-[#FF6321]/20 via-amber-500/15 to-[#FF6321]/20 border border-[#FF6321]/40 text-[#FF6321] text-xs font-mono font-black uppercase tracking-widest shadow-[0_0_25px_rgba(255,99,33,0.35)] animate-border-glow">
-              <Sparkles className="w-4 h-4 animate-spin text-amber-400" style={{ animationDuration: '6s' }} />
-              <span className="bg-gradient-to-r from-white via-[#FF6321] to-amber-300 bg-clip-text text-transparent animate-shimmer-text">
-                OFFICIAL COMMERCIAL SOFTWARE SUITE
-              </span>
-              <span className="flex h-2 w-2 relative">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF6321] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF6321]"></span>
-              </span>
+    <div className="space-y-24 pb-24">
+      {/* Hero Section */}
+      <section className="pt-14 md:pt-20 pb-8 border-b border-white/[0.06]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+          <div className="max-w-3xl space-y-6">
+            <div className="text-xs font-mono text-zinc-400 flex items-center gap-2">
+              <span className="text-[#FF5500] font-semibold">Apex Syndicate</span>
+              <span aria-hidden="true">·</span>
+              <span>Software & Game Studio</span>
             </div>
-          </motion.div>
 
-          {/* Main Hero Headline with Kinetic Glow & Text Shimmer */}
-          <motion.div variants={itemVariants} className="max-w-4xl mx-auto space-y-4">
-            <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black text-white tracking-tight uppercase leading-none drop-shadow-2xl">
-              <span className="inline-block hover:scale-105 transition-transform duration-300 cursor-default">APEX</span>{' '}
-              <span className="bg-gradient-to-r from-[#FF6321] via-amber-400 to-[#FF4500] bg-clip-text text-transparent animate-shimmer-text drop-shadow-[0_0_35px_rgba(255,99,33,0.6)] inline-block hover:scale-105 transition-transform duration-300">
-                SYNDICATE
-              </span>
+            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.05] text-balance">
+              Software built to <span className="text-[#FF5500]">create, edit,</span> and innovate.
             </h1>
-            <p className="text-xl sm:text-2xl md:text-3xl font-light text-gray-200 font-sans tracking-wide max-w-3xl mx-auto leading-relaxed italic animate-cyber-glow">
-              "Software built to create, edit and innovate."
+
+            <p className="text-base sm:text-lg text-zinc-400 leading-relaxed max-w-2xl">
+              High-speed creative tools, developer utilities, and open-world games built by Apex Syndicate—from the native Apex Editor to Naija Life and Gangster Revolution.
             </p>
-          </motion.div>
 
-          {/* Subtitle */}
-          <motion.p
-            variants={itemVariants}
-            className="max-w-2xl mx-auto text-sm md:text-base text-gray-300 leading-relaxed font-sans"
-          >
-            Engineered for modern developers, creators, and power users. Explore our commercial software ecosystem or get instant launch access to our flagship editor.
-          </motion.p>
-
-          {/* Hero Action Buttons */}
-          <motion.div
-            variants={itemVariants}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
-          >
-            <motion.button
-              whileHover={{ scale: 1.06, y: -2 }}
-              whileTap={{ scale: 0.96 }}
-              onClick={() => {
-                setActiveTab('products');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              className="w-full sm:w-auto px-9 py-4 rounded-2xl bg-gradient-to-r from-[#FF6321] to-amber-500 hover:from-[#FF8A50] hover:to-amber-400 text-black font-black text-xs tracking-widest uppercase shadow-[0_0_30px_rgba(255,99,33,0.5)] transition-all duration-300 flex items-center justify-center gap-2.5 btn-shimmer-sweep"
-            >
-              <Zap className="w-4 h-4 fill-black" />
-              <span>EXPLORE PRODUCTS</span>
-              <ArrowRight className="w-4 h-4 animate-bounce" style={{ animationDuration: '1.5s' }} />
-            </motion.button>
-
-            <motion.button
-              whileHover={{ scale: 1.06, y: -2 }}
-              whileTap={{ scale: 0.96 }}
-              onClick={() => {
-                setActiveTab('apex-editor');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-black/60 hover:bg-white/10 text-white font-bold text-xs tracking-widest uppercase border border-[#FF6321]/40 hover:border-[#FF6321] transition-all duration-300 backdrop-blur-xl shadow-[0_0_20px_rgba(0,0,0,0.8)] flex items-center justify-center gap-2.5"
-            >
-              <Terminal className="w-4 h-4 text-[#FF6321] animate-pulse" />
-              <span>GET APEX EDITOR</span>
-              <span className="px-1.5 py-0.5 rounded bg-[#FF6321]/20 text-[#FF6321] text-[10px] font-mono border border-[#FF6321]/40">
-                {launchPricing ? launchPricing.priceDisplay : 'FREE'}
-              </span>
-            </motion.button>
-          </motion.div>
-
-          {/* Live Trust Stats Bar (Animated Staggered Cards) */}
-          <motion.div
-            variants={itemVariants}
-            className="pt-10 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto"
-          >
-            {[
-              { val: '100%', label: 'Native Performance', color: 'text-white', icon: Cpu },
-              { val: '60 FPS', label: 'GPU Canvas Engine', color: 'text-[#FF6321]', icon: Zap },
-              { val: '256-bit', label: 'AES Shield Security', color: 'text-white', icon: ShieldCheck },
-              {
-                val: launchPricing ? launchPricing.priceDisplay : 'FREE',
-                label: 'Current Launch Access',
-                color: 'text-[#FF6321]',
-                icon: Flame,
-              },
-            ].map((stat, idx) => (
-              <motion.div
-                key={idx}
-                whileHover={{ y: -6, scale: 1.04 }}
-                className="group relative p-5 rounded-2xl bg-white/[0.03] hover:bg-white/[0.06] backdrop-blur-xl border border-white/10 hover:border-[#FF6321]/50 shadow-lg hover:shadow-[0_0_25px_rgba(255,99,33,0.25)] transition-all duration-300 flex flex-col items-center justify-center text-center overflow-hidden"
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => navigate('products')}
+                className="px-6 py-3.5 rounded-lg bg-[#FF5500] hover:bg-[#FF6E26] text-black font-semibold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
-                <div className="absolute top-0 right-0 w-16 h-16 bg-[#FF6321]/10 rounded-full blur-xl group-hover:scale-150 transition-transform pointer-events-none" />
-                <stat.icon className="w-4 h-4 text-[#FF6321] mb-1 opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-all" />
-                <div className={`text-2xl md:text-3xl font-black ${stat.color} font-mono tracking-wide`}>
-                  {stat.val}
-                </div>
-                <div className="text-[10px] text-gray-400 uppercase font-bold tracking-wider mt-1 group-hover:text-gray-200 transition-colors">
-                  {stat.label}
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </motion.div>
+                <span>Explore Products</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => navigate('apex-editor')}
+                className="px-6 py-3.5 rounded-lg bg-[#111114] hover:bg-[#18181d] text-white font-medium text-sm border border-white/[0.1] hover:border-white/20 flex items-center justify-center gap-2.5 transition-colors cursor-pointer"
+              >
+                <Terminal className="w-4 h-4 text-[#FF5500]" />
+                <span>Apex Editor</span>
+                <span className="text-xs font-mono text-[#FF5500]">
+                  {launchPricing ? launchPricing.priceDisplay : 'FREE'}
+                </span>
+              </button>
+            </div>
+          </div>
+
+          {/* Studio Metrics Strip */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 border-t border-white/[0.08] pt-8 gap-6 lg:gap-0 lg:divide-x lg:divide-white/[0.08]">
+            <div className="lg:pr-8 space-y-1">
+              <div className="text-2xl sm:text-3xl font-bold font-mono tabular-nums text-white">
+                100%
+              </div>
+              <div className="text-xs text-zinc-400">Native Desktop Performance</div>
+            </div>
+            <div className="lg:px-8 space-y-1">
+              <div className="text-2xl sm:text-3xl font-bold font-mono tabular-nums text-[#FF5500]">
+                60 FPS
+              </div>
+              <div className="text-xs text-zinc-400">Hardware-Accelerated Canvas</div>
+            </div>
+            <div className="lg:px-8 space-y-1">
+              <div className="text-2xl sm:text-3xl font-bold font-mono tabular-nums text-white">
+                SHA-256
+              </div>
+              <div className="text-xs text-zinc-400">Checksum Verified Builds</div>
+            </div>
+            <div className="lg:pl-8 space-y-1">
+              <div className="text-2xl sm:text-3xl font-bold font-mono tabular-nums text-[#FF5500]">
+                {launchPricing ? launchPricing.priceDisplay : 'FREE'}
+              </div>
+              <div className="text-xs text-zinc-400">Current Apex Editor Tier</div>
+            </div>
+          </div>
+        </div>
       </section>
 
-      {/* ==========================================
-          PORTFOLIO CINEMATIC SHOWCASE TRAILER
-         ========================================== */}
-      <motion.section
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-50px' }}
-        transition={{ duration: 0.7 }}
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
-      >
+      {/* Studio Updates & Media Showcase */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <PortfolioVideoShowcase setActiveTab={setActiveTab} />
-      </motion.section>
+      </section>
 
-      {/* ==========================================
-          FLAGSHIP FEATURED PRODUCT: APEX EDITOR
-         ========================================== */}
-      <motion.section
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-50px' }}
-        transition={{ duration: 0.7 }}
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
-      >
-        <div className="relative rounded-[28px] md:rounded-[36px] bg-gradient-to-br from-white/[0.05] via-white/[0.02] to-black/60 backdrop-blur-2xl border border-white/15 p-8 md:p-12 shadow-2xl overflow-hidden hover:border-[#FF6321]/40 transition-colors duration-500">
-          {/* Laser scanning beam */}
-          <div className="absolute top-0 left-0 w-40 h-[2px] bg-gradient-to-r from-transparent via-[#FF6321] to-transparent animate-laser pointer-events-none" />
-
-          {/* Ambient Glow */}
-          <div className="absolute top-0 right-0 w-80 h-80 bg-[#FF6321]/15 rounded-full blur-[100px] pointer-events-none animate-pulse-glow" />
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center relative z-10">
-            {/* Left Content */}
+      {/* Flagship Product Spotlight: Apex Editor */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="rounded-2xl bg-[#111114] border border-white/[0.08] p-7 sm:p-10 lg:p-12">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
             <div className="lg:col-span-7 space-y-6">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FF6321]/10 border border-[#FF6321]/40 text-[#FF6321] text-xs font-bold uppercase tracking-wider shadow-[0_0_15px_rgba(255,99,33,0.25)]">
-                <Flame className="w-4 h-4 fill-[#FF6321] animate-bounce" style={{ animationDuration: '2s' }} />
-                <span>FLAGSHIP FEATURED PRODUCT</span>
+              <div className="text-xs font-mono text-[#FF5500] font-medium">
+                Flagship Software · {apexEditor?.version || 'v2.4.0'}
               </div>
 
-              <h2 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tight leading-tight">
-                APEX <span className="bg-gradient-to-r from-[#FF6321] to-amber-400 bg-clip-text text-transparent animate-shimmer-text">EDITOR</span>
+              <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
+                Apex Editor
               </h2>
 
-              <p className="text-base sm:text-lg text-gray-300 leading-relaxed font-light">
-                {apexEditor ? apexEditor.description : 'Powerful editing. Built by Apex Syndicate.'}
+              <p className="text-base text-zinc-400 leading-relaxed max-w-xl">
+                {apexEditor
+                  ? apexEditor.description
+                  : 'Powerful editing built for high-performance software development, creative media, and advanced scripting.'}
               </p>
 
-              {/* Key Highlights Grid with Hover Animations */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-gray-300 pt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                 {[
-                  { text: 'GPU-Accelerated 60FPS Canvas', icon: Zap },
-                  { text: 'Rust Zero-Latency Engine', icon: Cpu },
-                  { text: 'Multi-Cursor Split Workspace', icon: Layers },
-                  { text: 'Integrated Extensions Market', icon: Code2 },
-                ].map((item, idx) => (
-                  <motion.div
-                    key={idx}
-                    whileHover={{ x: 4, scale: 1.02 }}
-                    className="flex items-center gap-2.5 p-3.5 rounded-xl bg-black/50 border border-white/10 hover:border-[#FF6321]/40 backdrop-blur-md transition-colors"
-                  >
-                    <CheckCircle2 className="w-4 h-4 text-[#FF6321] shrink-0 animate-pulse" />
-                    <span className="font-medium">{item.text}</span>
-                  </motion.div>
+                  'GPU-accelerated 60FPS canvas',
+                  'Zero-latency Rust core',
+                  'Multi-cursor split workspace',
+                  'Custom extension support',
+                ].map((feat) => (
+                  <div key={feat} className="flex items-center gap-2.5 text-sm text-zinc-300">
+                    <Check className="w-4 h-4 text-[#FF5500] shrink-0" />
+                    <span>{feat}</span>
+                  </div>
                 ))}
               </div>
 
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-3">
                 {apexEditor && (apexEditor.isComingSoon || !apexEditor.fileUrl) ? (
-                  <div className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-white/[0.05] border border-amber-500/40 backdrop-blur-xl text-amber-300 font-extrabold text-xs tracking-widest uppercase shadow-[0_0_20px_rgba(245,158,11,0.2)] flex items-center justify-center gap-2.5">
-                    <Clock className="w-4 h-4 text-amber-400 animate-spin" />
-                    <span>COMING SOON</span>
-                    <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-mono border border-amber-500/40">
-                      IN PROGRESS
-                    </span>
-                  </div>
-                ) : (
-                  <motion.button
-                    whileHover={{ scale: 1.05, y: -2 }}
-                    whileTap={{ scale: 0.96 }}
-                    onClick={() => apexEditor && openDownloadModal(apexEditor)}
-                    className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-white text-black hover:bg-[#FF6321] hover:text-white font-black text-xs tracking-widest uppercase transition-all duration-300 shadow-2xl flex items-center justify-center gap-2.5 btn-shimmer-sweep"
+                  <button
+                    type="button"
+                    onClick={() => navigate('apex-editor-demo')}
+                    className="px-6 py-3 rounded-lg bg-[#FF5500] hover:bg-[#FF6E26] text-black font-semibold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
                   >
-                    <Download className="w-4 h-4 animate-bounce" style={{ animationDuration: '2s' }} />
-                    <span>DOWNLOAD APEX EDITOR ({launchPricing ? launchPricing.priceDisplay : 'FREE'})</span>
-                  </motion.button>
+                    <Play className="w-4 h-4 fill-black" />
+                    <span>Try Web Demo</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => apexEditor && openDownloadModal(apexEditor)}
+                    className="px-6 py-3 rounded-lg bg-[#FF5500] hover:bg-[#FF6E26] text-black font-semibold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Download ({launchPricing ? launchPricing.priceDisplay : 'FREE'})</span>
+                  </button>
                 )}
 
-                <motion.button
-                  whileHover={{ scale: 1.04, x: 2 }}
-                  whileTap={{ scale: 0.96 }}
-                  onClick={() => {
-                    setActiveTab('apex-editor');
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }}
-                  className="w-full sm:w-auto px-6 py-4 rounded-2xl bg-white/5 hover:bg-white/10 text-gray-200 hover:text-white font-bold text-xs tracking-wider uppercase border border-white/15 hover:border-white/30 transition-all backdrop-blur-sm flex items-center justify-center gap-2"
+                <button
+                  type="button"
+                  onClick={() => navigate('apex-editor')}
+                  className="px-5 py-3 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-zinc-200 hover:text-white font-medium text-sm border border-white/[0.08] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                 >
-                  <span>VIEW FULL SPECS</span>
-                  <ChevronRight className="w-4 h-4 text-[#FF6321]" />
-                </motion.button>
+                  <span>Specifications</span>
+                  <ChevronRight className="w-4 h-4 text-zinc-400" />
+                </button>
               </div>
             </div>
 
-            {/* Right Launch Pricing Timer Component */}
             <div className="lg:col-span-5">
               <CountdownTimer pricing={launchPricing} />
             </div>
           </div>
         </div>
-      </motion.section>
+      </section>
 
-      {/* ==========================================
-          MARKETPLACE PRODUCTS PREVIEW
-         ========================================== */}
-      <motion.section
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-50px' }}
-        transition={{ duration: 0.7 }}
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8"
-      >
-        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 border-b border-white/10 pb-6">
-          <div>
-            <div className="text-xs font-mono font-bold text-[#FF6321] uppercase tracking-widest flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#FF6321] animate-ping inline-block" />
-              COMMERCIAL CATALOGUE
+      {/* Products Catalogue Preview */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-5 border-b border-white/[0.08]">
+          <div className="space-y-1">
+            <div className="text-xs font-mono text-[#FF5500] font-medium">
+              Catalogue
             </div>
-            <h2 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tight mt-1">
-              APEX SYNDICATE PRODUCTS
+            <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+              Studio Releases & Titles
             </h2>
           </div>
 
-          <motion.button
-            whileHover={{ x: 4 }}
-            onClick={() => {
-              setActiveTab('products');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            className="text-xs font-bold text-[#FF6321] hover:text-[#FF8A50] flex items-center gap-1.5 transition-colors uppercase tracking-wider group"
+          <button
+            type="button"
+            onClick={() => navigate('products')}
+            className="text-sm font-medium text-[#FF5500] hover:text-[#FF7A33] flex items-center gap-1.5 transition-colors cursor-pointer w-fit"
           >
-            <span>VIEW ALL PRODUCTS</span>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </motion.button>
+            <span>View all products</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
         </div>
 
-        {/* Product Cards Grid with Staggered Entrance and 3D Hover Lift */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {products.slice(0, 3).map((prod, idx) => (
-            <motion.div
-              key={prod.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.1, duration: 0.5 }}
-              whileHover={{ y: -6, scale: 1.02 }}
-              className="group relative rounded-[28px] bg-white/[0.03] hover:bg-white/[0.06] backdrop-blur-xl border border-white/10 hover:border-[#FF6321]/50 p-6 transition-all duration-300 shadow-xl hover:shadow-[0_15px_35px_rgba(255,99,33,0.25)] flex flex-col justify-between overflow-hidden"
-            >
-              {/* Corner Glow */}
-              <div className="absolute -top-12 -right-12 w-28 h-28 bg-[#FF6321]/15 rounded-full blur-2xl group-hover:scale-150 transition-transform pointer-events-none" />
+          {products.slice(0, 3).map((prod) => {
+            const statusText =
+              prod.releaseDate === 'TBD' || prod.id === 'gangster-revolution'
+                ? 'TBD'
+                : prod.isComingSoon || prod.releaseDate === 'Coming Soon'
+                ? 'Coming Soon'
+                : 'Available';
 
-              <div className="space-y-4 relative z-10">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="px-3 py-1 rounded-full bg-[#FF6321]/10 border border-[#FF6321]/30 text-[#FF6321] text-[10px] font-bold uppercase tracking-wider">
-                      {prod.category}
-                    </span>
-                    {(prod.releaseDate === 'TBD' || prod.id === 'gangster-revolution') ? (
-                      <span className="px-2.5 py-0.5 rounded-full bg-red-500/20 text-red-400 border border-red-500/40 text-[9px] font-black uppercase tracking-wider font-mono">
-                        TBD
-                      </span>
-                    ) : (prod.isComingSoon || prod.releaseDate === 'Coming Soon') ? (
-                      <span className="px-2.5 py-0.5 rounded-full bg-[#FF6321] text-black text-[9px] font-black uppercase tracking-wider animate-pulse shadow-[0_0_10px_rgba(255,99,33,0.5)]">
-                        COMING SOON
-                      </span>
-                    ) : null}
+            const priceLabel =
+              prod.pricingType === 'tbd' || (prod.pricingType === 'fixed' && !prod.fixedPrice)
+                ? 'TBD'
+                : prod.id === 'apex-editor' && launchPricing && prod.pricingType === 'launch'
+                ? launchPricing.priceDisplay
+                : prod.pricingType === 'free'
+                ? 'FREE'
+                : `₦${(prod.fixedPrice || 0).toLocaleString()}`;
+
+            return (
+              <div
+                key={prod.id}
+                className="rounded-2xl bg-[#111114] border border-white/[0.08] hover:border-[#FF5500]/40 p-6 flex flex-col justify-between transition-colors"
+              >
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between gap-2 text-xs font-mono text-zinc-400">
+                    <div className="flex items-center gap-2 truncate">
+                      <span className="text-[#FF5500] font-medium">{prod.category}</span>
+                      <span aria-hidden="true">·</span>
+                      <span>{statusText}</span>
+                    </div>
+                    <span className="text-zinc-500 shrink-0">{prod.version}</span>
                   </div>
-                  <span className="text-xs font-mono text-gray-500">{prod.version}</span>
+
+                  <h3 className="text-xl font-bold text-white tracking-tight">
+                    {prod.name}
+                  </h3>
+
+                  <p className="text-sm text-zinc-400 leading-relaxed line-clamp-3">
+                    {prod.description}
+                  </p>
+
+                  <ul className="space-y-1.5 pt-2 border-t border-white/[0.06] text-xs text-zinc-400">
+                    {prod.features.slice(0, 3).map((feat, fidx) => (
+                      <li key={fidx} className="flex items-start gap-2">
+                        <span className="text-[#FF5500] mt-0.5">·</span>
+                        <span>{feat}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
 
-                <h3 className="text-xl font-bold text-white group-hover:text-[#FF6321] transition-colors">
-                  {prod.name}
-                </h3>
-
-                <p className="text-xs text-gray-400 line-clamp-3 leading-relaxed">
-                  {prod.description}
-                </p>
-
-                <div className="flex flex-wrap gap-1.5 pt-2">
-                  {prod.features.slice(0, 3).map((feat, fidx) => (
-                    <span
-                      key={fidx}
-                      className="px-2.5 py-1 rounded-lg bg-black/40 border border-white/5 text-gray-300 text-[10px] font-medium group-hover:border-[#FF6321]/20 transition-colors"
-                    >
-                      {feat}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="pt-6 mt-6 border-t border-white/10 flex items-center justify-between relative z-10">
-                <div>
-                  <div className="text-[10px] text-gray-500 uppercase font-mono">PRICE</div>
-                  <div className="text-base font-black text-white group-hover:text-[#FF6321] transition-colors">
-                    {prod.pricingType === 'tbd' || (prod.pricingType === 'fixed' && !prod.fixedPrice)
-                      ? 'TBD'
-                      : prod.id === 'apex-editor' && launchPricing && prod.pricingType === 'launch'
-                      ? launchPricing.priceDisplay
-                      : prod.pricingType === 'free'
-                      ? 'FREE'
-                      : `₦${(prod.fixedPrice || 0).toLocaleString()}`}
+                <div className="pt-5 mt-6 border-t border-white/[0.08] flex items-center justify-between gap-3">
+                  <div>
+                    <div className="text-[11px] font-mono text-zinc-500">Access</div>
+                    <div className="text-base font-bold font-mono tabular-nums text-white">
+                      {priceLabel}
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex items-center gap-2">
-                  {prod.externalUrl && prod.id !== 'naija-life' && (
-                    <motion.a
-                      whileHover={{ scale: 1.08 }}
-                      whileTap={{ scale: 0.95 }}
-                      href={prod.externalUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="px-3 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-extrabold text-[10px] tracking-wider uppercase transition-all flex items-center gap-1 shadow-md"
-                      title="Open Web App"
-                    >
-                      <Globe className="w-3.5 h-3.5" /> LAUNCH
-                    </motion.a>
-                  )}
-
-                  {prod.id === 'apex-editor' && (
-                    <motion.button
-                      whileHover={{ scale: 1.08, y: -2 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => {
-                        setActiveTab('apex-editor-demo');
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                      }}
-                      className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#FF6321] to-amber-500 hover:from-[#FF8A50] hover:to-amber-400 text-black font-black text-[11px] tracking-wider uppercase shadow-[0_0_15px_rgba(255,99,33,0.4)] transition-all flex items-center gap-1.5 cursor-pointer btn-shimmer-sweep"
-                      title="Launch Apex Editor Interactive Demo"
-                    >
-                      <Play className="w-3.5 h-3.5 fill-black" />
-                      <span>TRY DEMO</span>
-                    </motion.button>
-                  )}
-
-                  {prod.id === 'naija-life' && (
-                    <>
-                      <motion.button
-                        whileHover={{ scale: 1.08, y: -2 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => setShowNaijaLifeWarning(true)}
-                        className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-400 via-emerald-400 to-teal-300 hover:from-amber-300 hover:to-emerald-300 text-black font-black text-[11px] tracking-wider uppercase shadow-[0_0_15px_rgba(16,185,129,0.5)] transition-all flex items-center gap-1.5 cursor-pointer btn-shimmer-sweep"
-                        title="Play Naija Life Early Access (Web)"
+                  <div className="flex items-center gap-2 flex-wrap justify-end">
+                    {prod.id === 'apex-editor' && (
+                      <button
+                        type="button"
+                        onClick={() => navigate('apex-editor-demo')}
+                        className="px-3.5 py-2 rounded-lg bg-[#FF5500] hover:bg-[#FF6E26] text-black font-semibold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
                       >
                         <Play className="w-3.5 h-3.5 fill-black" />
-                        <span>PLAY DEMO</span>
-                      </motion.button>
+                        <span>Try Demo</span>
+                      </button>
+                    )}
 
-                      <motion.button
-                        whileHover={{ scale: 1.08, y: -2 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => {
-                          setActiveTab('naija-life');
-                          window.scrollTo({ top: 0, behavior: 'smooth' });
-                        }}
-                        className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-[11px] tracking-wider uppercase shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all flex items-center gap-1.5 cursor-pointer"
-                        title="Explore Naija Life Page"
+                    {prod.id === 'naija-life' && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => setShowNaijaLifeWarning(true)}
+                          className="px-3.5 py-2 rounded-lg bg-[#FF5500] hover:bg-[#FF6E26] text-black font-semibold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                        >
+                          <Play className="w-3.5 h-3.5 fill-black" />
+                          <span>Play Demo</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => navigate('naija-life')}
+                          className="px-3.5 py-2 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-zinc-200 text-xs font-medium border border-white/[0.08] transition-colors cursor-pointer"
+                        >
+                          Game Hub
+                        </button>
+                      </>
+                    )}
+
+                    {prod.id === 'gangster-revolution' && (
+                      <button
+                        type="button"
+                        onClick={() => navigate('gangster-revolution')}
+                        className="px-3.5 py-2 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-zinc-200 text-xs font-medium border border-white/[0.08] transition-colors cursor-pointer"
                       >
-                        <span>GAME HUB</span>
-                      </motion.button>
-                    </>
-                  )}
+                        Game Hub
+                      </button>
+                    )}
 
-                  {prod.releaseDate === 'TBD' || prod.id === 'gangster-revolution' ? (
-                    <span className="px-3.5 py-2 rounded-xl bg-white/[0.04] border border-red-500/30 text-red-400 text-xs font-bold tracking-wider uppercase flex items-center gap-1.5 font-mono">
-                      <Clock className="w-3.5 h-3.5 text-red-400 animate-spin" /> TBD
-                    </span>
-                  ) : prod.isComingSoon || !prod.fileUrl ? (
-                    <span className="px-3.5 py-2 rounded-xl bg-white/[0.04] border border-amber-500/30 text-amber-400 text-xs font-bold tracking-wider uppercase flex items-center gap-1.5 cursor-not-allowed">
-                      <Clock className="w-3.5 h-3.5 text-amber-400 animate-spin" /> COMING SOON
-                    </span>
-                  ) : (
-                    <motion.button
-                      whileHover={{ scale: 1.06 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => openDownloadModal(prod)}
-                      className="px-4 py-2.5 rounded-xl bg-[#FF6321]/20 hover:bg-[#FF6321] text-[#FF6321] hover:text-black border border-[#FF6321]/40 text-xs font-bold tracking-wider transition-all duration-300 flex items-center gap-1.5 shadow-md"
-                    >
-                      <Download className="w-3.5 h-3.5" /> DOWNLOAD
-                    </motion.button>
-                  )}
+                    {prod.id !== 'naija-life' &&
+                      prod.id !== 'apex-editor' &&
+                      prod.id !== 'gangster-revolution' &&
+                      (prod.fileUrl ? (
+                        <button
+                          type="button"
+                          onClick={() => openDownloadModal(prod)}
+                          className="px-3.5 py-2 rounded-lg bg-[#FF5500] hover:bg-[#FF6E26] text-black font-semibold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          <span>Download</span>
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => navigate('products')}
+                          className="px-3.5 py-2 rounded-lg bg-white/[0.05] text-zinc-400 text-xs font-medium border border-white/[0.08] cursor-pointer"
+                        >
+                          Details
+                        </button>
+                      ))}
+                  </div>
                 </div>
               </div>
-            </motion.div>
-          ))}
+            );
+          })}
         </div>
-      </motion.section>
+      </section>
 
-      {/* ==========================================
-          ENGINEERING ETHOS & GUARANTEE (ANIMATED)
-         ========================================== */}
-      <motion.section
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-50px' }}
-        transition={{ duration: 0.7 }}
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
-      >
-        <div className="p-8 md:p-12 rounded-[28px] md:rounded-[36px] bg-white/[0.03] backdrop-blur-2xl border border-white/10 space-y-8 shadow-2xl relative overflow-hidden">
-          <div className="text-center max-w-2xl mx-auto space-y-3">
-            <h2 className="text-3xl font-black text-white uppercase tracking-wider bg-gradient-to-r from-white via-[#FF6321] to-white bg-clip-text text-transparent animate-shimmer-text">
-              BUILT FOR PERFORMANCE & INTEGRITY
+      {/* Studio Engineering Standards */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="border-t border-white/[0.08] pt-12 space-y-10">
+          <div className="max-w-2xl space-y-2">
+            <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+              Built for reliability and low overhead
             </h2>
-            <p className="text-xs text-gray-400 leading-relaxed">
-              Every software binary distributed by Apex Syndicate undergoes rigorous code auditing, SHA-256 checksum signing, and performance testing.
+            <p className="text-sm text-zinc-400 leading-relaxed">
+              Every build released by Apex Syndicate is audited, checksum-signed, and supported directly by the studio.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
-            {[
-              {
-                title: 'Zero-Bloat Architecture',
-                desc: 'Native compiled binaries with minimal memory footprints, zero background telemetry strain, and instant startup times.',
-                icon: Cpu,
-              },
-              {
-                title: 'Protected Downloads',
-                desc: 'Secure tokenized distribution channels ensure only verified customers receive authentic, tamper-proof packages.',
-                icon: ShieldCheck,
-              },
-              {
-                title: 'Commercial Support',
-                desc: 'Direct owner support and continuous feature updates for all registered software license holders.',
-                icon: Globe,
-              },
-            ].map((item, idx) => (
-              <motion.div
-                key={idx}
-                whileHover={{ y: -6, scale: 1.03 }}
-                className="group p-6 rounded-2xl bg-black/40 hover:bg-black/60 border border-white/5 hover:border-[#FF6321]/40 backdrop-blur-md space-y-3 transition-all duration-300 shadow-lg hover:shadow-[0_0_25px_rgba(255,99,33,0.2)]"
-              >
-                <div className="p-3 rounded-xl bg-[#FF6321]/10 border border-[#FF6321]/30 text-[#FF6321] w-fit group-hover:scale-110 group-hover:bg-[#FF6321]/20 transition-all">
-                  <item.icon className="w-6 h-6 animate-pulse" />
-                </div>
-                <h3 className="text-base font-bold text-white group-hover:text-[#FF6321] transition-colors">{item.title}</h3>
-                <p className="text-xs text-gray-400 leading-relaxed group-hover:text-gray-300 transition-colors">
-                  {item.desc}
-                </p>
-              </motion.div>
-            ))}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="space-y-2">
+              <div className="text-xs font-mono text-[#FF5500] font-semibold">01.</div>
+              <h3 className="text-base font-semibold text-white">Zero-Bloat Architecture</h3>
+              <p className="text-sm text-zinc-400 leading-relaxed">
+                Compiled native binaries with minimal memory footprint, no background telemetry strain, and fast cold starts.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <div className="text-xs font-mono text-[#FF5500] font-semibold">02.</div>
+              <h3 className="text-base font-semibold text-white">Verified Distribution</h3>
+              <p className="text-sm text-zinc-400 leading-relaxed">
+                Tokenized release channels and SHA-256 checksums ensure every customer receives an untampered package.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <div className="text-xs font-mono text-[#FF5500] font-semibold">03.</div>
+              <h3 className="text-base font-semibold text-white">Direct Studio Support</h3>
+              <p className="text-sm text-zinc-400 leading-relaxed">
+                Fast verification and ongoing updates directly from the engineering team behind every product.
+              </p>
+            </div>
           </div>
         </div>
-      </motion.section>
+      </section>
 
-      {/* Naija Life Early Access Warning & Game Launcher Modal */}
       <NaijaLifeWarningModal
         isOpen={showNaijaLifeWarning}
         onClose={() => setShowNaijaLifeWarning(false)}

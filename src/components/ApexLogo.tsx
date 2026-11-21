@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'motion/react';
 
 interface ApexLogoProps {
   className?: string;
@@ -14,9 +13,9 @@ export const ApexLogo: React.FC<ApexLogoProps> = ({
 }) => {
   const iconSizes = {
     sm: 'w-7 h-7',
-    md: 'w-10 h-10',
-    lg: 'w-12 h-12',
-    xl: 'w-16 h-16',
+    md: 'w-9 h-9',
+    lg: 'w-11 h-11',
+    xl: 'w-14 h-14',
   };
 
   const textSizes = {
@@ -27,57 +26,28 @@ export const ApexLogo: React.FC<ApexLogoProps> = ({
   };
 
   return (
-    <div className={`inline-flex items-center gap-3 select-none ${className}`}>
-      {/* Official Apex Syndicate Vibrant Orange Shield Icon */}
-      <motion.div
-        whileHover={{ rotate: [0, -6, 6, 0], scale: 1.08 }}
-        transition={{ duration: 0.5 }}
-        className={`relative flex items-center justify-center shrink-0 ${iconSizes[size]}`}
+    <div className={`inline-flex items-center gap-2.5 select-none ${className}`}>
+      <div
+        className={`relative flex items-center justify-center shrink-0 rounded-lg bg-[#FF5500] ${iconSizes[size]}`}
       >
-        {/* Soft Ambient Glow Ring */}
-        <div className="absolute inset-0 bg-[#FF6321] rounded-2xl blur-lg opacity-60 animate-pulse" />
-        <div className="absolute -inset-1 bg-gradient-to-r from-[#FF6321] via-amber-400 to-[#FF4500] rounded-2xl opacity-40 blur-sm animate-pulse-glow" />
-
-        <div className="relative w-full h-full bg-gradient-to-br from-[#FF6321] to-[#D14D00] rounded-2xl flex items-center justify-center shadow-[0_0_25px_rgba(255,99,33,0.5)] border border-white/30">
-          <svg
-            viewBox="0 0 100 100"
-            className="w-3/5 h-3/5 drop-shadow-md"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            {/* Apex Geometric 'A' Delta Mark */}
-            <path
-              d="M50 12 L82 78 L66 78 L50 48 L34 78 L18 78 Z"
-              fill="#FFFFFF"
-            />
-            {/* Inner Core Cyber Cut */}
-            <polygon
-              points="50,26 62,56 38,56"
-              fill="#D14D00"
-            />
-            {/* Syndicate Bar */}
-            <rect
-              x="28"
-              y="66"
-              width="44"
-              height="6"
-              rx="3"
-              fill="#FFFFFF"
-            />
-          </svg>
-        </div>
-      </motion.div>
+        <svg
+          viewBox="0 0 100 100"
+          className="w-3/5 h-3/5"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path d="M50 12 L82 78 L66 78 L50 48 L34 78 L18 78 Z" fill="#FFFFFF" />
+          <polygon points="50,26 62,56 38,56" fill="#09090B" />
+          <rect x="28" y="66" width="44" height="6" rx="2" fill="#FFFFFF" />
+        </svg>
+      </div>
 
       {showText && (
-        <div className="flex flex-col leading-none">
-          <div className={`font-black tracking-tight uppercase font-sans text-white ${textSizes[size]}`}>
-            APEX <span className="bg-gradient-to-r from-[#FF6321] via-amber-400 to-[#FF4500] bg-clip-text text-transparent animate-shimmer-text">SYNDICATE</span>
-          </div>
-          <span className="text-[9px] tracking-[0.25em] text-[#FF6321] uppercase font-bold mt-1 font-mono flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#FF6321] animate-ping inline-block" />
-            apexsyndicate.com.ng
-          </span>
-        </div>
+        <span
+          className={`font-display font-bold tracking-tight text-white whitespace-nowrap ${textSizes[size]}`}
+        >
+          Apex <span className="text-[#FF5500]">Syndicate</span>
+        </span>
       )}
     </div>
   );

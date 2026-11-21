@@ -5,24 +5,18 @@ import {
   Terminal,
   Play,
   ExternalLink,
-  Sparkles,
   Zap,
   Code2,
-  Cpu,
-  Layers,
-  CheckCircle2,
-  AlertCircle,
   Shield,
   ArrowRight,
-  Monitor,
   Laptop,
   Smartphone,
-  Tablet,
   Copy,
   Check,
   X,
   ChevronRight,
   Maximize2,
+  AlertCircle,
 } from 'lucide-react';
 
 interface ApexEditorDemoProps {
@@ -31,12 +25,9 @@ interface ApexEditorDemoProps {
   openDownloadModal?: (product: Product) => void;
 }
 
-// Mobile and Tablet device detector
 function checkIsMobileOrTablet(): boolean {
   if (typeof window === 'undefined' || typeof navigator === 'undefined') return false;
-
   const ua = (navigator.userAgent || navigator.vendor || (window as any).opera || '').toLowerCase();
-
   const mobileKeywords = [
     'android',
     'webos',
@@ -54,31 +45,27 @@ function checkIsMobileOrTablet(): boolean {
     'windows phone',
     'samsungbrowser',
   ];
-
   const hasMobileUA = mobileKeywords.some((keyword) => ua.includes(keyword));
   const isIpadOS = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
   const isTouchDevice = navigator.maxTouchPoints > 0 || 'ontouchstart' in window;
   const isSmallScreen = window.innerWidth < 1024;
-
   return hasMobileUA || isIpadOS || (isTouchDevice && isSmallScreen);
 }
 
-export const ApexEditorDemo: React.FC<ApexEditorDemoProps> = ({
-  product,
-  settings,
-  openDownloadModal,
-}) => {
+export const ApexEditorDemo: React.FC<ApexEditorDemoProps> = ({ settings }) => {
   const [showPausedWarningModal, setShowPausedWarningModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showUnavailableModal, setShowUnavailableModal] = useState(false);
   const [showDeviceUnsupportedModal, setShowDeviceUnsupportedModal] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
 
-  const demoUrl = (settings?.apexEditorDemoUrl || 'https://apex-editor-demo.vercel.app/').trim() || 'https://apex-editor-demo.vercel.app/';
-  const formattedUrl = demoUrl.startsWith('http://') || demoUrl.startsWith('https://') ? demoUrl : `https://${demoUrl}`;
+  const demoUrl =
+    (settings?.apexEditorDemoUrl || 'https://apex-editor-demo.vercel.app/').trim() ||
+    'https://apex-editor-demo.vercel.app/';
+  const formattedUrl =
+    demoUrl.startsWith('http://') || demoUrl.startsWith('https://') ? demoUrl : `https://${demoUrl}`;
   const isDemoAvailable = Boolean(formattedUrl);
 
-  // Prevent background body scrolling when modal is active & support ESC to dismiss
   useEffect(() => {
     if (showPausedWarningModal || showConfirmModal || showUnavailableModal || showDeviceUnsupportedModal) {
       document.body.style.overflow = 'hidden';
@@ -101,7 +88,6 @@ export const ApexEditorDemo: React.FC<ApexEditorDemoProps> = ({
   }, [showPausedWarningModal, showConfirmModal, showUnavailableModal, showDeviceUnsupportedModal]);
 
   const handleOpenDemoPrompt = () => {
-    // Show the production paused warning first before the "yes proceed" confirmation prompt
     setShowPausedWarningModal(true);
   };
 
@@ -112,15 +98,12 @@ export const ApexEditorDemo: React.FC<ApexEditorDemoProps> = ({
 
   const handleProceedClick = (e: React.MouseEvent) => {
     e.preventDefault();
-
-    // Check if user is on mobile or tablet
     if (checkIsMobileOrTablet()) {
       setShowConfirmModal(false);
       setShowDeviceUnsupportedModal(true);
       return;
     }
 
-    // On PC/Laptop: Proceed with opening demo in auto-fullscreen mode to prevent cutoffs
     setShowConfirmModal(false);
     const fullscreenDemoUrl = `${window.location.origin}/?demo=fullscreen`;
     try {
@@ -128,7 +111,7 @@ export const ApexEditorDemo: React.FC<ApexEditorDemoProps> = ({
       if (!newTab || newTab.closed || typeof newTab.closed === 'undefined') {
         window.location.href = fullscreenDemoUrl;
       }
-    } catch (err) {
+    } catch {
       window.location.href = fullscreenDemoUrl;
     }
   };
@@ -142,274 +125,192 @@ export const ApexEditorDemo: React.FC<ApexEditorDemoProps> = ({
   };
 
   return (
-    <div className="space-y-16 pb-24 animate-fadeIn">
-      {/* ==========================================
-          HERO BANNER & DEMO CALL-TO-ACTION
-         ========================================== */}
-      <section className="relative pt-12 pb-16 overflow-hidden border-b border-white/10">
-        {/* Cinematic Ambient Glow */}
-        <div className="absolute top-0 right-1/4 w-[600px] h-[500px] bg-[#FF6321]/10 rounded-full blur-[140px] pointer-events-none" />
-        <div className="absolute bottom-0 left-1/4 w-[450px] h-[450px] bg-amber-500/10 rounded-full blur-[120px] pointer-events-none" />
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-8">
-          {/* Status Badge */}
-          <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/40 text-amber-400 text-xs font-mono font-bold uppercase tracking-widest shadow-lg">
-            <Play className="w-4 h-4 text-amber-400 fill-current animate-pulse" />
-            <span>APEX EDITOR DEMO SANDBOX • {isDemoAvailable ? 'DEMO ENVIRONMENT READY' : 'DEMO UNAVAILABLE'}</span>
+    <div className="space-y-16 pb-24">
+      {/* Header */}
+      <section className="pt-12 pb-10 border-b border-white/[0.08]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+          <div className="text-xs font-mono text-zinc-400 flex flex-wrap items-center gap-2">
+            <span className="text-[#FF5500] font-semibold">Apex Editor Sandbox</span>
+            <span aria-hidden="true">·</span>
+            <span>{isDemoAvailable ? 'Online & Ready' : 'Unavailable'}</span>
           </div>
 
-          <div className="space-y-4">
-            <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black text-white uppercase tracking-tight leading-none">
-              APEX EDITOR <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-[#FF6321] to-orange-500">DEMO</span>
+          <div className="space-y-4 max-w-3xl">
+            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.04]">
+              APEX EDITOR <span className="text-[#FF5500]">DEMO</span>
             </h1>
-            <p className="text-xl sm:text-2xl text-gray-300 font-light max-w-3xl leading-relaxed">
-              Experience the blazing speed, intelligent AST transformations, and zero-latency terminal workspaces of Apex Editor directly in your browser.
+            <p className="text-base sm:text-lg text-zinc-400 leading-relaxed">
+              Test the responsive canvas timeline, AST editing engine, and interactive workspace of Apex Editor directly in your desktop browser.
             </p>
           </div>
 
-          {/* Action Button Bar */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
             <button
+              type="button"
               onClick={handleOpenDemoPrompt}
-              className="relative group px-10 py-5 rounded-2xl bg-gradient-to-r from-amber-500 via-[#FF6321] to-orange-600 hover:from-amber-400 hover:to-orange-500 text-black font-black text-sm uppercase tracking-widest shadow-[0_10px_35px_rgba(255,99,33,0.4)] transition-all transform hover:scale-[1.03] active:scale-[0.98] flex items-center justify-center gap-3 cursor-pointer"
+              className="px-8 py-3.5 rounded-lg bg-[#FF5500] hover:bg-[#FF6E26] text-black font-semibold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
             >
-              <Play className="w-5 h-5 fill-current" />
-              <span>USE DEMO</span>
-              <ExternalLink className="w-4 h-4 opacity-75 group-hover:translate-x-1 group-hover:-translate-y-0.5 transition-transform" />
+              <Play className="w-4 h-4 fill-black" />
+              <span>Launch Web Demo</span>
+              <ExternalLink className="w-4 h-4" />
             </button>
 
-            <div className="flex items-center gap-3 px-5 py-4 rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-xl">
-              <span className="text-xs font-mono text-gray-400 uppercase">DEMO STATUS:</span>
-              {isDemoAvailable ? (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 text-xs font-mono font-bold border border-emerald-500/40">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                  ONLINE & READY
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-rose-500/20 text-rose-300 text-xs font-mono font-bold border border-rose-500/40">
-                  <AlertCircle className="w-3.5 h-3.5" />
-                  DEMO UNAVAILABLE
-                </span>
-              )}
+            <div className="px-5 py-3.5 rounded-lg bg-[#111114] border border-white/[0.08] font-mono text-xs text-zinc-300 flex items-center justify-center gap-2">
+              <span className="text-zinc-500">Status:</span>
+              <span className={isDemoAvailable ? 'text-emerald-400 font-semibold' : 'text-rose-400 font-semibold'}>
+                {isDemoAvailable ? 'Online (PC / Laptop Recommended)' : 'Offline'}
+              </span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ==========================================
-          INTERACTIVE DEMO PREVIEW CARD
-         ========================================== */}
+      {/* Interactive Preview Card */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="relative overflow-hidden rounded-[28px] md:rounded-[32px] bg-black/60 backdrop-blur-2xl border border-amber-500/30 p-6 md:p-10 shadow-2xl space-y-8">
-          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 pb-6 border-b border-white/10">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-xs font-mono text-amber-400 font-bold uppercase tracking-widest">
+        <div className="rounded-2xl bg-[#111114] border border-white/[0.08] p-6 sm:p-8 space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-white/[0.08]">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-xs font-mono text-[#FF5500] font-semibold">
                 <Terminal className="w-4 h-4" />
-                <span>INTERACTIVE WORKSPACE PREVIEW</span>
+                <span>Interactive Workspace Preview</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-wide">
-                Apex Code Engine & Live Terminal Sandbox
+              <h2 className="text-2xl font-bold text-white">
+                Apex Engine &amp; Live Terminal Sandbox
               </h2>
             </div>
 
             <button
+              type="button"
               onClick={handleOpenDemoPrompt}
-              className="px-6 py-3 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2"
+              className="px-5 py-2.5 rounded-lg bg-[#FF5500] hover:bg-[#FF6E26] text-black font-semibold text-xs uppercase tracking-wider transition-colors flex items-center gap-2 cursor-pointer w-fit"
             >
-              <Play className="w-4 h-4 fill-current" />
-              <span>LAUNCH CLOUD DEMO</span>
-              <ArrowRight className="w-4 h-4" />
+              <Play className="w-3.5 h-3.5 fill-black" />
+              <span>Open Sandbox</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
 
-          {/* IDE Simulation Shell */}
-          <div className="rounded-2xl bg-[#0d1117] border border-white/10 overflow-hidden shadow-2xl font-mono text-xs">
-            {/* Window Title Bar */}
-            <div className="px-4 py-3 bg-[#161b22] border-b border-white/10 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-red-500/80" />
-                <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
-                <div className="w-3 h-3 rounded-full bg-green-500/80" />
-                <span className="text-gray-400 text-[11px] ml-2">ApexEditorDemo — workspace.ts</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] border border-amber-500/40">
-                  SANDBOX v1.0
-                </span>
-              </div>
+          <div className="rounded-xl bg-[#09090b] border border-white/[0.08] overflow-hidden font-mono text-xs">
+            <div className="px-4 py-3 bg-[#141418] border-b border-white/[0.08] flex items-center justify-between text-zinc-400">
+              <span>ApexEditorDemo — workspace.ts</span>
+              <span className="text-[#FF5500]">Sandbox v1.0</span>
             </div>
 
-            {/* Code Body */}
-            <div className="p-6 text-gray-300 space-y-2 leading-relaxed overflow-x-auto">
-              <p className="text-gray-500">// Apex Editor Ultra-Fast Compilation & AST Engine</p>
-              <p>
-                <span className="text-purple-400">import</span> &#123; <span className="text-amber-300">ApexCompiler</span>, <span className="text-amber-300">FastAST</span> &#125; <span className="text-purple-400">from</span> <span className="text-emerald-300">'@apex/core'</span>;
-              </p>
-              <p>&nbsp;</p>
-              <p>
-                <span className="text-blue-400">export async function</span> <span className="text-yellow-300">initApexDemo</span>() &#123;
-              </p>
-              <p className="pl-4">
-                <span className="text-blue-400">const</span> engine = <span className="text-purple-400">new</span> <span className="text-amber-300">ApexCompiler</span>(&#123; mode: <span className="text-emerald-300">'instant-hot-swap'</span>, threads: <span className="text-orange-400">16</span> &#125;);
-              </p>
-              <p className="pl-4">
-                <span className="text-gray-500">// Zero-latency parse sequence</span>
-              </p>
-              <p className="pl-4">
-                <span className="text-blue-400">const</span> ast = <span className="text-purple-400">await</span> engine.<span className="text-yellow-300">parseWorkspace</span>(&#123; telemetry: <span className="text-orange-400">true</span> &#125;);
-              </p>
-              <p className="pl-4">
-                console.<span className="text-yellow-300">log</span>(<span className="text-emerald-300">`🚀 Apex Editor active with $&#123;ast.nodeCount&#125; AST nodes in 1.4ms!`</span>);
-              </p>
-              <p className="pl-4">
-                <span className="text-purple-400">return</span> engine.<span className="text-yellow-300">launchInteractiveShell</span>();
-              </p>
-              <p>&#125;</p>
-            </div>
+            <pre className="p-6 text-zinc-300 overflow-x-auto leading-relaxed">
+{`// Apex Editor Compilation & AST Engine
+import { ApexCompiler, FastAST } from '@apex/core';
 
-            {/* Bottom Status Bar */}
-            <div className="px-4 py-2 bg-[#161b22] border-t border-white/10 flex items-center justify-between text-[11px] text-gray-400">
-              <div className="flex items-center gap-4">
-                <span className="flex items-center gap-1.5 text-emerald-400">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                  TypeScript 5.4.2
-                </span>
-                <span>UTF-8</span>
-                <span>LF</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={handleOpenDemoPrompt}
-                  className="px-3 py-1 rounded bg-[#FF6321] text-black font-bold text-[10px] uppercase hover:bg-orange-400 transition-colors"
-                >
-                  USE DEMO LINK
-                </button>
-              </div>
+export async function initApexDemo() {
+  const engine = new ApexCompiler({ mode: 'instant-hot-swap', threads: 16 });
+  const ast = await engine.parseWorkspace({ telemetry: false });
+  console.log(\`Apex Editor active with \${ast.nodeCount} AST nodes in 1.4ms\`);
+  return engine.launchInteractiveShell();
+}`}
+            </pre>
+
+            <div className="px-4 py-2.5 bg-[#141418] border-t border-white/[0.08] flex items-center justify-between text-[11px] text-zinc-400">
+              <span>TypeScript · UTF-8 · LF</span>
+              <button
+                type="button"
+                onClick={handleOpenDemoPrompt}
+                className="text-[#FF5500] hover:underline font-semibold cursor-pointer"
+              >
+                Open Interactive Link
+              </button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ==========================================
-          DEMO FEATURES & CAPABILITIES
-         ========================================== */}
+      {/* Capabilities */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="p-8 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-xl space-y-4 hover:border-amber-500/40 transition-colors">
-            <div className="p-3 w-fit rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400">
-              <Zap className="w-6 h-6" />
+          <div className="p-6 rounded-2xl bg-[#111114] border border-white/[0.08] space-y-3">
+            <div className="w-10 h-10 rounded-lg bg-[#FF5500]/10 border border-[#FF5500]/25 text-[#FF5500] flex items-center justify-center">
+              <Zap className="w-5 h-5" />
             </div>
-            <h3 className="text-lg font-bold text-white uppercase tracking-wider">Sub-Millisecond Engine</h3>
-            <p className="text-sm text-gray-400 leading-relaxed">
-              Experience typing and file indexing speeds designed to eliminate input lag completely.
+            <h3 className="text-base font-bold text-white">Sub-Millisecond Engine</h3>
+            <p className="text-sm text-zinc-400 leading-relaxed">
+              Typing and file indexing tuned to eliminate input latency across large workspaces.
             </p>
           </div>
 
-          <div className="p-8 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-xl space-y-4 hover:border-orange-500/40 transition-colors">
-            <div className="p-3 w-fit rounded-xl bg-orange-500/10 border border-orange-500/30 text-orange-400">
-              <Code2 className="w-6 h-6" />
+          <div className="p-6 rounded-2xl bg-[#111114] border border-white/[0.08] space-y-3">
+            <div className="w-10 h-10 rounded-lg bg-[#FF5500]/10 border border-[#FF5500]/25 text-[#FF5500] flex items-center justify-center">
+              <Code2 className="w-5 h-5" />
             </div>
-            <h3 className="text-lg font-bold text-white uppercase tracking-wider">Zero Setup Sandbox</h3>
-            <p className="text-sm text-gray-400 leading-relaxed">
-              No local installation or terminal drivers needed. Launch instantly via the interactive link.
+            <h3 className="text-base font-bold text-white">Zero Setup Sandbox</h3>
+            <p className="text-sm text-zinc-400 leading-relaxed">
+              No local installers required. Evaluate the editor interface directly in your browser.
             </p>
           </div>
 
-          <div className="p-8 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-xl space-y-4 hover:border-amber-500/40 transition-colors">
-            <div className="p-3 w-fit rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400">
-              <Shield className="w-6 h-6" />
+          <div className="p-6 rounded-2xl bg-[#111114] border border-white/[0.08] space-y-3">
+            <div className="w-10 h-10 rounded-lg bg-[#FF5500]/10 border border-[#FF5500]/25 text-[#FF5500] flex items-center justify-center">
+              <Shield className="w-5 h-5" />
             </div>
-            <h3 className="text-lg font-bold text-white uppercase tracking-wider">Enterprise Sandbox</h3>
-            <p className="text-sm text-gray-400 leading-relaxed">
-              Secure memory containment allowing you to test complex scripts and plugins without risk.
+            <h3 className="text-base font-bold text-white">Contained Execution</h3>
+            <p className="text-sm text-zinc-400 leading-relaxed">
+              Safe browser memory containment to explore project layouts and timeline controls.
             </p>
           </div>
         </div>
       </section>
 
-      {/* ==========================================
-          DEMO CONFIRMATION & WARNING MODAL (RENDERED VIA PORTAL AT TOP LEVEL)
-         ========================================== */}
-      {/* ==========================================
-          STEP 1: PRODUCTION PAUSED WARNING MODAL
-         ========================================== */}
+      {/* Step 1: Production Paused Warning Modal */}
       {showPausedWarningModal &&
         typeof document !== 'undefined' &&
         createPortal(
           <div
-            className="fixed inset-0 z-[9999999] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn"
+            className="fixed inset-0 z-[9999999] flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-fadeIn"
             onClick={(e) => {
               if (e.target === e.currentTarget) setShowPausedWarningModal(false);
             }}
           >
-            <div className="relative w-full max-w-lg p-6 sm:p-8 rounded-3xl bg-[#0e0e12] border border-amber-500/60 shadow-[0_0_60px_rgba(245,158,11,0.35)] space-y-6 max-h-[90vh] overflow-y-auto">
-              {/* Close Button */}
+            <div className="relative w-full max-w-lg p-6 sm:p-8 rounded-2xl bg-[#111114] border border-white/[0.12] shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
               <button
                 type="button"
                 onClick={() => setShowPausedWarningModal(false)}
-                className="absolute top-5 right-5 p-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors cursor-pointer"
+                className="absolute top-5 right-5 p-2 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-zinc-400 hover:text-white transition-colors cursor-pointer"
                 title="Close"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
 
-              <div className="flex items-center gap-3.5 pr-8">
-                <div className="p-3.5 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/50 shadow-[0_0_25px_rgba(245,158,11,0.35)] shrink-0">
-                  <AlertCircle className="w-7 h-7" />
+              <div className="flex items-center gap-3 pr-8">
+                <div className="w-10 h-10 rounded-xl bg-[#FF5500]/10 border border-[#FF5500]/30 text-[#FF5500] flex items-center justify-center shrink-0">
+                  <AlertCircle className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-xl sm:text-2xl font-black text-white uppercase tracking-wide">
-                    PRODUCTION PAUSED
-                  </h3>
-                  <span className="text-xs font-mono text-amber-400 font-bold uppercase tracking-wider">
-                    OFFICIAL APEX EDITOR NOTICE
-                  </span>
+                  <h3 className="text-lg font-bold text-white">Production Paused</h3>
+                  <span className="text-xs font-mono text-[#FF5500]">Official Apex Editor Notice</span>
                 </div>
               </div>
 
-              {/* PRIMARY WARNING STATEMENT BANNER */}
-              <div className="p-5 rounded-2xl bg-gradient-to-r from-amber-950/70 via-orange-950/60 to-black border border-amber-500/60 space-y-3 shadow-inner">
-                <div className="flex items-center gap-2 text-amber-300 text-xs font-mono font-bold uppercase tracking-wider">
-                  <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
-                  <span>CRITICAL NOTICE</span>
-                </div>
-                <p className="text-base sm:text-lg font-black text-white leading-relaxed">
-                  ⚠️ Production of Apex Editor has been paused by the Apex Editor team.
+              <div className="p-4 rounded-xl bg-[#09090b] border border-[#FF5500]/30 space-y-2">
+                <p className="text-sm font-semibold text-white">
+                  Production of Apex Editor has been paused by the Apex Editor team.
                 </p>
-                <p className="text-xs sm:text-sm text-gray-200 leading-relaxed font-sans">
-                  Active production updates and upcoming releases for Apex Editor have currently been placed on pause by the development team. However, you can still access and use the interactive pre-release demo environment to test out editor tools, explore the workstation, and evaluate features.
+                <p className="text-xs text-zinc-400 leading-relaxed">
+                  Active updates and desktop builds are currently on pause, while the interactive web demo remains online for preview and testing.
                 </p>
               </div>
 
-              {/* SANDBOX CAVEAT */}
-              <div className="p-3.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs font-mono text-gray-300 space-y-1">
-                <div className="flex items-center gap-1.5 text-amber-400 font-bold">
-                  <Terminal className="w-3.5 h-3.5" />
-                  <span>PREVIEW SANDBOX ENVIRONMENT</span>
-                </div>
-                <p className="text-[11px] text-gray-400">
-                  As this is a pre-release sandbox build, expect potential experimental tools and minor bugs.
-                </p>
-              </div>
-
-              {/* ACTION BUTTONS */}
-              <div className="grid grid-cols-2 gap-3 pt-1">
+              <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
                   onClick={() => setShowPausedWarningModal(false)}
-                  className="w-full py-4 px-4 rounded-xl bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white font-black text-xs uppercase tracking-wider border border-white/10 transition-all cursor-pointer flex items-center justify-center gap-2"
+                  className="py-3 px-4 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-zinc-200 font-medium text-xs border border-white/[0.08] transition-colors cursor-pointer"
                 >
-                  <X className="w-4 h-4" />
-                  <span>CANCEL</span>
+                  Cancel
                 </button>
-
                 <button
                   type="button"
                   onClick={handleProceedFromWarning}
-                  className="w-full py-4 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-[#FF6321] to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-black text-xs uppercase tracking-wider shadow-[0_0_25px_rgba(255,99,33,0.4)] transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer text-center select-none"
+                  className="py-3 px-4 rounded-lg bg-[#FF5500] hover:bg-[#FF6E26] text-black font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                 >
-                  <span>CONTINUE</span>
-                  <ChevronRight className="w-4 h-4 text-black" />
+                  <span>Continue</span>
+                  <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -417,221 +318,161 @@ export const ApexEditorDemo: React.FC<ApexEditorDemoProps> = ({
           document.body
         )}
 
-      {/* ==========================================
-          STEP 2: CONFIRMATION PROMPT MODAL
-         ========================================== */}
+      {/* Step 2: Confirm Fullscreen Launch */}
       {showConfirmModal &&
         typeof document !== 'undefined' &&
         createPortal(
           <div
-            className="fixed inset-0 z-[9999999] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn"
+            className="fixed inset-0 z-[9999999] flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-fadeIn"
             onClick={(e) => {
               if (e.target === e.currentTarget) setShowConfirmModal(false);
             }}
           >
-            <div className="relative w-full max-w-lg p-6 sm:p-8 rounded-3xl bg-[#0e0e12] border border-amber-500/50 shadow-[0_0_60px_rgba(245,158,11,0.3)] space-y-6 max-h-[90vh] overflow-y-auto">
-              {/* Close Button */}
+            <div className="relative w-full max-w-lg p-6 sm:p-8 rounded-2xl bg-[#111114] border border-white/[0.12] shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
               <button
                 type="button"
                 onClick={() => setShowConfirmModal(false)}
-                className="absolute top-5 right-5 p-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors cursor-pointer"
+                className="absolute top-5 right-5 p-2 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-zinc-400 hover:text-white transition-colors cursor-pointer"
                 title="Close"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
 
-              <div className="flex items-center gap-3.5 pr-8">
-                <div className="p-3 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/40 shadow-[0_0_20px_rgba(245,158,11,0.3)]">
-                  <Play className="w-7 h-7 fill-current" />
+              <div className="flex items-center gap-3 pr-8">
+                <div className="w-10 h-10 rounded-xl bg-[#FF5500]/10 border border-[#FF5500]/30 text-[#FF5500] flex items-center justify-center shrink-0">
+                  <Play className="w-5 h-5 fill-current" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-black text-white uppercase tracking-wide">
-                    LAUNCH DEMO?
-                  </h3>
-                  <span className="text-xs font-mono text-amber-400 font-bold uppercase tracking-wider">
-                    APEX EDITOR PREVIEW ENVIRONMENT
-                  </span>
+                  <h3 className="text-lg font-bold text-white">Launch Web Demo?</h3>
+                  <span className="text-xs font-mono text-zinc-400">Fullscreen Preview Mode</span>
                 </div>
               </div>
 
-              {/* MANDATORY WARNING NOTICE */}
-              <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-950/60 via-orange-950/50 to-black border border-amber-500/60 space-y-2.5 shadow-inner">
-                <div className="flex items-center gap-2 text-amber-300 text-xs font-mono font-bold uppercase tracking-wider">
-                  <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
-                  <span>PRODUCTION PAUSED • DEMO AVAILABLE</span>
+              <div className="p-4 rounded-xl bg-[#09090b] border border-white/[0.08] space-y-2 text-xs text-zinc-300 leading-relaxed">
+                <div className="flex items-center gap-2 text-[#FF5500] font-mono font-semibold">
+                  <Maximize2 className="w-4 h-4" />
+                  <span>Automatic Fullscreen Display</span>
                 </div>
-                <p className="text-sm sm:text-base font-extrabold text-white leading-relaxed">
-                  ⚠️ Production has been paused by the Apex Editor team, but you can still use the demo.
-                </p>
-                <p className="text-xs text-gray-300 leading-relaxed">
-                  This preview environment is in active pre-release sandbox mode. Features and capabilities may vary from the final production build.
+                <p>
+                  The demo opens in fullscreen mode so the canvas, timeline tracks, and toolbars fit cleanly. Press <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-white font-mono">ESC</kbd> or <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-white font-mono">F11</kbd> anytime to exit.
                 </p>
               </div>
 
-              {/* AUTO-FULLSCREEN BEHAVIOR NOTICE */}
-              <div className="p-3.5 sm:p-4 rounded-2xl bg-black/60 border border-amber-500/40 text-left space-y-1.5 font-mono text-xs">
-                <div className="flex items-center gap-2 text-amber-400 font-bold uppercase tracking-wider">
-                  <Maximize2 className="w-4 h-4 text-amber-400 shrink-0" />
-                  <span>AUTOMATIC FULLSCREEN DISPLAY</span>
-                </div>
-                <p className="text-gray-300 text-[11px] leading-relaxed">
-                  The demo opens in a new tab in <strong className="text-white">Fullscreen Mode</strong> so the video canvas, timeline tracks, and toolbar controls are not cut off.
-                </p>
-                <div className="pt-1 text-[11px] text-amber-300 flex items-center gap-1.5 font-sans">
-                  <span>To exit fullscreen anytime: press and hold <kbd className="px-1.5 py-0.5 rounded bg-white/15 text-white font-mono font-bold">ESC</kbd> or press <kbd className="px-1.5 py-0.5 rounded bg-white/15 text-white font-mono font-bold">F11</kbd>.</span>
-                </div>
-              </div>
-
-              {/* CONFIRMATION QUESTION */}
-              <div className="text-center py-1">
-                <p className="text-base sm:text-lg font-black text-white uppercase tracking-wide">
-                  Are you sure you want to proceed?
-                </p>
-                <p className="text-xs text-gray-400 mt-1 font-mono">
-                  Select YES to launch demo or NO to cancel.
-                </p>
-              </div>
-
-              {/* YES / NO ACTION BUTTONS */}
-              <div className="grid grid-cols-2 gap-3 pt-1">
+              <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
                   onClick={() => setShowConfirmModal(false)}
-                  className="w-full py-4 px-4 rounded-xl bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white font-black text-xs uppercase tracking-wider border border-white/10 transition-all cursor-pointer flex items-center justify-center gap-2"
+                  className="py-3 px-4 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-zinc-200 font-medium text-xs border border-white/[0.08] transition-colors cursor-pointer"
                 >
-                  <X className="w-4 h-4" />
-                  <span>NO, CANCEL</span>
+                  No, Cancel
                 </button>
-
                 <button
                   type="button"
                   onClick={handleProceedClick}
-                  className="w-full py-4 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-[#FF6321] to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-black text-xs uppercase tracking-wider shadow-[0_0_25px_rgba(255,99,33,0.4)] transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer text-center select-none"
+                  className="py-3 px-4 rounded-lg bg-[#FF5500] hover:bg-[#FF6E26] text-black font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                 >
-                  <Maximize2 className="w-4 h-4 text-black fill-current" />
-                  <span>YES, LAUNCH FULLSCREEN</span>
+                  <Maximize2 className="w-3.5 h-3.5" />
+                  <span>Yes, Launch</span>
                 </button>
               </div>
 
-              {/* DIRECT FALLBACK LINK */}
-              <div className="pt-2 text-center border-t border-white/5 space-y-1">
-                <p className="text-[11px] text-gray-400">
-                  Direct Link:{' '}
-                  <a
-                    href={formattedUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => {
-                      if (checkIsMobileOrTablet()) {
-                        e.preventDefault();
-                        setShowConfirmModal(false);
-                        setShowDeviceUnsupportedModal(true);
-                      } else {
-                        setShowConfirmModal(false);
-                      }
-                    }}
-                    className="text-amber-400 hover:text-amber-300 hover:underline font-mono font-bold inline-flex items-center gap-1"
-                  >
-                    <span>https://apex-editor-demo.vercel.app/</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
-                </p>
+              <div className="pt-2 border-t border-white/[0.06] text-center text-[11px] text-zinc-500 font-mono">
+                Direct Link:{' '}
+                <a
+                  href={formattedUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => {
+                    if (checkIsMobileOrTablet()) {
+                      e.preventDefault();
+                      setShowConfirmModal(false);
+                      setShowDeviceUnsupportedModal(true);
+                    } else {
+                      setShowConfirmModal(false);
+                    }
+                  }}
+                  className="text-[#FF5500] hover:underline inline-flex items-center gap-1"
+                >
+                  <span>{formattedUrl}</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
               </div>
             </div>
           </div>,
           document.body
         )}
 
-      {/* ==========================================
-          DEVICE UNSUPPORTED MODAL (FOR MOBILE / TABLET)
-         ========================================== */}
+      {/* Device Unsupported Modal */}
       {showDeviceUnsupportedModal &&
         typeof document !== 'undefined' &&
         createPortal(
           <div
-            className="fixed inset-0 z-[9999999] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fadeIn"
+            className="fixed inset-0 z-[9999999] flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-fadeIn"
             onClick={(e) => {
               if (e.target === e.currentTarget) setShowDeviceUnsupportedModal(false);
             }}
           >
-            <div className="relative w-full max-w-lg p-6 sm:p-8 rounded-3xl bg-[#0e0e12] border border-rose-500/50 shadow-[0_0_60px_rgba(244,63,94,0.3)] space-y-6 max-h-[90vh] overflow-y-auto">
-              {/* Close Button */}
+            <div className="relative w-full max-w-lg p-6 sm:p-8 rounded-2xl bg-[#111114] border border-white/[0.12] shadow-2xl space-y-5">
               <button
                 type="button"
                 onClick={() => setShowDeviceUnsupportedModal(false)}
-                className="absolute top-5 right-5 p-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors cursor-pointer"
+                className="absolute top-5 right-5 p-2 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-zinc-400 hover:text-white transition-colors cursor-pointer"
                 title="Close"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
 
-              <div className="flex items-center gap-3.5 pr-8">
-                <div className="p-3.5 rounded-2xl bg-rose-500/20 text-rose-400 border border-rose-500/40 shadow-[0_0_25px_rgba(244,63,94,0.35)] shrink-0">
-                  <Smartphone className="w-7 h-7" />
+              <div className="flex items-center gap-3 pr-8">
+                <div className="w-10 h-10 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-400 flex items-center justify-center shrink-0">
+                  <Smartphone className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-xl sm:text-2xl font-black text-white uppercase tracking-wide">
-                    DEVICE NOT SUPPORTED
-                  </h3>
-                  <span className="text-xs font-mono text-rose-400 font-bold uppercase tracking-wider">
-                    PC / DESKTOP REQUIRED
-                  </span>
+                  <h3 className="text-lg font-bold text-white">Desktop Required</h3>
+                  <span className="text-xs font-mono text-rose-400">PC / Laptop Recommended</span>
                 </div>
               </div>
 
-              {/* CORE MESSAGE BANNER */}
-              <div className="p-5 rounded-2xl bg-gradient-to-r from-rose-950/60 via-orange-950/40 to-black border border-rose-500/50 space-y-3 shadow-inner">
-                <div className="flex items-center gap-2 text-rose-300 text-xs font-mono font-bold uppercase tracking-wider">
-                  <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
-                  <span>COMPATIBILITY NOTICE</span>
-                </div>
-                <p className="text-base sm:text-lg font-black text-white leading-relaxed">
-                  It is not available on your device. Please try using a laptop or desktop.
+              <div className="p-4 rounded-xl bg-[#09090b] border border-white/[0.08] space-y-2 text-xs text-zinc-300 leading-relaxed">
+                <p className="font-semibold text-white">
+                  Apex Editor Demo requires a laptop or desktop screen.
                 </p>
-                <p className="text-xs text-gray-300 leading-relaxed font-sans">
-                  Apex Editor is engineered with multi-split code workspaces, GPU canvas acceleration, and native developer keyboard bindings designed specifically for desktop workstations and laptops.
+                <p className="text-zinc-400">
+                  Multi-panel workspaces and timeline shortcuts are built specifically for desktop browsers.
                 </p>
               </div>
 
-              {/* DEVICE BREAKDOWN MATRIX */}
               <div className="grid grid-cols-2 gap-3 font-mono text-xs">
-                <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-200 space-y-1">
-                  <div className="flex items-center gap-2 font-bold text-rose-400">
-                    <Smartphone className="w-4 h-4" />
-                    <span>MOBILE & TABLET</span>
+                <div className="p-3 rounded-lg bg-[#09090b] border border-rose-500/30 space-y-1">
+                  <div className="flex items-center gap-1.5 text-rose-400 font-semibold">
+                    <Smartphone className="w-3.5 h-3.5" />
+                    <span>Mobile &amp; Tablet</span>
                   </div>
-                  <p className="text-[11px] text-gray-300">
-                    ❌ Not Available on touch devices
-                  </p>
+                  <p className="text-[11px] text-zinc-400">Not supported</p>
                 </div>
-
-                <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-200 space-y-1">
-                  <div className="flex items-center gap-2 font-bold text-emerald-400">
-                    <Laptop className="w-4 h-4" />
-                    <span>LAPTOP & PC</span>
+                <div className="p-3 rounded-lg bg-[#09090b] border border-emerald-500/30 space-y-1">
+                  <div className="flex items-center gap-1.5 text-emerald-400 font-semibold">
+                    <Laptop className="w-3.5 h-3.5" />
+                    <span>Laptop &amp; PC</span>
                   </div>
-                  <p className="text-[11px] text-gray-300">
-                    ✅ Full Cloud Demo Supported
-                  </p>
+                  <p className="text-[11px] text-zinc-400">Full demo supported</p>
                 </div>
               </div>
 
-              {/* COPY LINK OR CLOSE ACTION BUTTONS */}
-              <div className="space-y-3 pt-2">
+              <div className="space-y-2.5">
                 <button
                   type="button"
                   onClick={handleCopyDemoLink}
-                  className="w-full py-3.5 px-4 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-wider border border-white/10 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-3 px-4 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-white font-medium text-xs border border-white/[0.08] transition-colors flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {copiedLink ? (
                     <>
                       <Check className="w-4 h-4 text-emerald-400" />
-                      <span className="text-emerald-300">DEMO LINK COPIED TO CLIPBOARD!</span>
+                      <span className="text-emerald-300">Link Copied</span>
                     </>
                   ) : (
                     <>
-                      <Copy className="w-4 h-4 text-gray-300" />
-                      <span>COPY DEMO LINK TO OPEN ON LAPTOP</span>
+                      <Copy className="w-4 h-4 text-zinc-400" />
+                      <span>Copy Demo Link for PC</span>
                     </>
                   )}
                 </button>
@@ -639,9 +480,9 @@ export const ApexEditorDemo: React.FC<ApexEditorDemoProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowDeviceUnsupportedModal(false)}
-                  className="w-full py-4 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-[#FF6321] to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-black text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(255,99,33,0.3)] transition-all cursor-pointer flex items-center justify-center gap-2"
+                  className="w-full py-3 px-4 rounded-lg bg-[#FF5500] hover:bg-[#FF6E26] text-black font-semibold text-xs transition-colors cursor-pointer"
                 >
-                  <span>UNDERSTOOD / CLOSE</span>
+                  Close
                 </button>
               </div>
             </div>
@@ -649,49 +490,28 @@ export const ApexEditorDemo: React.FC<ApexEditorDemoProps> = ({
           document.body
         )}
 
-      {/* ==========================================
-          DEMO UNAVAILABLE MODAL (RENDERED VIA PORTAL)
-         ========================================== */}
+      {/* Unavailable Modal */}
       {showUnavailableModal &&
         typeof document !== 'undefined' &&
         createPortal(
           <div
-            className="fixed inset-0 z-[9999999] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn"
+            className="fixed inset-0 z-[9999999] flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-fadeIn"
             onClick={(e) => {
               if (e.target === e.currentTarget) setShowUnavailableModal(false);
             }}
           >
-            <div className="relative w-full max-w-lg p-8 rounded-3xl bg-[#0e0e10] border border-amber-500/40 shadow-[0_0_50px_rgba(255,99,33,0.3)] space-y-6">
-              <div className="flex items-center gap-3">
-                <div className="p-3 rounded-2xl bg-rose-500/20 text-rose-400 border border-rose-500/40">
-                  <AlertCircle className="w-7 h-7" />
-                </div>
-                <div>
-                  <h3 className="text-2xl font-black text-white uppercase tracking-wide">
-                    DEMO UNAVAILABLE
-                  </h3>
-                  <span className="text-xs font-mono text-gray-400">APEX EDITOR SANDBOX NOTICE</span>
-                </div>
-              </div>
-
-              <div className="p-5 rounded-2xl bg-white/[0.03] border border-white/10 text-sm text-gray-300 space-y-3 leading-relaxed">
-                <p>
-                  The live interactive demo link is currently not configured or is undergoing maintenance.
-                </p>
-                <p className="text-xs font-mono text-amber-400">
-                  The platform owner can set and update the live demo URL anytime in the <span className="font-bold underline">Owners Portal</span>.
-                </p>
-              </div>
-
-              <div className="flex items-center justify-end gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowUnavailableModal(false)}
-                  className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer"
-                >
-                  CLOSE
-                </button>
-              </div>
+            <div className="relative w-full max-w-md p-6 rounded-2xl bg-[#111114] border border-white/[0.12] space-y-4">
+              <h3 className="text-lg font-bold text-white">Demo Unavailable</h3>
+              <p className="text-sm text-zinc-400">
+                The live demo environment is currently undergoing maintenance.
+              </p>
+              <button
+                type="button"
+                onClick={() => setShowUnavailableModal(false)}
+                className="w-full py-2.5 rounded-lg bg-[#FF5500] text-black font-semibold text-xs cursor-pointer"
+              >
+                Close
+              </button>
             </div>
           </div>,
           document.body

@@ -17,7 +17,7 @@
       "iconName": "Gamepad",
       "fileUrl": "",
       "fileSize": "Coming Soon",
-      "externalUrl": "https://naijalife.ai.studio/",
+      "externalUrl": "https://naijalife-rpg.vercel.app",
       "systemRequirements": {
         "os": "PC, Mobile & Web (Played on the web)",
         "processor": "TBD",
@@ -161,7 +161,7 @@
         "id": "pic-naija-life-demo",
         "url": "/images/naija_life_hero.jpg",
         "title": "NAIJA LIFE: EARLY ACCESS DEMO IS OUT!",
-        "caption": "Playable early access alpha web build is live now at naijalife.ai.studio! PC recommended for best performance.",
+        "caption": "Playable early access alpha web build is live now at naijalife-rpg.vercel.app! PC recommended for best performance.",
         "category": "Naija Life",
         "createdAt": "Live Now"
       },
@@ -179,7 +179,7 @@
     "visitorCount": 28,
     "demoVisitorCount": 0,
     "apexEditorDemoUrl": "https://apex-editor-demo.vercel.app/",
-    "naijaLifeGameUrl": "https://naijalife.ai.studio/",
+    "naijaLifeGameUrl": "https://naijalife-rpg.vercel.app",
     "gangsterRevolutionLaunchDate": "TBD",
     "gangsterRevolutionStatus": "PRE-ALPHA BUILD • IN DEVELOPMENT",
     "gangsterSpecs": {

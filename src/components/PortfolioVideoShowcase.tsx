@@ -1,42 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 import {
   Play,
   Pause,
   Maximize2,
   RotateCcw,
-  Volume2,
-  VolumeX,
   Film,
-  Gamepad2,
-  Globe,
-  User,
   Zap,
-  Cpu,
-  Video,
-  ArrowUp,
-  MessageSquare,
-  MousePointer,
-  Sparkles,
-  Flame,
-  Radio,
-  Crosshair,
-  Target,
-  Truck,
-  Plane,
-  Clock,
-  ExternalLink,
-  Shield,
   Download,
-  ImageIcon,
   ChevronLeft,
   ChevronRight,
-  Eye,
-  X,
   Layers,
-  Sparkle,
-  ShieldAlert,
-  Activity,
+  AlertCircle,
 } from 'lucide-react';
 import { fetchPublicSettings } from '../lib/api';
 import { exportPortfolioVideo } from '../lib/videoExporter';
@@ -66,27 +40,19 @@ interface DevUpdateItem {
 }
 
 export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ setActiveTab }) => {
-  const TOTAL_DURATION = 18; // 18-second hyper-fast kinetic edit
+  const TOTAL_DURATION = 18;
   const [currentTime, setCurrentTime] = useState<number>(0);
-  const [isPlaying, setIsPlaying] = useState<boolean>(false); // PAUSED on site enter
-  const [isAudioEnabled, setIsAudioEnabled] = useState<boolean>(true); // UNMUTED by default
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [isAudioEnabled] = useState<boolean>(true);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
-  const [activeHero, setActiveHero] = useState<'marcus' | 'laura' | 'john'>('marcus');
 
-  // Video Mode: 'default' (kinetic reel) | 'custom' (uploaded video) | 'blank' (Portfolio Coming Soon)
   const [videoMode, setVideoMode] = useState<'default' | 'custom' | 'blank'>('default');
   const [customVideoUrl, setCustomVideoUrl] = useState<string | null>(null);
-
-  // Active Dev Update Slide Index: 0 = Dev Update 1 (Apex Editor Demo), 1 = Dev Update 2 (Gangster Revolution), 2 = Dev Update 3 (Apex Editor Paused)
   const [currentUpdateIndex, setCurrentUpdateIndex] = useState<number>(0);
-
-  // Dev Updates Pictures State (from custom uploaded photos/screenshots by owner)
-  const [devPictures, setDevPictures] = useState<DevUpdatePicture[]>([]);
-
-  // Naija Life Warning Modal State
+  const [, setDevPictures] = useState<DevUpdatePicture[]>([]);
   const [showNaijaLifeWarning, setShowNaijaLifeWarning] = useState<boolean>(false);
+  const [naijaLifeGameUrl, setNaijaLifeGameUrl] = useState<string>('https://naijalife-rpg.vercel.app');
 
-  // Video Export Progress state
   const [isExportingVideo, setIsExportingVideo] = useState(false);
   const [exportProgress, setExportProgress] = useState(0);
   const [exportStatusText, setExportStatusText] = useState('');
@@ -96,99 +62,92 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const lastStepRef = useRef<number>(-1);
 
-  // Core Dev Updates List:
-  // 1: Naija Life (Early Access Demo Out Now • Playable Alpha Web Build)
-  // 2: Apex Editor Demo (Official milestone release - out now!)
-  // 3: Gangster Revolution (Flagship open-world crime title in active development)
-  // 4: Development Temporarily Paused (Both Apex Editor and Gangster Revolution paused, demo still available)
-  const baseUpdatesList: DevUpdateItem[] = [
+  const updatesList: DevUpdateItem[] = [
     {
       id: 'update-1-naija-life',
       type: 'game-reveal',
-      tag: 'DEV UPDATE 1',
-      badge: 'EARLY ACCESS DEMO IS OUT • PLAY NOW',
-      title: 'NAIJA LIFE: EARLY ACCESS DEMO IS OUT!',
+      tag: 'Update 01',
+      badge: 'Early Access Demo Out Now',
+      title: 'Naija Life: Early Access Demo',
       subtitle:
-        'Play the early access alpha build of Naija Life directly in your web browser! Experience the open-world Nigeria simulation across all 36 states and international travel ("Japa"). Important note: Mobile version is still in active development and will experience heavy lag, but runs smoothly on PC. Map design and urban grid systems are getting a complete full-production rework.',
-      date: 'Early Access Alpha • Play Now',
+        'Play the early access alpha build of Naija Life directly in your browser. Explore all 36 Nigerian states plus international travel ("Japa"). Mobile optimization is still in work and may lag heavily, while PC runs smoothly. Map design is scheduled for a full-production rework.',
+      date: 'Playable Web Alpha',
       picUrl: '/images/naija_life_hero.jpg',
       highlights: [
-        'Playable Web Alpha Demo',
-        'PC Recommended • Mobile In Work',
+        'Playable Web Alpha',
+        'PC Recommended · Mobile In Work',
         '36 States + Japa Hub',
-        'Map Design Rework Incoming',
+        'Map Rework Incoming',
       ],
-      primaryActionLabel: 'PLAY EARLY ACCESS DEMO',
+      primaryActionLabel: 'Play Early Access Demo',
       primaryActionTarget: 'naija-life-warning',
-      secondaryActionLabel: 'EXPLORE NAIJA LIFE HUB',
+      secondaryActionLabel: 'Explore Naija Life Hub',
       secondaryActionTarget: 'naija-life',
     },
     {
       id: 'update-2-apex-editor-demo',
       type: 'announcement',
-      tag: 'DEV UPDATE 2',
-      badge: 'OFFICIAL MILESTONE RELEASE',
-      title: 'THE APEX EDITOR DEMO IS OUT NOW!',
+      tag: 'Update 02',
+      badge: 'Milestone Release',
+      title: 'Apex Editor Web Demo',
       subtitle:
-        'Official milestone release! Experience the full interactive Apex Editor in your browser right now — featuring real-time AI media generation, 60FPS canvas timeline, Topaz neural engine, and zero-latency Rust core.',
+        'Experience the interactive Apex Editor sandbox directly in your browser—featuring a 60FPS canvas timeline, fast media workflows, and zero-latency architecture.',
       date: 'Live Demo Available',
       picUrl: apexEditorImg,
       highlights: [
         '60FPS Canvas Timeline',
-        'Topaz Neural Upscaler',
-        'Rust AST Kernel',
-        'Real-Time AI Media',
+        'Neural Upscaling',
+        'Rust AST Core',
+        'Browser Sandbox',
       ],
-      primaryActionLabel: 'TRY APEX EDITOR DEMO NOW',
+      primaryActionLabel: 'Try Apex Editor Demo',
       primaryActionTarget: 'apex-editor-demo',
-      secondaryActionLabel: 'VIEW PRODUCT SPECS',
+      secondaryActionLabel: 'View Specifications',
       secondaryActionTarget: 'apex-editor',
     },
     {
       id: 'update-3-gangster-revolution',
       type: 'game-reveal',
-      tag: 'DEV UPDATE 3',
-      badge: 'IN ACTIVE MULTI-PHASE DEVELOPMENT',
-      title: 'GANGSTER REVOLUTION',
+      tag: 'Update 03',
+      badge: 'In Development',
+      title: 'Gangster Revolution',
       subtitle:
-        'Our flagship open-world crime title is currently in active development. Featuring sprawling syndicate turf warfare, high-octane vehicular combat, cinematic story heists, and ray-traced urban districts across a living, reactive metropolis.',
-      date: 'In Development • Pre-Alpha',
+        'Open-world syndicate warfare, vehicular tuning, and story-driven heists set across interconnected city districts.',
+      date: 'Pre-Alpha · TBD',
       picUrl: gangsterRevImg,
       highlights: [
         'Open-World Metropolis',
         'Syndicate Turf Wars',
-        'High-Octane Muscle Cars',
-        'Cinematic Heist Ops',
+        'High-Speed Driving',
+        'Tactical Heists',
       ],
-      primaryActionLabel: 'VIEW GAME SPECS & HUB',
+      primaryActionLabel: 'View Game Hub',
       primaryActionTarget: 'gangster-revolution',
-      secondaryActionLabel: 'IN DEVELOPMENT',
+      secondaryActionLabel: 'All Products',
+      secondaryActionTarget: 'products',
     },
     {
       id: 'update-4-development-paused',
       type: 'status-pause',
-      tag: 'DEV UPDATE 4',
-      badge: 'STUDIO BULLETIN • DEV PAUSED',
-      title: 'DEVELOPMENT TEMPORARILY PAUSED',
+      tag: 'Update 04',
+      badge: 'Studio Notice · Dev Paused',
+      title: 'Development Temporarily Paused',
       subtitle:
-        'Active development on both Apex Editor and Gangster Revolution is currently paused. However, the interactive Apex Editor Web Demo is still 100% available, online, and free to explore directly in your browser!',
-      date: 'Status: Both Devs Paused',
+        'Active production on Apex Editor and Gangster Revolution is currently paused. The interactive Apex Editor Web Demo remains online and free to explore in your browser.',
+      date: 'Production Paused',
       picUrl: apexEditorImg,
       highlights: [
-        'Apex Editor Dev Paused',
-        'Gangster Revolution Dev Paused',
-        'Apex Editor Web Demo Still Available',
-        'Interactive Workstation Live 24/7',
+        'Apex Editor Paused',
+        'Gangster Revolution Paused',
+        'Web Demo Still Online',
+        'Naija Life Alpha Live',
       ],
-      primaryActionLabel: 'TRY APEX EDITOR DEMO NOW',
+      primaryActionLabel: 'Try Apex Editor Demo',
       primaryActionTarget: 'apex-editor-demo',
-      secondaryActionLabel: 'VIEW ALL PRODUCTS',
+      secondaryActionLabel: 'View All Products',
       secondaryActionTarget: 'products',
     },
   ];
-
-  // Dev Updates (1: Naija Life, 2: Apex Editor Demo, 3: Gangster Revolution, 4: Both Devs Paused)
-  const updatesList: DevUpdateItem[] = baseUpdatesList;
 
   const totalUpdates = updatesList.length;
   const activeUpdate = updatesList[currentUpdateIndex % totalUpdates] || updatesList[0];
@@ -220,7 +179,7 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-      } catch (err) {
+      } catch {
         const a = document.createElement('a');
         a.href = customVid;
         a.download = 'Apex_Syndicate_Dev_Updates_Video.mp4';
@@ -234,7 +193,7 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
     try {
       setIsExportingVideo(true);
       setExportProgress(0);
-      setExportStatusText('Initializing high-definition video encoder for CapCut...');
+      setExportStatusText('Initializing video encoder...');
 
       const mp4Blob = await exportPortfolioVideo((progress, status) => {
         setExportProgress(progress);
@@ -249,17 +208,20 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-    } catch (err: any) {
+    } catch (err) {
       console.error('Video export error:', err);
     } finally {
       setIsExportingVideo(false);
     }
   };
 
-  // Load video configuration & Dev pictures from settings
   const loadVideoConfig = async () => {
     try {
       const settings = await fetchPublicSettings();
+
+      if (settings.naijaLifeGameUrl) {
+        setNaijaLifeGameUrl(settings.naijaLifeGameUrl);
+      }
 
       if (settings.devUpdatePictures && settings.devUpdatePictures.length > 0) {
         setDevPictures(settings.devUpdatePictures);
@@ -309,15 +271,10 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
 
   useEffect(() => {
     loadVideoConfig();
-
-    const handleVideoUpdate = () => {
-      loadVideoConfig();
-    };
-
+    const handleVideoUpdate = () => loadVideoConfig();
     const interval = setInterval(loadVideoConfig, 4000);
     window.addEventListener('apex_video_updated', handleVideoUpdate);
     window.addEventListener('storage', handleVideoUpdate);
-
     return () => {
       clearInterval(interval);
       window.removeEventListener('apex_video_updated', handleVideoUpdate);
@@ -325,7 +282,6 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
     };
   }, []);
 
-  // Web Audio Beat Synthesizer
   const playSoundtrackStep = (step: number) => {
     if (!isAudioEnabled) return;
     try {
@@ -336,7 +292,6 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
       if (ctx.state === 'suspended') {
         ctx.resume();
       }
-
       const now = ctx.currentTime;
       const beatInBar = step % 8;
 
@@ -346,62 +301,17 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
         osc.type = 'sine';
         osc.frequency.setValueAtTime(140, now);
         osc.frequency.exponentialRampToValueAtTime(36, now + 0.12);
-        gain.gain.setValueAtTime(0.4, now);
+        gain.gain.setValueAtTime(0.3, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
         osc.connect(gain);
         gain.connect(ctx.destination);
         osc.start(now);
         osc.stop(now + 0.14);
       }
-
-      if (beatInBar === 2 || beatInBar === 6) {
-        const bufferSize = ctx.sampleRate * 0.08;
-        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-        const data = buffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) {
-          data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.3));
-        }
-        const noise = ctx.createBufferSource();
-        noise.buffer = buffer;
-        const gain = ctx.createGain();
-        gain.gain.setValueAtTime(0.2, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
-        noise.connect(gain);
-        gain.connect(ctx.destination);
-        noise.start(now);
-      }
-
-      const chordFrequencies = [220, 261.63, 329.63, 392.0];
-      if (beatInBar === 0 || beatInBar === 3 || beatInBar === 6) {
-        chordFrequencies.forEach((freq) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(freq, now);
-          gain.gain.setValueAtTime(0.04, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start(now);
-          osc.stop(now + 0.22);
-        });
-      }
-    } catch (err) {
-      // Audio fallback
+    } catch {
+      // Ignore WebAudio restriction
     }
   };
-
-  useEffect(() => {
-    if (!isPlaying || videoMode !== 'default') return;
-    const heroes: ('marcus' | 'laura' | 'john')[] = ['marcus', 'laura', 'john'];
-    const interval = setInterval(() => {
-      setActiveHero((prev) => {
-        const idx = heroes.indexOf(prev);
-        return heroes[(idx + 1) % heroes.length];
-      });
-    }, 1800);
-    return () => clearInterval(interval);
-  }, [isPlaying, videoMode]);
 
   useEffect(() => {
     let animFrame: number;
@@ -412,10 +322,7 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
         const delta = (now - lastTime) / 1000;
         setCurrentTime((prev) => {
           const next = prev + delta;
-          if (next >= TOTAL_DURATION) {
-            return 0;
-          }
-          return next;
+          return next >= TOTAL_DURATION ? 0 : next;
         });
       }
       lastTime = now;
@@ -426,14 +333,8 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
     return () => cancelAnimationFrame(animFrame);
   }, [isPlaying, videoMode]);
 
-  const getStage = () => {
-    if (currentTime < 3.2) return 1;
-    if (currentTime < 8.5) return 2;
-    if (currentTime < 14.0) return 3;
-    return 4;
-  };
-
-  const stage = getStage();
+  const stage =
+    currentTime < 4.5 ? 1 : currentTime < 9.0 ? 2 : currentTime < 13.5 ? 3 : 4;
 
   useEffect(() => {
     if (!isPlaying || videoMode !== 'default') return;
@@ -452,8 +353,7 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
       if (audioCtxRef.current.state === 'suspended') {
         audioCtxRef.current.resume();
       }
-    } catch (e) {}
-
+    } catch {}
     setIsPlaying(true);
     if (videoMode === 'custom' && customVideoRef.current) {
       customVideoRef.current.play().catch(() => {});
@@ -478,770 +378,311 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
     }
   };
 
-  const isDarkMode = stage === 3;
+  const handlePrimaryAction = () => {
+    if (activeUpdate.primaryActionTarget === 'naija-life-warning') {
+      setShowNaijaLifeWarning(true);
+    } else if (setActiveTab && activeUpdate.primaryActionTarget) {
+      setActiveTab(activeUpdate.primaryActionTarget);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleSecondaryAction = () => {
+    if (setActiveTab && activeUpdate.secondaryActionTarget) {
+      setActiveTab(activeUpdate.secondaryActionTarget);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-4 animate-fadeIn">
-      {/* =========================================================================
-          DEV UPDATES SHOWCASE CONTAINER (UNIFIED MULTI-UPDATE SLIDER)
-          ========================================================================= */}
-      <div className="space-y-3">
-        {/* TOP BAR: SHOWCASE TITLE & SLIDE NAVIGATION */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-white/10 pb-3">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-gradient-to-r from-[#FF6321]/20 to-amber-500/15 border border-[#FF6321]/40 text-[#FF6321] text-xs font-mono font-black uppercase tracking-widest shadow-[0_0_20px_rgba(255,99,33,0.3)] animate-border-glow">
-              <Sparkles className="w-3.5 h-3.5 animate-spin text-amber-400" />
-              <span>APEX SYNDICATE // DEV UPDATES</span>
-            </div>
-            <h2 className="text-xl sm:text-3xl font-black text-white uppercase tracking-tight mt-1.5 flex items-center gap-2.5">
-              <span>{activeUpdate.tag}:</span>
-              <span className="bg-gradient-to-r from-[#FF6321] via-amber-400 to-[#FF4500] bg-clip-text text-transparent animate-shimmer-text">
-                {activeUpdate.title}
-              </span>
-            </h2>
+    <div className="w-full space-y-5">
+      {/* Section Top Header & Slide Switcher */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/[0.08] pb-4">
+        <div className="space-y-1">
+          <div className="text-xs font-mono text-[#FF5500] font-medium flex items-center gap-2">
+            <span>Studio Updates</span>
+            <span aria-hidden="true">·</span>
+            <span>{activeUpdate.tag}</span>
           </div>
-
-          {/* Right Side: Prev / Next Arrow Switcher (shown when multi-updates exist) or Milestone Badge + Founder Tag */}
-          <div className="flex items-center gap-2">
-            {totalUpdates > 1 ? (
-              <div className="flex items-center p-1 rounded-2xl bg-black/80 border border-white/15 backdrop-blur-xl">
-                <button
-                  type="button"
-                  onClick={handlePrevUpdate}
-                  className="px-3 py-1.5 rounded-xl text-xs font-mono font-black uppercase tracking-wider flex items-center gap-1 text-gray-300 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
-                  title="Previous Dev Update"
-                >
-                  <ChevronLeft className="w-4 h-4 text-[#FF6321]" />
-                  <span className="hidden sm:inline">PREV</span>
-                </button>
-
-                <div className="px-3 py-1 text-xs font-mono font-black text-white bg-white/5 rounded-lg border border-white/10 mx-1">
-                  <span className="text-[#FF6321]">{currentUpdateIndex + 1}</span> / {totalUpdates}
-                </div>
-
-                <button
-                  type="button"
-                  onClick={handleNextUpdate}
-                  className="px-3 py-1.5 rounded-xl text-xs font-mono font-black uppercase tracking-wider flex items-center gap-1 text-black bg-[#FF6321] hover:bg-[#FF8A50] transition-all cursor-pointer shadow-[0_0_15px_rgba(255,99,33,0.4)]"
-                  title="Next Dev Update"
-                >
-                  <span className="hidden sm:inline">NEXT</span>
-                  <ChevronRight className="w-4 h-4 text-black" />
-                </button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-black/80 border border-[#FF6321]/40 text-[#FF6321] text-xs font-mono font-bold backdrop-blur-xl">
-                <span className="w-2 h-2 rounded-full bg-[#FF6321] animate-ping" />
-                <span>DEV UPDATE #1 LIVE</span>
-              </div>
-            )}
-
-            <div className="hidden md:flex items-center gap-2 text-xs font-mono text-gray-300 bg-black/60 border border-white/15 px-3.5 py-2 rounded-2xl backdrop-blur-xl">
-              <User className="w-3.5 h-3.5 text-[#FF6321]" />
-              <span>FOUNDER: <strong className="text-white font-black uppercase">OKERE CHIEMEKA</strong></span>
-            </div>
-          </div>
+          <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+            {activeUpdate.title}
+          </h2>
         </div>
 
-        {/* =========================================================================
-            MAIN DEV UPDATE DISPLAY FRAME
-            ========================================================================= */}
-        <div
-          ref={containerRef}
-          id="portfolio-dev-update-frame"
-          className={`relative w-full aspect-video min-h-[380px] sm:min-h-[460px] rounded-3xl transition-all duration-300 border-2 overflow-hidden flex flex-col justify-between select-none shadow-[0_25px_80px_rgba(0,0,0,0.8)] ${
-            activeUpdate.type === 'status-pause'
-              ? 'bg-gradient-to-br from-[#120a02] via-[#080705] to-[#030304] border-amber-500/80 shadow-[0_0_80px_rgba(245,158,11,0.35)]'
-              : activeUpdate.type === 'announcement'
-              ? 'bg-gradient-to-br from-[#0e0907] via-[#08080c] to-[#040508] border-[#FF6321] shadow-[0_0_80px_rgba(255,99,33,0.35)]'
-              : isDarkMode
-              ? 'bg-[#030306] border-[#FF6321]/60 text-white shadow-[0_25px_70px_rgba(255,99,33,0.35)]'
-              : 'bg-[#0a0a0f] border-[#FF6321]/40 text-white shadow-[0_20px_60px_rgba(0,0,0,0.4)]'
-          } ${isFullscreen ? 'rounded-none border-none shadow-none' : ''}`}
-        >
-          {/* Animated Background Cyber Matrix & Neon Light Orbs */}
-          <div className="absolute inset-0 pointer-events-none opacity-20 bg-[radial-gradient(#FF6321_1px,transparent_1px)] [background-size:28px_28px] animate-grid-drift" />
-          <div className="absolute -top-32 left-1/4 w-96 h-96 bg-[#FF6321]/25 rounded-full blur-3xl pointer-events-none animate-pulse-glow" />
-          <div className="absolute -bottom-32 right-1/4 w-96 h-96 bg-[#00F0FF]/15 rounded-full blur-3xl pointer-events-none animate-pulse-glow" />
+        <div className="flex items-center gap-3">
+          <span className="hidden md:inline text-xs font-mono text-zinc-500">
+            Founder: Okere Chiemeka
+          </span>
 
-          {/* Floating Prev & Next Side Arrows (shown only when multi-updates exist) */}
           {totalUpdates > 1 && (
-            <>
+            <div className="flex items-center p-1 rounded-lg bg-[#111114] border border-white/[0.08]">
               <button
                 type="button"
                 onClick={handlePrevUpdate}
-                className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/85 hover:bg-[#FF6321] text-white hover:text-black border border-white/20 flex items-center justify-center transition-all cursor-pointer shadow-2xl active:scale-90 z-30 group"
+                className="px-2.5 py-1.5 rounded-md text-xs font-mono font-medium text-zinc-300 hover:text-white hover:bg-white/[0.06] flex items-center gap-1 transition-colors cursor-pointer"
                 title="Previous Dev Update"
               >
-                <ChevronLeft className="w-6 h-6 transform group-hover:-translate-x-0.5 transition-transform" />
+                <ChevronLeft className="w-4 h-4 text-[#FF5500]" />
+                <span className="hidden sm:inline">Prev</span>
               </button>
+
+              <span className="px-2.5 text-xs font-mono tabular-nums text-zinc-300">
+                <strong className="text-[#FF5500]">{currentUpdateIndex + 1}</strong> / {totalUpdates}
+              </span>
 
               <button
                 type="button"
                 onClick={handleNextUpdate}
-                className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/85 hover:bg-[#FF6321] text-white hover:text-black border border-white/20 flex items-center justify-center transition-all cursor-pointer shadow-2xl active:scale-90 z-30 group"
+                className="px-2.5 py-1.5 rounded-md text-xs font-mono font-semibold text-black bg-[#FF5500] hover:bg-[#FF6E26] flex items-center gap-1 transition-colors cursor-pointer"
                 title="Next Dev Update"
               >
-                <ChevronRight className="w-6 h-6 transform group-hover:translate-x-0.5 transition-transform" />
+                <span className="hidden sm:inline">Next</span>
+                <ChevronRight className="w-4 h-4" />
               </button>
-            </>
-          )}
-
-          {/* SLIDE TYPE: GAME-REVEAL (FOR GANGSTER REVOLUTION) */}
-          {activeUpdate.type === 'game-reveal' && (
-            <div className="relative z-10 flex-1 flex flex-col justify-between p-5 sm:p-8 lg:p-10 text-left overflow-hidden">
-              {/* Background Art Image with Cinematic Contrast Scrim */}
-              {activeUpdate.picUrl && (
-                <div className="absolute inset-0 z-0">
-                  <img
-                    src={activeUpdate.picUrl}
-                    alt={activeUpdate.title}
-                    className="w-full h-full object-cover object-center transform scale-105 transition-transform duration-1000 ease-out"
-                    referrerPolicy="no-referrer"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/75 to-black/40 pointer-events-none" />
-                  <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-transparent pointer-events-none" />
-                </div>
-              )}
-
-              {/* Top Status & Milestone Header */}
-              <div className="relative z-10 w-full flex items-center justify-between text-xs font-mono">
-                <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FF6321]/25 border border-[#FF6321]/60 text-[#FF6321] shadow-[0_0_20px_rgba(255,99,33,0.4)] backdrop-blur-md">
-                  <Flame className="w-4 h-4 text-amber-400 animate-bounce" />
-                  <span className="font-black text-[11px] sm:text-xs uppercase tracking-widest">
-                    {activeUpdate.tag} // {activeUpdate.badge}
-                  </span>
-                </div>
-                <div className="hidden sm:flex items-center gap-2 px-3.5 py-1 rounded-full bg-black/80 border border-emerald-500/40 text-emerald-400 text-[11px] font-mono font-bold shadow-[0_0_15px_rgba(16,185,129,0.25)] backdrop-blur-md">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                  <span>{activeUpdate.date}</span>
-                </div>
-              </div>
-
-              {/* Center Game Details & Lore */}
-              <div className="relative z-10 my-auto space-y-4 max-w-2xl pt-4 sm:pt-6">
-                <motion.div
-                  initial={{ scale: 0.95, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.4 }}
-                  className="space-y-3"
-                >
-                  <h3 className="text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tight leading-[1.05] bg-gradient-to-r from-white via-amber-200 to-[#FF6321] bg-clip-text text-transparent drop-shadow-[0_0_35px_rgba(255,99,33,0.6)]">
-                    {activeUpdate.title}
-                  </h3>
-
-                  <p className="text-sm sm:text-base text-gray-200 font-normal leading-relaxed drop-shadow-md bg-black/40 backdrop-blur-sm p-3 rounded-2xl border border-white/10">
-                    {activeUpdate.subtitle}
-                  </p>
-                </motion.div>
-
-                {/* Highlights pill tags */}
-                {activeUpdate.highlights && activeUpdate.highlights.length > 0 && (
-                  <div className="flex flex-wrap items-center gap-2 pt-1">
-                    {activeUpdate.highlights.map((h, i) => (
-                      <span
-                        key={i}
-                        className="px-3 py-1 rounded-xl bg-black/75 border border-white/20 text-gray-200 text-[11px] sm:text-xs font-mono font-semibold flex items-center gap-1.5 backdrop-blur-md shadow-md"
-                      >
-                        <Sparkles className="w-3 h-3 text-[#FF6321]" /> {h}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                {/* Action Buttons */}
-                <div className="pt-2 flex flex-wrap items-center gap-3">
-                  {activeUpdate.primaryActionTarget ? (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (activeUpdate.primaryActionTarget === 'naija-life-warning') {
-                          setShowNaijaLifeWarning(true);
-                        } else if (setActiveTab && activeUpdate.primaryActionTarget) {
-                          setActiveTab(activeUpdate.primaryActionTarget);
-                          window.scrollTo({ top: 0, behavior: 'smooth' });
-                        }
-                      }}
-                      className={`px-6 py-3.5 rounded-2xl text-black font-black text-xs sm:text-sm font-mono uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer ${
-                        activeUpdate.id === 'update-1-naija-life'
-                          ? 'bg-gradient-to-r from-amber-400 via-emerald-400 to-teal-300 hover:from-amber-300 hover:to-teal-200 shadow-[0_0_30px_rgba(16,185,129,0.7)] btn-shimmer-sweep'
-                          : 'bg-gradient-to-r from-[#FF6321] via-amber-400 to-[#FF4500] hover:from-[#FF8A50] hover:to-amber-300 shadow-[0_0_30px_rgba(255,99,33,0.6)]'
-                      } hover:scale-105 active:scale-95`}
-                    >
-                      {activeUpdate.id === 'update-1-naija-life' ? (
-                        <Play className="w-4 h-4 fill-black text-black" />
-                      ) : (
-                        <Zap className="w-4 h-4 fill-black" />
-                      )}
-                      <span>{activeUpdate.primaryActionLabel || 'EXPLORE TITLE'}</span>
-                    </button>
-                  ) : (
-                    <div className="px-6 py-3.5 rounded-2xl bg-[#FF6321]/20 border border-[#FF6321]/60 text-amber-300 font-mono font-black text-xs uppercase tracking-widest flex items-center gap-2 backdrop-blur-md shadow-[0_0_20px_rgba(255,99,33,0.3)]">
-                      <Clock className="w-4 h-4 text-amber-400 animate-spin" />
-                      <span>{activeUpdate.primaryActionLabel || 'IN ACTIVE DEVELOPMENT'}</span>
-                    </div>
-                  )}
-
-                  {activeUpdate.secondaryActionTarget && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (setActiveTab && activeUpdate.secondaryActionTarget) {
-                          setActiveTab(activeUpdate.secondaryActionTarget);
-                          window.scrollTo({ top: 0, behavior: 'smooth' });
-                        }
-                      }}
-                      className="px-5 py-3.5 rounded-2xl bg-black/70 hover:bg-white/10 text-white font-mono font-bold text-xs uppercase tracking-wider border border-white/20 flex items-center gap-2 transition-all cursor-pointer backdrop-blur-md"
-                    >
-                      <span>{activeUpdate.secondaryActionLabel || 'LEARN MORE'}</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Bottom Status Bar */}
-              <div className="relative z-10 w-full pt-3 border-t border-white/15 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs font-mono text-gray-300">
-                <div className="flex items-center gap-4">
-                  <span>Studio: <strong className="text-white font-bold">Apex Syndicate Studios</strong></span>
-                </div>
-                <div className="text-[11px] text-amber-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-[#FF6321] animate-ping" />
-                  <span>Next-Gen Video Game Pipeline</span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* SLIDE 3: DEV UPDATE 3 — THE APEX EDITOR DEMO IS OUT NOW */}
-          {activeUpdate.type === 'announcement' && (
-            <div className="relative z-10 flex-1 flex flex-col justify-between p-6 sm:p-10 lg:p-12 text-center items-center">
-              {/* Background Art Image if available */}
-              {activeUpdate.picUrl && (
-                <div className="absolute inset-0 z-0">
-                  <img
-                    src={activeUpdate.picUrl}
-                    alt={activeUpdate.title}
-                    className="w-full h-full object-cover object-center opacity-30"
-                    referrerPolicy="no-referrer"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/85 to-black/60 pointer-events-none" />
-                </div>
-              )}
-
-              {/* Top Milestone Badge */}
-              <div className="relative z-10 w-full flex items-center justify-between text-xs font-mono">
-                <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FF6321]/20 border border-[#FF6321]/60 text-[#FF6321] shadow-[0_0_20px_rgba(255,99,33,0.4)] animate-pulse backdrop-blur-md">
-                  <Flame className="w-4 h-4 text-amber-400" />
-                  <span className="font-black text-[11px] sm:text-xs uppercase tracking-widest">
-                    {activeUpdate.tag} // {activeUpdate.badge}
-                  </span>
-                </div>
-                <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-black/70 border border-[#00F0FF]/40 text-[#00F0FF] text-[11px] font-mono font-bold shadow-[0_0_15px_rgba(0,240,255,0.3)] backdrop-blur-md">
-                  <Sparkles className="w-3.5 h-3.5 animate-spin" />
-                  <span>IN-BROWSER WORKSTATION READY</span>
-                </div>
-              </div>
-
-              {/* CENTER MASSIVE VIBRANT TEXT HEADLINE COVERING MOST OF SCREEN */}
-              <div className="relative z-10 my-auto space-y-4 sm:space-y-6 max-w-4xl px-4">
-                <motion.div
-                  initial={{ scale: 0.92, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.4 }}
-                  className="space-y-3"
-                >
-                  <h3 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-tight leading-[1.05] bg-gradient-to-r from-[#FF6321] via-amber-300 via-yellow-200 to-[#00F0FF] bg-clip-text text-transparent drop-shadow-[0_0_45px_rgba(255,99,33,0.9)] animate-shimmer-text">
-                    {activeUpdate.title}
-                  </h3>
-
-                  <p className="text-sm sm:text-base md:text-lg text-gray-200 font-light max-w-3xl mx-auto leading-relaxed drop-shadow-md">
-                    {activeUpdate.subtitle}
-                  </p>
-                </motion.div>
-
-                {/* Feature highlights pill strip */}
-                {activeUpdate.highlights && activeUpdate.highlights.length > 0 && (
-                  <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 pt-1">
-                    {activeUpdate.highlights.map((h, i) => (
-                      <span
-                        key={i}
-                        className="px-3.5 py-1.5 rounded-xl bg-white/[0.06] border border-white/15 text-gray-200 text-xs font-mono font-semibold flex items-center gap-1.5 backdrop-blur-md"
-                      >
-                        <Zap className="w-3.5 h-3.5 text-[#FF6321]" /> {h}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                {/* PROMINENT INTERACTIVE LAUNCH ACTION BUTTONS */}
-                <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3.5">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (setActiveTab) {
-                        setActiveTab('apex-editor-demo');
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                      } else {
-                        window.open('/?demo=fullscreen', '_blank');
-                      }
-                    }}
-                    className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-[#FF6321] via-amber-400 to-[#FF4500] hover:from-[#FF8A50] hover:to-amber-300 text-black font-black text-sm sm:text-base font-mono uppercase tracking-wider flex items-center justify-center gap-3 shadow-[0_0_40px_rgba(255,99,33,0.8)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
-                  >
-                    <Zap className="w-5 h-5 fill-black animate-bounce" />
-                    <span>TRY APEX EDITOR DEMO NOW</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (setActiveTab) {
-                        setActiveTab('apex-editor');
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                      }
-                    }}
-                    className="w-full sm:w-auto px-6 py-4 rounded-2xl bg-black/80 hover:bg-white/10 text-white font-mono font-black text-xs sm:text-sm uppercase tracking-wider border border-white/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
-                  >
-                    <Layers className="w-4 h-4 text-[#FF6321]" />
-                    <span>VIEW PRODUCT SPECS</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Bottom Status Bar */}
-              <div className="relative z-10 w-full pt-3 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs font-mono text-gray-400">
-                <div className="flex items-center gap-4">
-                  <span>Instagram: <strong className="text-white font-bold">@apexsyndicateng</strong></span>
-                  <span>TikTok: <strong className="text-white font-bold">@apex.syndicateng</strong></span>
-                </div>
-                <div className="text-[11px] text-[#FF6321] font-bold uppercase tracking-wider flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                  <span>Interactive Cloud Workstation Active</span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* SLIDE TYPE: STATUS-PAUSE (DEV UPDATE 3 — APEX EDITOR DEVELOPMENT PAUSED) */}
-          {activeUpdate.type === 'status-pause' && (
-            <div className="relative z-10 flex-1 flex flex-col justify-between p-6 sm:p-10 lg:p-12 text-center items-center overflow-hidden">
-              {/* Subtle background art with amber/charcoal vignette */}
-              {activeUpdate.picUrl && (
-                <div className="absolute inset-0 z-0">
-                  <img
-                    src={activeUpdate.picUrl}
-                    alt={activeUpdate.title}
-                    className="w-full h-full object-cover object-center opacity-25 filter grayscale contrast-125"
-                    referrerPolicy="no-referrer"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/90 to-black/75 pointer-events-none" />
-                  <div className="absolute inset-0 bg-[radial-gradient(#f59e0b_1px,transparent_1px)] [background-size:24px_24px] opacity-20 pointer-events-none" />
-                </div>
-              )}
-
-              {/* Top Milestone & Status Badge */}
-              <div className="relative z-10 w-full flex items-center justify-between text-xs font-mono">
-                <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/20 border border-amber-500/60 text-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.35)] backdrop-blur-md">
-                  <Pause className="w-3.5 h-3.5 fill-current text-amber-400" />
-                  <span className="font-black text-[11px] sm:text-xs uppercase tracking-widest">
-                    {activeUpdate.tag} // {activeUpdate.badge}
-                  </span>
-                </div>
-                <div className="hidden sm:flex items-center gap-2 px-3.5 py-1 rounded-full bg-black/80 border border-amber-500/40 text-amber-300 text-[11px] font-mono font-bold shadow-[0_0_15px_rgba(245,158,11,0.25)] backdrop-blur-md">
-                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-                  <span>{activeUpdate.date}</span>
-                </div>
-              </div>
-
-              {/* Center Headline & Context Announcement */}
-              <div className="relative z-10 my-auto space-y-4 sm:space-y-6 max-w-4xl px-4">
-                <motion.div
-                  initial={{ scale: 0.94, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.4 }}
-                  className="space-y-3"
-                >
-                  <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-950/50 border border-amber-500/40 text-amber-300 text-xs font-mono font-bold tracking-wider">
-                    <ShieldAlert className="w-4 h-4 text-amber-400" />
-                    <span>STUDIO ENGINEERING UPDATE</span>
-                  </div>
-
-                  <h3 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-tight leading-[1.05] bg-gradient-to-r from-amber-300 via-yellow-200 to-orange-500 bg-clip-text text-transparent drop-shadow-[0_0_40px_rgba(245,158,11,0.7)]">
-                    {activeUpdate.title}
-                  </h3>
-
-                  <p className="text-sm sm:text-base md:text-lg text-gray-200 font-light max-w-3xl mx-auto leading-relaxed drop-shadow-md bg-black/50 backdrop-blur-md p-4 rounded-2xl border border-amber-500/20">
-                    {activeUpdate.subtitle}
-                  </p>
-                </motion.div>
-
-                {/* Status pill strip */}
-                {activeUpdate.highlights && activeUpdate.highlights.length > 0 && (
-                  <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 pt-1">
-                    {activeUpdate.highlights.map((h, i) => (
-                      <span
-                        key={i}
-                        className="px-3.5 py-1.5 rounded-xl bg-black/70 border border-amber-500/30 text-gray-200 text-xs font-mono font-semibold flex items-center gap-1.5 backdrop-blur-md shadow-md"
-                      >
-                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400" /> {h}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                {/* Interactive Action Buttons */}
-                <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3.5">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (setActiveTab && activeUpdate.primaryActionTarget) {
-                        setActiveTab(activeUpdate.primaryActionTarget);
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                      } else {
-                        window.open('/?demo=fullscreen', '_blank');
-                      }
-                    }}
-                    className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-400 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-black text-sm sm:text-base font-mono uppercase tracking-wider flex items-center justify-center gap-3 shadow-[0_0_35px_rgba(245,158,11,0.6)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
-                  >
-                    <Zap className="w-5 h-5 fill-black" />
-                    <span>{activeUpdate.primaryActionLabel || 'TRY LIVE DEMO ANYWAY'}</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (setActiveTab && activeUpdate.secondaryActionTarget) {
-                        setActiveTab(activeUpdate.secondaryActionTarget);
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                      }
-                    }}
-                    className="w-full sm:w-auto px-6 py-4 rounded-2xl bg-black/80 hover:bg-white/10 text-white font-mono font-black text-xs sm:text-sm uppercase tracking-wider border border-white/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
-                  >
-                    <Layers className="w-4 h-4 text-amber-400" />
-                    <span>{activeUpdate.secondaryActionLabel || 'VIEW ALL PRODUCTS'}</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Bottom Status Bar */}
-              <div className="relative z-10 w-full pt-3 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs font-mono text-gray-400">
-                <div className="flex items-center gap-4">
-                  <span>Studio: <strong className="text-white font-bold">Apex Syndicate Studios</strong></span>
-                  <span className="hidden sm:inline">Status: <strong className="text-amber-400 font-bold">Both Developments Paused</strong></span>
-                </div>
-                <div className="text-[11px] text-amber-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
-                  <span>Apex Editor Web Demo Still Available</span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* SLIDE 2: DEV UPDATE 2 — KINETIC VIDEO REEL OR CUSTOM DEVLOG */}
-          {activeUpdate.type === 'video' && (
-            <>
-              {videoMode === 'custom' && customVideoUrl ? (
-                <div
-                  className="relative flex-1 min-h-0 w-full flex items-center justify-center bg-black cursor-pointer overflow-hidden"
-                  onClick={() => {
-                    if (isPlaying) handlePause();
-                    else handleStartPlay();
-                  }}
-                >
-                  <video
-                    ref={customVideoRef}
-                    src={customVideoUrl}
-                    className="w-full h-full object-contain"
-                    playsInline
-                    loop
-                    muted={!isAudioEnabled}
-                    onEnded={() => setIsPlaying(false)}
-                  />
-
-                  {!isPlaying && (
-                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center gap-3">
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#FF6321] text-black flex items-center justify-center shadow-[0_0_40px_rgba(255,99,33,0.8)] animate-pulse">
-                        <Play className="w-8 h-8 sm:w-10 sm:h-10 fill-current ml-1" />
-                      </div>
-                      <span className="text-white font-mono font-black text-xs uppercase tracking-widest bg-black/80 px-4 py-1.5 rounded-full border border-white/20">
-                        CLICK TO WATCH DEV VIDEO
-                      </span>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                /* Kinetic Dynamic Showcase Reel */
-                <div
-                  className="relative flex-1 min-h-0 w-full flex items-center justify-center cursor-pointer overflow-hidden p-6 text-center"
-                  onClick={() => {
-                    if (isPlaying) handlePause();
-                    else handleStartPlay();
-                  }}
-                >
-                  <AnimatePresence mode="wait">
-                    {stage === 1 && (
-                      <motion.div
-                        key="stage1"
-                        initial={{ scale: 0.9, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        exit={{ scale: 1.1, opacity: 0 }}
-                        className="space-y-4 max-w-xl"
-                      >
-                        <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-[#FF6321]/20 text-[#FF6321] text-xs font-mono font-black border border-[#FF6321]/40">
-                          <Zap className="w-4 h-4 animate-bounce" /> APEX SYNDICATE ARCHITECTURE
-                        </div>
-                        <h3 className="text-4xl sm:text-6xl font-black text-white uppercase tracking-tight">
-                          ENGINEERED TO <span className="text-[#FF6321]">INNOVATE</span>
-                        </h3>
-                        <p className="text-gray-300 text-sm font-light">
-                          Commercial software tools, zero-latency editors, and next-gen gaming universes.
-                        </p>
-                      </motion.div>
-                    )}
-
-                    {stage === 2 && (
-                      <motion.div
-                        key="stage2"
-                        initial={{ scale: 0.9, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        exit={{ scale: 1.1, opacity: 0 }}
-                        className="space-y-4 max-w-xl"
-                      >
-                        <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-cyan-500/20 text-cyan-400 text-xs font-mono font-black border border-cyan-500/40">
-                          <Cpu className="w-4 h-4 animate-spin" /> FLAGSHIP CODE CREATION
-                        </div>
-                        <h3 className="text-4xl sm:text-6xl font-black text-white uppercase tracking-tight">
-                          APEX <span className="text-cyan-400">EDITOR</span>
-                        </h3>
-                        <p className="text-gray-300 text-sm font-light">
-                          GPU-Accelerated 60FPS Canvas • Rust Kernel AST Parser • Instant Token Verification
-                        </p>
-                      </motion.div>
-                    )}
-
-                    {stage === 3 && (
-                      <motion.div
-                        key="stage3"
-                        initial={{ scale: 0.9, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        exit={{ scale: 1.1, opacity: 0 }}
-                        className="space-y-4 max-w-xl"
-                      >
-                        <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-red-500/20 text-red-400 text-xs font-mono font-black border border-red-500/40">
-                          <Gamepad2 className="w-4 h-4 animate-pulse" /> OPEN-WORLD GAMING
-                        </div>
-                        <h3 className="text-4xl sm:text-6xl font-black text-white uppercase tracking-tight">
-                          GANGSTER <span className="text-red-500">REVOLUTION</span>
-                        </h3>
-                        <p className="text-gray-300 text-sm font-light">
-                          Next-Gen Syndicate Warfare • Ray-Traced Downtown Turf • High-Octane Vehicles
-                        </p>
-                      </motion.div>
-                    )}
-
-                    {stage === 4 && (
-                      <motion.div
-                        key="stage4"
-                        initial={{ scale: 0.9, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        exit={{ scale: 1.1, opacity: 0 }}
-                        className="space-y-4 max-w-xl"
-                      >
-                        <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-[#FF6321]/20 text-[#FF6321] text-xs font-mono font-black border border-[#FF6321]/40">
-                          <Globe className="w-4 h-4 animate-bounce" /> OFFICIAL SYNDICATE HUB
-                        </div>
-                        <h3 className="text-4xl sm:text-5xl font-black text-white uppercase tracking-tight">
-                          APEXSYNDICATE.<span className="text-[#FF6321]">COM.NG</span>
-                        </h3>
-                        <p className="text-gray-300 text-sm font-mono">
-                          DM US ON INSTAGRAM: @APEXSYNDICATENG
-                        </p>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
-                  {!isPlaying && (
-                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center gap-3">
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#FF6321] text-black flex items-center justify-center shadow-[0_0_40px_rgba(255,99,33,0.8)] animate-pulse">
-                        <Play className="w-8 h-8 sm:w-10 sm:h-10 fill-current ml-1" />
-                      </div>
-                      <span className="text-white font-mono font-black text-xs uppercase tracking-widest bg-black/80 px-4 py-1.5 rounded-full border border-white/20">
-                        CLICK TO PLAY DEV SHOWCASE REEL
-                      </span>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Bottom Video Timeline Controls */}
-              <div className="relative z-20 px-5 py-2.5 bg-black/85 border-t border-white/10 flex items-center justify-between text-xs font-mono">
-                <div className="absolute top-0 left-0 right-0 h-1.5 bg-black/20 overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-[#FF6321] via-amber-400 to-[#FF4500] transition-all duration-75"
-                    style={{ width: `${(currentTime / TOTAL_DURATION) * 100}%` }}
-                  />
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (isPlaying) handlePause();
-                      else handleStartPlay();
-                    }}
-                    className={`px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer ${
-                      isPlaying
-                        ? 'bg-[#FF6321] hover:bg-[#FF8A50] text-black shadow-[0_0_15px_rgba(255,99,33,0.4)]'
-                        : 'bg-emerald-500 hover:bg-emerald-400 text-black shadow-[0_0_15px_rgba(16,185,129,0.4)] animate-pulse'
-                    }`}
-                  >
-                    {isPlaying ? (
-                      <>
-                        <Pause className="w-4 h-4 fill-current" />
-                        <span>PAUSE</span>
-                      </>
-                    ) : (
-                      <>
-                        <Play className="w-4 h-4 fill-current ml-0.5" />
-                        <span>PLAY REEL</span>
-                      </>
-                    )}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setCurrentTime(0);
-                      handleStartPlay();
-                    }}
-                    className="p-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
-                    title="Restart Reel"
-                  >
-                    <RotateCcw className="w-4 h-4" />
-                  </button>
-
-                  <span className="font-extrabold text-[11px] text-gray-300 hidden sm:inline">
-                    {isPlaying ? '▶ REEL ACTIVE (CLICK TO PAUSE)' : '⏸ PAUSED'}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={handleDownloadVideo}
-                    className="px-2.5 py-1.5 rounded-xl bg-[#FF6321]/20 hover:bg-[#FF6321] text-[#FF6321] hover:text-black font-extrabold flex items-center gap-1.5 transition-all text-[11px] border border-[#FF6321]/40 cursor-pointer"
-                    title="Download MP4 Video"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">DOWNLOAD MP4</span>
-                  </button>
-
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleFullscreen();
-                    }}
-                    className="p-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
-                    title="Fullscreen Reel"
-                  >
-                    <Maximize2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* SLIDE 3+: CUSTOM UPLOADED DEV UPDATE PICTURE (IF ANY) */}
-          {activeUpdate.type === 'picture' && activeUpdate.picUrl && (
-            <div className="relative flex-1 min-h-0 w-full flex flex-col justify-between bg-black overflow-hidden p-6">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <img
-                  src={activeUpdate.picUrl}
-                  alt={activeUpdate.title}
-                  className="w-full h-full object-contain"
-                  referrerPolicy="no-referrer"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-black/40 pointer-events-none" />
-              </div>
-
-              {/* Top badge */}
-              <div className="relative z-10 flex items-center justify-between">
-                <span className="px-3.5 py-1 rounded-xl bg-[#FF6321] text-black font-mono font-black text-xs uppercase">
-                  {activeUpdate.tag}
-                </span>
-                <span className="px-3 py-1 rounded-xl bg-black/80 border border-white/20 text-gray-300 text-xs font-mono">
-                  {activeUpdate.date}
-                </span>
-              </div>
-
-              {/* Bottom title */}
-              <div className="relative z-10 space-y-1 max-w-2xl bg-black/80 p-4 rounded-2xl border border-white/15 backdrop-blur-md">
-                <h4 className="text-xl sm:text-2xl font-black text-white uppercase">
-                  {activeUpdate.title}
-                </h4>
-                <p className="text-xs sm:text-sm text-gray-300">
-                  {activeUpdate.subtitle}
-                </p>
-              </div>
             </div>
           )}
         </div>
+      </div>
 
-        {/* BOTTOM DOTS INDICATOR & QUICK JUMP STRIP (shown only when multi-updates exist) */}
-        {totalUpdates > 1 && (
-          <div className="flex items-center justify-center gap-2 pt-1">
-            {updatesList.map((update, idx) => (
-              <button
-                key={update.id}
-                type="button"
-                onClick={() => {
-                  if (isPlaying) handlePause();
-                  setCurrentUpdateIndex(idx);
-                }}
-                className={`transition-all duration-300 rounded-full cursor-pointer ${
-                  idx === currentUpdateIndex
-                    ? 'w-8 h-2.5 bg-gradient-to-r from-[#FF6321] to-amber-400 shadow-[0_0_12px_rgba(255,99,33,0.8)]'
-                    : 'w-2.5 h-2.5 bg-white/20 hover:bg-white/50'
-                }`}
-                title={`Go to ${update.tag}: ${update.title}`}
-              />
-            ))}
+      {/* Main Showcase Display Card */}
+      <div
+        ref={containerRef}
+        id="portfolio-dev-update-frame"
+        className={`relative w-full min-h-[380px] sm:min-h-[460px] rounded-2xl bg-[#111114] border border-white/[0.08] overflow-hidden flex flex-col justify-between ${
+          isFullscreen ? 'rounded-none border-none' : ''
+        }`}
+      >
+        {/* Background Media Layer (Image Updates / Pause / Announcement) */}
+        {activeUpdate.type !== 'video' && activeUpdate.picUrl && (
+          <div className="absolute inset-0 z-0">
+            <img
+              src={activeUpdate.picUrl}
+              alt={activeUpdate.title}
+              className={`w-full h-full object-cover object-center ${
+                activeUpdate.type === 'status-pause' ? 'opacity-25 grayscale' : 'opacity-45'
+              }`}
+              referrerPolicy="no-referrer"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#09090b] via-[#09090b]/80 to-[#09090b]/45" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#09090b]/95 via-[#09090b]/70 to-transparent" />
           </div>
+        )}
+
+        {/* Slide Content for Game Reveal / Announcement / Status Pause */}
+        {activeUpdate.type !== 'video' && (
+          <div className="relative z-10 flex-1 flex flex-col justify-between p-6 sm:p-10">
+            {/* Top Unboxed Metadata Row */}
+            <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
+              <div className="flex items-center gap-2 text-[#FF5500] font-semibold">
+                {activeUpdate.type === 'status-pause' && <AlertCircle className="w-3.5 h-3.5" />}
+                <span>{activeUpdate.badge}</span>
+              </div>
+              <span className="text-zinc-400">{activeUpdate.date}</span>
+            </div>
+
+            {/* Middle Headline & Copy */}
+            <div className="my-auto py-8 max-w-2xl space-y-4">
+              <h3 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-[1.06]">
+                {activeUpdate.title}
+              </h3>
+
+              <p className="text-sm sm:text-base text-zinc-300 leading-relaxed">
+                {activeUpdate.subtitle}
+              </p>
+
+              {activeUpdate.highlights && activeUpdate.highlights.length > 0 && (
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 pt-1 text-xs font-mono text-zinc-400">
+                  {activeUpdate.highlights.map((h, i) => (
+                    <span key={i} className="flex items-center gap-1.5">
+                      <span className="text-[#FF5500]">·</span>
+                      <span>{h}</span>
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              <div className="pt-3 flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handlePrimaryAction}
+                  className="px-6 py-3 rounded-lg bg-[#FF5500] hover:bg-[#FF6E26] text-black font-semibold text-sm flex items-center gap-2 transition-colors cursor-pointer"
+                >
+                  {activeUpdate.id === 'update-1-naija-life' ? (
+                    <Play className="w-4 h-4 fill-black" />
+                  ) : (
+                    <Zap className="w-4 h-4 fill-black" />
+                  )}
+                  <span>{activeUpdate.primaryActionLabel || 'Explore'}</span>
+                </button>
+
+                {activeUpdate.secondaryActionTarget && (
+                  <button
+                    type="button"
+                    onClick={handleSecondaryAction}
+                    className="px-5 py-3 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] text-zinc-200 font-medium text-sm border border-white/[0.1] flex items-center gap-2 transition-colors cursor-pointer"
+                  >
+                    <Layers className="w-4 h-4 text-[#FF5500]" />
+                    <span>{activeUpdate.secondaryActionLabel || 'Learn More'}</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Clean Bottom Attribution */}
+            <div className="pt-4 border-t border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-mono text-zinc-500">
+              <span>Apex Syndicate Studios</span>
+              <span>@apexsyndicateng · apexsyndicate.com.ng</span>
+            </div>
+          </div>
+        )}
+
+        {/* Video Reel Slide Type (Preserved) */}
+        {activeUpdate.type === 'video' && (
+          <>
+            {videoMode === 'custom' && customVideoUrl ? (
+              <div
+                className="relative flex-1 min-h-0 w-full flex items-center justify-center bg-black cursor-pointer overflow-hidden"
+                onClick={() => (isPlaying ? handlePause() : handleStartPlay())}
+              >
+                <video
+                  ref={customVideoRef}
+                  src={customVideoUrl}
+                  className="w-full h-full object-contain"
+                  playsInline
+                  loop
+                  muted={!isAudioEnabled}
+                  onEnded={() => setIsPlaying(false)}
+                />
+                {!isPlaying && (
+                  <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-3">
+                    <div className="w-16 h-16 rounded-full bg-[#FF5500] text-black flex items-center justify-center">
+                      <Play className="w-7 h-7 fill-current ml-0.5" />
+                    </div>
+                    <span className="text-white font-mono font-semibold text-xs uppercase tracking-wider">
+                      Play Dev Video
+                    </span>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div
+                className="relative flex-1 min-h-0 w-full flex items-center justify-center cursor-pointer p-6 text-center"
+                onClick={() => (isPlaying ? handlePause() : handleStartPlay())}
+              >
+                <div className="space-y-3 max-w-xl">
+                  <div className="text-xs font-mono text-[#FF5500] font-semibold uppercase tracking-wider">
+                    Apex Syndicate Showcase · Stage {stage}
+                  </div>
+                  <h3 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
+                    {stage === 1 && 'Engineered to Innovate'}
+                    {stage === 2 && 'Apex Editor'}
+                    {stage === 3 && 'Gangster Revolution'}
+                    {stage === 4 && 'apexsyndicate.com.ng'}
+                  </h3>
+                </div>
+                {!isPlaying && (
+                  <div className="absolute inset-0 bg-black/55 flex flex-col items-center justify-center gap-3">
+                    <div className="w-16 h-16 rounded-full bg-[#FF5500] text-black flex items-center justify-center">
+                      <Play className="w-7 h-7 fill-current ml-0.5" />
+                    </div>
+                    <span className="text-white font-mono text-xs uppercase tracking-wider">
+                      Click to Play Reel
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="relative z-20 px-5 py-3 bg-[#09090b] border-t border-white/[0.08] flex items-center justify-between text-xs font-mono">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    isPlaying ? handlePause() : handleStartPlay();
+                  }}
+                  className="px-3 py-1.5 rounded-lg bg-[#FF5500] text-black font-semibold flex items-center gap-1.5 cursor-pointer"
+                >
+                  {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 fill-current" />}
+                  <span>{isPlaying ? 'Pause' : 'Play'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCurrentTime(0);
+                    handleStartPlay();
+                  }}
+                  className="p-1.5 rounded-lg bg-white/[0.06] text-white cursor-pointer"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleDownloadVideo}
+                  className="px-3 py-1.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] text-zinc-200 flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Download className="w-3.5 h-3.5 text-[#FF5500]" />
+                  <span>Export MP4</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleFullscreen();
+                  }}
+                  className="p-1.5 rounded-lg bg-white/[0.06] text-white cursor-pointer"
+                >
+                  <Maximize2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </>
         )}
       </div>
 
+      {/* Bottom Slide Dots */}
+      {totalUpdates > 1 && (
+        <div className="flex items-center justify-center gap-2">
+          {updatesList.map((update, idx) => (
+            <button
+              key={update.id}
+              type="button"
+              onClick={() => {
+                if (isPlaying) handlePause();
+                setCurrentUpdateIndex(idx);
+              }}
+              className={`h-2 rounded-full transition-all cursor-pointer ${
+                idx === currentUpdateIndex
+                  ? 'w-7 bg-[#FF5500]'
+                  : 'w-2 bg-white/20 hover:bg-white/40'
+              }`}
+              title={`${update.tag}: ${update.title}`}
+            />
+          ))}
+        </div>
+      )}
+
       {/* MP4 Export Progress Modal */}
       {isExportingVideo && (
-        <div className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#0b0c10] border-2 border-[#FF6321] rounded-3xl p-8 max-w-lg w-full text-center space-y-6 shadow-[0_0_60px_rgba(255,99,33,0.4)] animate-fadeIn">
-            <div className="w-16 h-16 rounded-2xl bg-[#FF6321]/20 border border-[#FF6321]/40 flex items-center justify-center mx-auto text-[#FF6321]">
-              <Film className="w-8 h-8 animate-pulse" />
+        <div className="fixed inset-0 z-[100] bg-black/85 flex items-center justify-center p-4">
+          <div className="bg-[#111114] border border-white/[0.12] rounded-2xl p-7 max-w-md w-full text-center space-y-5">
+            <div className="w-12 h-12 rounded-xl bg-[#FF5500]/10 border border-[#FF5500]/30 flex items-center justify-center mx-auto text-[#FF5500]">
+              <Film className="w-6 h-6" />
             </div>
-
-            <div className="space-y-2">
-              <h3 className="text-2xl font-black text-white uppercase tracking-wider">
-                GENERATING CAPCUT-READY MP4
-              </h3>
-              <p className="text-xs text-gray-400 font-mono">
-                Rendering 18-second kinetic video with H.264 video track and soundtrack audio. 100% compatible with CapCut, Premiere, & mobile editors.
+            <div className="space-y-1.5">
+              <h3 className="text-lg font-bold text-white">Exporting MP4 Video</h3>
+              <p className="text-xs text-zinc-400 font-mono">
+                {exportStatusText || 'Rendering frames...'} ({exportProgress}%)
               </p>
             </div>
-
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs font-mono font-bold">
-                <span className="text-gray-300 truncate max-w-[280px]">{exportStatusText || 'Rendering frames...'}</span>
-                <span className="text-[#FF6321]">{exportProgress}%</span>
-              </div>
-              <div className="w-full h-3 bg-black/80 rounded-full border border-white/10 overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-[#FF6321] via-amber-400 to-[#FF6321] transition-all duration-150 rounded-full"
-                  style={{ width: `${exportProgress}%` }}
-                />
-              </div>
-            </div>
-
-            <div className="text-[11px] font-mono text-gray-500">
-              Please do not close this tab until the MP4 video download triggers automatically.
+            <div className="w-full h-2 bg-black rounded-full overflow-hidden">
+              <div
+                className="h-full bg-[#FF5500] transition-all duration-150"
+                style={{ width: `${exportProgress}%` }}
+              />
             </div>
           </div>
         </div>
@@ -1251,8 +692,8 @@ export const PortfolioVideoShowcase: React.FC<PortfolioVideoShowcaseProps> = ({ 
       <NaijaLifeWarningModal
         isOpen={showNaijaLifeWarning}
         onClose={() => setShowNaijaLifeWarning(false)}
+        gameUrl={naijaLifeGameUrl}
       />
     </div>
   );
 };
-

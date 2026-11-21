@@ -269,7 +269,7 @@ function getDefaultData(): StoreData {
       visitorCount: 28,
       demoVisitorCount: 0,
       apexEditorDemoUrl: 'https://apex-editor-demo.vercel.app/',
-      naijaLifeGameUrl: 'https://naijalife.ai.studio/',
+      naijaLifeGameUrl: 'https://naijalife-rpg.vercel.app',
       gangsterRevolutionLaunchDate: 'TBD',
       gangsterRevolutionStatus: 'PRE-ALPHA BUILD • IN DEVELOPMENT',
       gangsterSpecs: {
@@ -307,7 +307,7 @@ function getDefaultData(): StoreData {
         iconName: 'Gamepad',
         fileUrl: '',
         fileSize: 'Coming Soon',
-        externalUrl: 'https://naijalife.ai.studio/',
+        externalUrl: 'https://naijalife-rpg.vercel.app',
         systemRequirements: {
           os: 'PC, Mobile & Web (Played on the web)',
           processor: 'TBD',
@@ -467,8 +467,12 @@ class Store {
         if (!loadedSettings.apexEditorDemoUrl || loadedSettings.apexEditorDemoUrl.trim() === '') {
           loadedSettings.apexEditorDemoUrl = 'https://apex-editor-demo.vercel.app/';
         }
-        if (!loadedSettings.naijaLifeGameUrl || loadedSettings.naijaLifeGameUrl.trim() === '') {
-          loadedSettings.naijaLifeGameUrl = 'https://naijalife.ai.studio/';
+        if (
+          !loadedSettings.naijaLifeGameUrl ||
+          loadedSettings.naijaLifeGameUrl.trim() === '' ||
+          loadedSettings.naijaLifeGameUrl.includes('naijalife.ai.studio')
+        ) {
+          loadedSettings.naijaLifeGameUrl = 'https://naijalife-rpg.vercel.app';
         }
 
         // Initialize users with default owner if not present
@@ -512,7 +516,7 @@ class Store {
           const idx = loadedProducts.findIndex((p) => p.id === 'naija-life');
           if (idx !== -1) {
             loadedProducts[idx].systemRequirements = naijaDefault.systemRequirements;
-            loadedProducts[idx].externalUrl = naijaDefault.externalUrl || 'https://naijalife.ai.studio/';
+            loadedProducts[idx].externalUrl = naijaDefault.externalUrl || 'https://naijalife-rpg.vercel.app';
           }
         }
 
